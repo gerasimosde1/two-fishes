@@ -1500,6 +1500,18 @@ $('#bform').addEventListener('submit',e=>{e.preventDefault();
   profile=charts[active];saveCharts();selN=null;selT=null;tl=null;cal=null;boot();showTab('chart');
 });
 
+/* ---------- roll over to the new day when the app comes back ---------- */
+let lastToday=isoDate(new Date());
+function checkNewDay(){
+  const now=isoDate(new Date());if(now===lastToday)return;
+  const wasToday=isoDate(tDate)===lastToday;lastToday=now;
+  if(wasToday){tDate=startOfDayNoon(new Date());selT=null;}
+  if(curTab==='transits')renderTransits();
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkNewDay();});
+window.addEventListener('focus',checkNewDay);
+setInterval(checkNewDay,60000);
+
 /* ---------- install & offline ---------- */
 let deferredInstall=null;
 const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
