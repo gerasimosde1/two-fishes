@@ -1,9 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Two Fishes</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Your birth chart, transits through time and astrology games.">
+<meta name="theme-color" content="#eef6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1a2d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Two Fishes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Courier+Prime:wght@400;700&family=Noto+Sans+Symbols:wght@400;500&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
 <style>
 /* Layout: an old celestial almanac printed in sea-blue ink with rose accents; wheel left, reading notes right. */
 :root{
@@ -40,7 +56,10 @@
   color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
   background-image:radial-gradient(var(--dot) 1px,transparent 1.3px);background-size:22px 22px}
 .wrap{max-width:1220px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 48px}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
@@ -231,7 +250,95 @@ input[type=range]{width:100%;accent-color:var(--pink)}
 
 footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);font-size:.85rem;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){.qopt,.btn,.hcell,.chip{transition:border-color .15s,color .15s,background .15s}}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;gap:4px;margin-bottom:10px}
+.cal-head h3{flex:1;text-align:center;font-size:1.35rem}
+.cal-nav{border:1px solid var(--line);background:var(--paper);border-radius:999px;width:36px;height:36px;font-size:1.2rem;line-height:1;cursor:pointer;color:var(--ink)}
+.cal-nav:hover{border-color:var(--pink);color:var(--pink)}
+.cal-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal-wd{font-family:var(--f-display);font-size:.78rem;letter-spacing:.06em;text-align:center;color:var(--ink-soft);padding-bottom:2px}
+.cal-d{min-width:0;aspect-ratio:1/1.1;border:1px solid var(--line);border-radius:9px;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3px 0 5px;cursor:pointer;color:var(--ink)}
+.cal-d:hover{border-color:var(--pink)}
+.cal-d .n{font-family:var(--f-mono);font-size:.88rem;font-variant-numeric:tabular-nums}
+.cal-d .mg{font-family:var(--f-glyph);font-size:.78rem;line-height:1}
+.cal-d .dots{display:flex;gap:2px;height:6px}
+.cal-d .dots i{width:5px;height:5px;border-radius:50%;display:block}
+.cal-d .dots .soft{background:var(--teal)} .cal-d .dots .hard{background:var(--pink)} .cal-d .dots .neu,.cal-d .dots .odd{background:var(--earth)}
+.cal-d.today{border-color:var(--teal);border-width:2px}
+.cal-d.sel{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.cal-d.sel .mg{color:var(--paper)!important}
+.cal-d.pad{visibility:hidden}
+.cal-day h3{font-size:1.25rem}
+.cal-day .rel{font-family:var(--f-mono);font-size:.82rem;color:var(--pink)}
+.cal-day .moon{margin:6px 0 8px;font-size:.98rem}
+.cal-ev{display:flex;gap:10px;align-items:flex-start;padding:7px 4px;border-bottom:1px solid var(--line);font-size:.95rem}
+@media (max-width:879px){.cal-wrap{grid-template-columns:minmax(0,1fr);gap:14px}.cal-grid{gap:3px}.cal-head h3{font-size:1.02rem;white-space:nowrap}.cal-nav{width:32px;height:32px}.cal-head .btn{padding:4px 9px}}
+
+/* ---------- app shell ---------- */
+button,.chip,.hcell,.aitem,nav.tabs{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.tab-ico{display:none}
+.me-card{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.me-card .gl{font-size:2.4rem;color:var(--pink)}
+.install{border:1px dashed var(--teal);background:var(--water-wash);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.install p{margin:0;flex:1;min-width:200px}
+.install img{width:44px;height:44px;border-radius:11px;flex:none}
+#scrim{position:fixed;inset:0;background:rgba(8,18,32,.45);z-index:40}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-radius:18px 18px 0 0;border-top:1px solid var(--ink-line);
+  box-shadow:0 -10px 40px rgba(8,18,32,.28);max-height:82vh;max-height:82dvh;display:flex;flex-direction:column;transform:translateY(105%);visibility:hidden;
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+#sheet.open{transform:none;visibility:visible}
+@media (prefers-reduced-motion:no-preference){#sheet{transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility .28s}}
+.sheet-grab{padding:10px 16px 4px;display:flex;justify-content:center;position:relative;cursor:grab;touch-action:none}
+.sheet-grab i{width:42px;height:5px;border-radius:3px;background:var(--ink-line);display:block}
+.sheet-x{position:absolute;right:10px;top:4px;border:0;background:none;font-size:1.6rem;line-height:1;color:var(--ink-soft);padding:4px 10px;cursor:pointer}
+#sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:4px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+body.sheet-open{overflow:hidden}
+
+@media (max-width:879px){
+  body{font-size:16px}
+  .wrap{padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
+  .mast{position:sticky;top:0;z-index:30;background:var(--paper);margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+    padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
+    border-bottom:1px solid var(--line);gap:10px;flex-wrap:nowrap}
+  .logo{width:40px;height:40px}
+  .mast h1{font-size:1.6rem}
+  .mast .sub,.who .meta,.who .nm{display:none}
+  .who{margin-left:auto;width:auto}
+  #edit-btn{display:none}
+  .mast-date{display:block}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    background:var(--card);border-top:1px solid var(--ink-line);border-bottom:0;
+    padding:4px max(6px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px));
+    box-shadow:0 -4px 18px rgba(8,18,32,.08)}
+  nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;letter-spacing:.04em;padding:6px 2px;border-bottom:0;border-radius:12px}
+  nav.tabs button[aria-selected="true"]{color:var(--pink);background:var(--sel-wash)}
+  .tab-ico{display:block;width:24px;height:24px}
+  main{padding-top:12px}
+  .banner{margin-top:12px}
+  .detail-side{display:none}
+  .panel{padding:14px 12px;box-shadow:inset 0 0 0 3px var(--card),inset 0 0 0 4px var(--line)}
+  .split{gap:14px}
+  .big3{gap:0;flex-wrap:nowrap;margin-bottom:12px}
+  .b3{min-width:0;padding:8px 2px;gap:6px}
+  .b3 .gl{font-size:1.35rem;width:1.3em}
+  .b3 b{font-size:.98rem}
+  .b3 .mono{display:none}
+  .steps{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 2px}
+  .steps::-webkit-scrollbar{display:none}
+  .steps .btn{flex:none;padding:7px 12px;border-radius:999px}
+  .tdate .big{font-size:1.35rem}
+  .qopt{padding:14px;font-size:1.08rem}
+  footer{display:none}
+  .swipe-hint{display:block}
+}
+@media (min-width:880px){#sheet,#scrim{display:none!important}}
+.mast-date,.swipe-hint{display:none}
+.swipe-hint{text-align:center;font-size:.85rem;color:var(--ink-soft);margin:4px 0 0}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header class="mast">
@@ -268,33 +375,12 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
     </div>
   </header>
 
-  <section id="form-panel" class="panel" style="margin-top:16px" hidden>
-    <h2>Birth details</h2>
-    <p class="note" style="margin:4px 0 0">The exact birth time and place set your Rising sign and houses. Your details stay in this browser.</p>
-    <form id="bform" autocomplete="off">
-      <div class="form">
-        <label>Name<input id="f-name" type="text" maxlength="40"></label>
-        <label>Birth date<input id="f-date" type="date" required></label>
-        <label>Birth time<input id="f-time" type="time"></label>
-        <label class="chk"><input id="f-unknown" type="checkbox"> Time unknown</label>
-        <label>Birth place<select id="f-city"></select></label>
-        <label>Latitude (N +, S −)<input id="f-lat" type="number" step="0.01" min="-89.9" max="89.9" required></label>
-        <label>Longitude (E +, W −)<input id="f-lon" type="number" step="0.01" min="-180" max="180" required></label>
-        <label>Time zone<input id="f-tz" type="text" placeholder="Europe/Athens or UTC+2" required></label>
-        <label>House system<select id="f-sys"><option value="placidus">Placidus</option><option value="whole">Whole Sign</option><option value="equal">Equal</option></select></label>
-      </div>
-      <div class="form-actions">
-        <button class="btn pri" type="submit">Draw my chart</button>
-        <button class="btn" type="button" id="f-cancel">Cancel</button>
-        <span class="err" id="f-err"></span>
-      </div>
-    </form>
-  </section>
 
   <nav class="tabs" role="tablist">
-    <button role="tab" data-tab="chart" aria-selected="true">Birth Chart</button>
-    <button role="tab" data-tab="transits" aria-selected="false">Transits</button>
-    <button role="tab" data-tab="learn" aria-selected="false">Learn &amp; Play</button>
+    <button role="tab" data-tab="chart" aria-selected="true"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M3 12h4.5M16.5 12H21M12 3v4.5M12 16.5V21"/></svg><span>Chart</span></button>
+    <button role="tab" data-tab="transits" aria-selected="false"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/><circle cx="20" cy="8.6" r="1.4" fill="currentColor"/></svg><span>Transits</span></button>
+    <button role="tab" data-tab="learn" aria-selected="false"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><span>Learn</span></button>
+    <button role="tab" data-tab="me" aria-selected="false"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4.4 4.3-6.5 8-6.5s6.8 2.1 8 6.5"/></svg><span>Me</span></button>
   </nav>
 
   <div id="example-banner" class="banner" hidden>
@@ -312,7 +398,7 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
           <p class="note" style="text-align:center;margin:6px 0 0">Tap any planet, sign or house number.</p>
         </div>
         <div class="stack">
-          <div class="panel detail" id="detail-natal"></div>
+          <div class="panel detail detail-side" id="detail-natal"></div>
           <div class="panel">
             <h3>Placements</h3>
             <div class="tbl-wrap"><table id="ptable"></table></div>
@@ -326,6 +412,21 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
     </section>
 
     <section id="tab-transits" data-panel="transits" hidden>
+      <div class="panel cal-panel" style="margin-bottom:22px">
+        <div class="cal-head">
+          <button class="cal-nav" type="button" data-cal="-12" aria-label="Previous year">«</button>
+          <button class="cal-nav" type="button" data-cal="-1" aria-label="Previous month">‹</button>
+          <h3 id="cal-title"></h3>
+          <button class="cal-nav" type="button" data-cal="1" aria-label="Next month">›</button>
+          <button class="cal-nav" type="button" data-cal="12" aria-label="Next year">»</button>
+          <button class="btn sm" type="button" data-cal="today">Today</button>
+        </div>
+        <div class="cal-wrap">
+          <div><div class="cal-grid" id="cal-grid"></div>
+            <div class="legend" style="justify-content:flex-start"><span><b class="gl" style="color:var(--water)">♋︎</b> Moon's sign</span><span><i style="border-color:var(--teal)"></i>flowing</span><span><i style="border-color:var(--pink)"></i>challenging</span><span><i style="border-color:var(--earth)"></i>conjunction or sign change</span></div></div>
+          <div class="cal-day" id="cal-day"></div>
+        </div>
+      </div>
       <div class="split">
         <div class="panel">
           <div class="tctl">
@@ -345,10 +446,11 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
             <div class="rng-lab"><span>2 years ago</span><span>today</span><span>2 years ahead</span></div>
           </div>
           <div id="wheel-transit"></div>
+          <p class="swipe-hint">Swipe the wheel left or right to move a day</p>
           <div class="legend"><span><b style="color:var(--pink)" class="gl">♄︎</b> outer ring: sky on this date</span><span><b class="gl">♄︎</b> inner: your birth chart</span></div>
         </div>
         <div class="stack">
-          <div class="panel detail" id="detail-transit"></div>
+          <div class="panel detail detail-side" id="detail-transit"></div>
           <div class="panel">
             <h3>Active transits to your whole chart</h3>
             <p class="note" style="margin:2px 0 6px">Every planet, the Ascendant, the Midheaven and the North Node, with the houses each one touches.</p>
@@ -375,9 +477,48 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
       </div>
       <div id="quiz" class="panel quiz" hidden></div>
     </section>
+
+    <section id="tab-me" data-panel="me" hidden>
+      <div class="stack">
+        <div id="install-card" class="install" hidden>
+          <img src="icons/icon-192.png" alt="">
+          <p id="install-text"><b>Put Two Fishes on your home screen.</b> It opens full screen like any other app and works offline.</p>
+          <button class="btn pri sm" type="button" id="install-btn" hidden>Install</button>
+        </div>
+        <div class="panel me-card"><span class="gl" id="me-glyph"></span><div><div class="eyebrow">Your chart</div><div class="it" style="font-size:1.35rem" id="me-name"></div><div class="mono muted" style="font-size:.85rem" id="me-meta"></div></div></div>
+        <div id="form-panel" class="panel">
+          <h2>Birth details</h2>
+          <p class="note" style="margin:4px 0 0">The exact birth time and place set your Rising sign and houses. Your details stay on this device.</p>
+          <form id="bform" autocomplete="off">
+            <div class="form">
+              <label>Name<input id="f-name" type="text" maxlength="40"></label>
+              <label>Birth date<input id="f-date" type="date" required></label>
+              <label>Birth time<input id="f-time" type="time"></label>
+              <label class="chk"><input id="f-unknown" type="checkbox"> Time unknown</label>
+              <label>Birth place<select id="f-city"></select></label>
+              <label>Latitude (N +, S −)<input id="f-lat" type="number" step="0.01" min="-89.9" max="89.9" required></label>
+              <label>Longitude (E +, W −)<input id="f-lon" type="number" step="0.01" min="-180" max="180" required></label>
+              <label>Time zone<input id="f-tz" type="text" placeholder="Europe/Athens or UTC+2" required></label>
+              <label>House system<select id="f-sys"><option value="placidus">Placidus</option><option value="whole">Whole Sign</option><option value="equal">Equal</option></select></label>
+            </div>
+            <div class="form-actions">
+              <button class="btn pri" type="submit">Draw my chart</button>
+              <button class="btn" type="button" id="f-cancel">Cancel</button>
+              <span class="err" id="f-err"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer><span>Two Fishes · sample build</span><span>Tropical zodiac · geocentric positions via Astronomy Engine</span></footer>
+</div>
+
+<div id="scrim" hidden></div>
+<div id="sheet" role="dialog" aria-modal="true" aria-label="Details">
+  <div class="sheet-grab" id="sheet-grab"><i></i><button class="sheet-x" type="button" id="sheet-x" aria-label="Close">×</button></div>
+  <div id="sheet-body"></div>
 </div>
 
 <script>
@@ -743,6 +884,8 @@ function renderHeader(){
   const d=new Date(profile.date+'T00:00:00');
   $('#who-meta').textContent=`${d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} · ${profile.unknown?'time unknown':profile.time} · ${profile.city||(profile.lat+', '+profile.lon)}`;
   $('#example-banner').hidden=!profile.example;
+  $('#me-name').textContent=$('#who-name').textContent;$('#me-meta').textContent=$('#who-meta').textContent;
+  if(natal)$('#me-glyph').textContent=SIGNS[natal.byId.Sun.sign].g;
 }
 function renderNatal(){
   $('#wheel-natal').innerHTML=wheelSVG(natal,null,selN);
@@ -783,9 +926,59 @@ function renderTransits(){
     else if(k==='sign')d=signHTML(+v,natal);
     else if(k==='house')d=houseHTML(+v,natal);}
   $('#detail-transit').innerHTML=d;
+  renderCalendar();
   renderTimeline();
 }
 const isoDate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+/* ---------- calendar ---------- */
+let cal=null;
+const CAL_BODIES=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+function computeMonth(y,m){
+  const n=new Date(y,m+1,0).getDate(),at=d=>new Date(y,m,1+d,12);
+  const pos={};CAL_BODIES.forEach(id=>{pos[id]=[];for(let d=-1;d<=n+1;d++)pos[id].push(eclLon(id,at(d)));});
+  const days=[];
+  for(let d=0;d<n;d++)days.push({date:at(d),moon:eclLon('Moon',at(d)),ev:[]});
+  CAL_BODIES.forEach(id=>{const L=pos[id];
+    for(let d=0;d<n;d++){const k=d+1;
+      if(Math.floor(L[k+1]/30)!==Math.floor(L[k]/30)){const to=Math.floor(L[k+1]/30),hh=houseOf(L[k+1],natal.cusps);
+        days[d].ev.push({cls:'neu',rank:SLOW[id]??1,txt:`<span class="gl">${PDEF[id].g}</span> ${id} enters ${SIGNS[to].n} <span class="gl">${SIGNS[to].g}</span>`,sub:`Now moving through your ${ord(hh)} house (${HOUSES[hh-1].short}).`});}
+      if(id!=='Sun'){const s0=norm(L[k]-L[k-1]+180)-180,s1=norm(L[k+1]-L[k]+180)-180;
+        if((s0>0&&s1<=0)||(s0<0&&s1>=0))days[d].ev.push({cls:'neu',rank:9,txt:`<span class="gl">${PDEF[id].g}</span> ${id} turns ${s1<=0?'retrograde':'direct'}`,sub:s1<=0?`${id} seems to move backward for a while: a time to review ${PDEF[id].key.split(',')[0]} matters.`:`${id} moves forward again, and what it held up starts to move.`});}
+    }
+    natal.pts.forEach(np=>{ASPECTS.forEach(a=>{if(a.id==='qx')return;
+      const o=L.map(v=>Math.abs(sep(v,np.lon)-a.a));
+      for(let d=0;d<n;d++){const k=d+1,mv=Math.abs(norm(L[k+1]-L[k]+180)-180);
+        if(o[k]<=o[k-1]&&o[k]<o[k+1]&&o[k]<=Math.max(.35,mv*.6))
+          days[d].ev.push({cls:a.cls,rank:SLOW[id]??1,pick:`ta:${id}|${np.id}|${a.id}`,
+            txt:`<span class="gl">${PDEF[id].g}${a.g}</span>${np.id==='ASC'||np.id==='MC'?`<span class="mono" style="font-size:.8em">${np.g}</span>`:`<span class="gl">${np.g}</span>`} ${id} ${a.v} your ${nm(np)}`,
+            sub:`${id} ${PLANETS.find(p=>p.id===id).tr} your ${nm(np)} (${PDEF[np.id].key.split(',')[0]}, ${ord(homeHouse(np))} house). ${a.key}`});}
+    });});
+  });
+  days.forEach(x=>x.ev.sort((a,b)=>b.rank-a.rank));
+  return {y,m,days,key:natalKey()};
+}
+function renderCalendar(){
+  const y=tDate.getFullYear(),m=tDate.getMonth();
+  if(!cal||cal.y!==y||cal.m!==m||cal.key!==natalKey())cal=computeMonth(y,m);
+  $('#cal-title').textContent=tDate.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const lead=(new Date(y,m,1).getDay()+6)%7,todayIso=isoDate(new Date()),selIso=isoDate(tDate);
+  let h=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(w=>`<div class="cal-wd">${w}</div>`).join('');
+  for(let i=0;i<lead;i++)h+='<div class="cal-d pad"></div>';
+  cal.days.forEach(x=>{const iso=isoDate(x.date),z=SIGNS[Math.floor(x.moon/30)];
+    const dots=x.ev.slice(0,3).map(e=>`<i class="${e.cls}"></i>`).join('');
+    h+=`<button type="button" class="cal-d${iso===todayIso?' today':''}${iso===selIso?' sel':''}" data-day="${iso}" aria-label="${x.date.toLocaleDateString('en-GB',{day:'numeric',month:'long'})}, ${x.ev.length} events"><span class="n">${x.date.getDate()}</span><span class="mg" style="color:var(--${z.el})">${z.g}</span><span class="dots">${dots}</span></button>`;});
+  $('#cal-grid').innerHTML=h;
+  const x=cal.days[tDate.getDate()-1],z=SIGNS[Math.floor(x.moon/30)],mh=houseOf(x.moon,natal.cusps);
+  const diff=Math.round((startOfDayNoon(tDate)-startOfDayNoon(new Date()))/DAY);
+  const rel=diff===0?'today':diff>0?`in ${diff} day${diff>1?'s':''}`:`${-diff} day${diff<-1?'s':''} ago`;
+  let d=`<div class="eyebrow">Your day</div><h3>${tDate.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</h3><div class="rel">${rel}</div>
+    <p class="moon"><span class="gl" style="color:var(--pink)">☽︎</span> Moon in ${z.n} <span class="gl">${z.g}</span>, in your ${ord(mh)} house. The mood leans ${z.key.split(',')[0]}, with feelings focused on ${HOUSES[mh-1].short}.</p>`;
+  d+=x.ev.length?x.ev.map(e=>e.pick?`<button type="button" class="aitem" data-pick="${e.pick}" style="grid-template-columns:minmax(0,1fr) auto"><span><span>${e.txt}</span><span class="sub" style="display:block">${e.sub}</span></span><span class="orb">exact</span></button>`
+      :`<div class="cal-ev"><span><span>${e.txt}</span><span class="sub note" style="display:block">${e.sub}</span></span></div>`).join('')
+    :`<p class="note">No transit becomes exact on this day. The wheel and list below show everything still in orb.</p>`;
+  $('#cal-day').innerHTML=d;
+}
 
 /* ---------- timeline ---------- */
 const TL_BODIES=['Jupiter','Saturn','Uranus','Neptune','Pluto','Node'];
@@ -890,7 +1083,7 @@ function endGame(){
 }
 $('#quiz').addEventListener('click',e=>{
   const o=e.target.closest('[data-opt]');
-  if(o&&game.picked==null){game.picked=+o.dataset.opt;const ok=game.q.options[game.picked]===game.q.ans;game.res[game.i]=ok;if(ok)game.score++;renderQ();return;}
+  if(o&&game.picked==null){game.picked=+o.dataset.opt;const ok=game.q.options[game.picked]===game.q.ans;game.res[game.i]=ok;if(ok)game.score++;navigator.vibrate&&navigator.vibrate(ok?12:[30,50,30]);renderQ();return;}
   if(e.target.closest('#q-next')){game.i++;nextQ();}
   else if(e.target.closest('#q-again'))startGame(game.k);
   else if(e.target.closest('#q-quit')){$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();}
@@ -898,19 +1091,50 @@ $('#quiz').addEventListener('click',e=>{
 $('#games').addEventListener('click',e=>{const c=e.target.closest('[data-game]');if(c)startGame(c.dataset.game);});
 
 /* ---------- interactions ---------- */
-$('#tab-chart').addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(!p)return;selN=selN===p.dataset.pick&&!p.classList.contains('aitem')?null:p.dataset.pick;renderNatal();
-  if(window.innerWidth<880&&p.closest('svg,.big3,table'))$('#detail-natal').scrollIntoView({behavior:'smooth',block:'start'});});
+const isMobile=()=>window.matchMedia('(max-width:879px)').matches;
+function pickNatal(p,fromSheet){
+  selN=(!fromSheet&&!isMobile()&&selN===p.dataset.pick&&!p.classList.contains('aitem'))?null:p.dataset.pick;
+  renderNatal();if(isMobile())openSheet($('#detail-natal').innerHTML);}
+$('#tab-chart').addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(p)pickNatal(p);});
 $('#tab-transits').addEventListener('click',e=>{
   const r=e.target.closest('[data-tl]');
   if(r){const row=tl.rows[+r.dataset.tl],cur=(tDate-tl.start)/DAY,p=row.passes.reduce((a,b)=>Math.abs(b.ex-cur)<Math.abs(a.ex-cur)?b:a);
     tDate=startOfDayNoon(new Date(tl.start.getTime()+p.ex*DAY));selT='ta:'+row.t.id+'|'+row.n.id+'|'+row.asp.id;renderTransits();
-    $('#detail-transit').scrollIntoView({behavior:'smooth',block:'nearest'});return;}
+    if(isMobile())openSheet($('#detail-transit').innerHTML);else $('#detail-transit').scrollIntoView({behavior:'smooth',block:'nearest'});return;}
+  const dc=e.target.closest('[data-day]');
+  if(dc){stopPlay();const [y,m,d]=dc.dataset.day.split('-').map(Number);tDate=new Date(y,m-1,d,12);selT=null;renderTransits();return;}
+  const cn=e.target.closest('[data-cal]');
+  if(cn){stopPlay();const v=cn.dataset.cal;
+    if(v==='today')tDate=startOfDayNoon(new Date());
+    else{const y=tDate.getFullYear(),m=tDate.getMonth()+(+v),d=Math.min(tDate.getDate(),new Date(y,m+1,0).getDate());tDate=new Date(y,m,d,12);}
+    selT=null;renderTransits();return;}
   const st=e.target.closest('[data-step]');
   if(st){stopPlay();const v=+st.dataset.step;tDate=v===0?startOfDayNoon(new Date()):new Date(tDate.getTime()+v*DAY);renderTransits();return;}
-  const p=e.target.closest('[data-pick]');if(!p)return;
-  selT=selT===p.dataset.pick&&!p.classList.contains('aitem')?null:p.dataset.pick;renderTransits();
-  if(window.innerWidth<880&&p.closest('svg,.houses'))$('#detail-transit').scrollIntoView({behavior:'smooth',block:'start'});
+  const p=e.target.closest('[data-pick]');if(p)pickTransit(p);
 });
+function pickTransit(p,fromSheet){
+  selT=(!fromSheet&&!isMobile()&&selT===p.dataset.pick&&!p.classList.contains('aitem'))?null:p.dataset.pick;
+  renderTransits();if(isMobile())openSheet($('#detail-transit').innerHTML);}
+
+/* ---------- bottom sheet ---------- */
+function openSheet(html){$('#sheet-body').innerHTML=html;$('#sheet-body').scrollTop=0;$('#sheet').style.transform='';$('#sheet').classList.add('open');$('#scrim').hidden=false;document.body.classList.add('sheet-open');}
+function closeSheet(){if(!$('#sheet').classList.contains('open'))return;$('#sheet').classList.remove('open');$('#sheet').style.transform='';$('#scrim').hidden=true;document.body.classList.remove('sheet-open');
+  if(curTab==='chart'){selN=null;renderNatal();}else if(curTab==='transits'){selT=null;renderTransits();}}
+$('#scrim').addEventListener('click',closeSheet);
+$('#sheet-x').addEventListener('click',closeSheet);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+$('#sheet-body').addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(!p)return;
+  if(curTab==='chart')pickNatal(p,true);else if(curTab==='transits')pickTransit(p,true);});
+(function(){let y0=null,dy=0;const g=$('#sheet-grab'),sh=$('#sheet');
+  g.addEventListener('pointerdown',e=>{y0=e.clientY;dy=0;g.setPointerCapture(e.pointerId);});
+  g.addEventListener('pointermove',e=>{if(y0===null)return;dy=Math.max(0,e.clientY-y0);sh.style.transform=`translateY(${dy}px)`;});
+  g.addEventListener('pointerup',()=>{if(y0===null)return;y0=null;if(dy>90)closeSheet();else sh.style.transform='';});})();
+
+/* ---------- swipe the transit wheel to move through days ---------- */
+(function(){let x0=null,y0=null;const w=$('#wheel-transit');
+  w.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  w.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)>50&&Math.abs(dy)<45){e.preventDefault();stopPlay();tDate=new Date(tDate.getTime()+(dx<0?1:-1)*DAY);renderTransits();navigator.vibrate&&navigator.vibrate(8);}});})();
 $('#t-range').addEventListener('input',e=>{stopPlay();tDate=new Date(startOfDayNoon(new Date()).getTime()+(+e.target.value)*DAY);renderTransits();});
 $('#t-date').addEventListener('change',e=>{if(!e.target.value)return;const [y,m,d]=e.target.value.split('-').map(Number);tDate=new Date(y,m-1,d,12);renderTransits();});
 function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;$('#t-play').textContent='Play ▸';}}
@@ -918,23 +1142,23 @@ $('#t-play').addEventListener('click',()=>{if(playTimer)return stopPlay();$('#t-
   playTimer=setInterval(()=>{tDate=new Date(tDate.getTime()+DAY);renderTransits();},120);});
 
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-function showTab(t){curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+function showTab(t){closeSheet();curTab=t;window.scrollTo(0,0);document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
   document.querySelectorAll('[data-panel]').forEach(s=>s.hidden=s.dataset.panel!==t);
   if(t!=='transits')stopPlay();
-  if(t==='transits')renderTransits();if(t==='learn')renderGames();store.set('tf.tab',t);}
+  if(t==='transits')renderTransits();if(t==='learn')renderGames();if(t==='me')fillForm();store.set('tf.tab',t);}
 
 /* ---------- form ---------- */
 const fc=$('#f-city');
 fc.innerHTML=CITIES.map(c=>`<option>${c[0]}</option>`).join('')+'<option value="">Other (enter coordinates)</option>';
 fc.addEventListener('change',()=>{const c=CITIES.find(x=>x[0]===fc.value);if(c){$('#f-lat').value=c[1];$('#f-lon').value=c[2];$('#f-tz').value=c[3];}});
 $('#f-unknown').addEventListener('change',e=>{$('#f-time').disabled=e.target.checked;});
-function openForm(){const f=profile.example?{...EXAMPLE,name:''}:profile;
+function fillForm(){const f=profile.example?{...EXAMPLE,name:''}:profile;
   $('#f-name').value=f.name||'';$('#f-date').value=f.date;$('#f-time').value=f.time||'';$('#f-unknown').checked=!!f.unknown;$('#f-time').disabled=!!f.unknown;
-  fc.value=CITIES.some(c=>c[0]===f.city)?f.city:'';$('#f-lat').value=f.lat;$('#f-lon').value=f.lon;$('#f-tz').value=f.tz;$('#f-sys').value=f.sys;$('#f-err').textContent='';
-  $('#form-panel').hidden=false;$('#form-panel').scrollIntoView({behavior:'smooth',block:'start'});}
-$('#edit-btn').addEventListener('click',()=>{$('#form-panel').hidden?openForm():($('#form-panel').hidden=true);});
+  fc.value=CITIES.some(c=>c[0]===f.city)?f.city:'';$('#f-lat').value=f.lat;$('#f-lon').value=f.lon;$('#f-tz').value=f.tz;$('#f-sys').value=f.sys;$('#f-err').textContent='';}
+function openForm(){showTab('me');}
+$('#edit-btn').addEventListener('click',openForm);
 $('#banner-edit').addEventListener('click',openForm);
-$('#f-cancel').addEventListener('click',()=>{$('#form-panel').hidden=true;});
+$('#f-cancel').addEventListener('click',()=>{fillForm();showTab('chart');});
 $('#bform').addEventListener('submit',e=>{e.preventDefault();
   const np={name:$('#f-name').value.trim()||'My chart',date:$('#f-date').value,time:$('#f-time').value||'12:00',unknown:$('#f-unknown').checked,
     city:fc.value,lat:parseFloat($('#f-lat').value),lon:parseFloat($('#f-lon').value),tz:$('#f-tz').value.trim(),sys:$('#f-sys').value,example:false};
@@ -943,8 +1167,23 @@ $('#bform').addEventListener('submit',e=>{e.preventDefault();
   if(isNaN(np.lat)||isNaN(np.lon))return $('#f-err').textContent='Latitude and longitude must be numbers.';
   try{tzOffsetMin(np.tz,new Date());}catch(err){return $('#f-err').textContent='Time zone not recognised. Use a name like Europe/Athens, or UTC+2.';}
   if(np.unknown)np.time='12:00';
-  profile=np;store.set('tf.profile',profile);$('#form-panel').hidden=true;selN=null;selT=null;tl=null;boot();
+  profile=np;store.set('tf.profile',profile);selN=null;selT=null;tl=null;cal=null;boot();showTab('chart');
 });
+
+/* ---------- install & offline ---------- */
+let deferredInstall=null;
+const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function renderInstall(){
+  const card=$('#install-card');if(standalone){card.hidden=true;return;}
+  card.hidden=false;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(deferredInstall){$('#install-btn').hidden=false;}
+  else if(ios){$('#install-text').innerHTML='<b>Put Two Fishes on your home screen.</b> In Safari tap the Share button, then <b>Add to Home Screen</b>. It opens full screen and works offline.';}
+  else{$('#install-text').innerHTML='<b>Put Two Fishes on your home screen.</b> Open your browser menu and choose <b>Add to Home screen</b> or <b>Install app</b>.';}
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;renderInstall();});
+$('#install-btn').addEventListener('click',async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$('#install-btn').hidden=true;});
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 /* ---------- boot ---------- */
 function boot(){
@@ -955,7 +1194,10 @@ function boot(){
 }
 if(!window.Astronomy){document.querySelector('main').innerHTML='<div class="panel"><h2>The star tables didn’t load</h2><p>The astronomy library could not be reached. Check your connection and reload the page.</p></div>';return;}
 boot();
-const h=(location.hash||'').slice(1),saved=store.get('tf.tab','chart');
-showTab(['chart','transits','learn'].includes(h)?h:saved);
+renderInstall();
+const h=(location.hash||'').slice(1),saved=store.get('tf.tab','transits');
+showTab(['chart','transits','learn','me'].includes(h)?h:(saved==='me'?'transits':saved));
 })();
 </script>
+</body>
+</html>
