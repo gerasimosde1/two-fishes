@@ -459,12 +459,14 @@ function renderToday(){
   const mz=Math.floor(moon/30),mh=houseOf(moon,natal.cusps),fc=moonForecast(now);
   const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
   renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
-  $('#today-strip').innerHTML=`<h2>${u('todayTitle')}</h2>
+  const moonSign=`<span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(mz)}</h3><div class="pos">${hl(mh)}</div><p>${L.planets.Moon.info}</p><div class="explain">${F.howRead('Moon',mz,mh)}</div><h4>${L.signs[mz].n}</h4><p>${L.signs[mz].body}</p><h4>${F.houseHeading(mh,false)}</h4><p>${L.houses[mh-1].body}</p>`)}"><span class="gl">☽︎</span> ${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span>`;
+  $('#today-strip').innerHTML=`<div class="eyebrow">${u('todayTitle')}</div>
    <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${L.moonPhases[k]} · ${ill}%</h3><p>${L.moonAdvice[k]}</p><div class="explain">${u('moonWhat')}</div>`)}">${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
+   <div class="tsl">${moonSign}</div>
    <div class="tadv">${L.moonAdvice[k]}</div>
-   <div class="tsl"><span class="gl">☽︎</span><span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(mz)}</h3><div class="pos">${hl(mh)}</div><p>${L.planets.Moon.info}</p><div class="explain">${F.howRead('Moon',mz,mh)}</div><h4>${L.signs[mz].n}</h4><p>${L.signs[mz].body}</p><h4>${F.houseHeading(mh,false)}</h4><p>${L.houses[mh-1].body}</p>`)}">${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
+   <details class="guide tmore"><summary>${u('todayMore')}</summary>
    <div class="tvoid ${fc.void||fc.id?'exl':''}" ${fc.void||fc.id?`data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${fc.void?L.moonPhases[k]:aN(fc.asp)}</h3><p>${u('voidInfo')}</p>`)}"`:''}>${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
-   ${on.length?`<div class="chips"><span>℞</span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</div>`:''}<p class="honest">${u('honestNote')}</p>`;
+   ${on.length?`<div class="chips"><span>℞</span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</div>`:''}<p class="honest">${u('honestNote')}</p></details>`;
 }
 document.addEventListener('click',e=>{if(!(e.target.closest&&e.target.closest('[data-goretro]')))return;showTab('planets');setPseg('retro');setRseg('now');});
 function renderTransits(){

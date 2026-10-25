@@ -276,6 +276,7 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
 .detail h4,#sheet-body h4{font-family:var(--f-display);font-weight:400;font-size:1.02rem;letter-spacing:.05em;color:var(--pink);margin:16px 0 4px}
 .explain{background:var(--paper);border-left:3px solid var(--rose);padding:9px 12px;margin:10px 0;font-size:.96rem;border-radius:0 4px 4px 0}
 .guide{margin-bottom:14px}
+.today-strip .guide.tmore{margin:8px 0 0}.today-strip .guide.tmore summary{font-size:1rem}.today-strip .eyebrow{margin-bottom:4px}
 .guide summary{cursor:pointer;font-family:var(--f-display);font-size:1.15rem;color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
 .guide summary::-webkit-details-marker{display:none}
 .guide summary::before{content:'✦';color:var(--pink)}
@@ -538,6 +539,7 @@ body.sheet-open{overflow:hidden}
     </section>
 
     <section id="tab-transits" data-panel="transits" hidden>
+      <div class="switch-row" data-switch hidden><label><span data-i18n="transitsFor"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
       <div class="panel today-strip" id="today-strip" style="margin-bottom:22px"></div>
       <div class="panel pot-panel" style="margin-bottom:22px">
         <div class="pot-head"><div><div class="eyebrow" id="pot-eyebrow"></div><h2 id="pot-title"></h2></div><div class="pot-streak" id="pot-streak"></div></div>
@@ -545,7 +547,8 @@ body.sheet-open{overflow:hidden}
         <div id="pot-list" class="pot-list"></div>
         <p class="note" style="margin:10px 0 0" data-i18n="tidesNote"></p>
       </div>
-      <div class="panel cal-panel" style="margin-bottom:22px">
+      <details class="panel guide fold" style="margin-bottom:22px"><summary data-i18n="foldCal"></summary>
+      <div class="cal-panel">
         <div class="cal-head">
           <button class="cal-nav" type="button" data-cal="-12" data-i18n-aria="prevYear">«</button>
           <button class="cal-nav" type="button" data-cal="-1" data-i18n-aria="prevMonth">‹</button>
@@ -559,8 +562,8 @@ body.sheet-open{overflow:hidden}
             <div class="legend" style="justify-content:flex-start"><span><b class="gl" style="color:var(--water)">♋︎</b> <span data-i18n="moonSignLeg"></span></span><span><i style="border-color:var(--teal)"></i><span data-i18n="flowing"></span></span><span><i style="border-color:var(--pink)"></i><span data-i18n="challenging"></span></span><span><i style="border-color:var(--earth)"></i><span data-i18n="conjOrSign"></span></span></div></div>
           <div class="cal-day" id="cal-day"></div>
         </div>
-      </div>
-      <div class="switch-row" data-switch hidden><label><span data-i18n="transitsFor"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
+      </div></details>
+      <details class="panel guide fold" style="margin-bottom:22px"><summary data-i18n="foldExplore"></summary>
       <details class="panel guide" style="margin-bottom:22px"><summary data-i18n="whatTransit"></summary><div data-i18n-html="whatTransitHtml"></div></details>
       <div class="split">
         <div class="panel">
@@ -593,16 +596,18 @@ body.sheet-open{overflow:hidden}
           </div>
         </div>
       </div>
-      <div class="panel" style="margin-top:22px">
+      </details>
+      <details class="panel guide fold" style="margin-bottom:22px"><summary data-i18n="foldAhead"></summary>
+      <div style="margin-top:6px">
         <h3 data-i18n="lifeAreas"></h3>
         <p class="note" style="margin:2px 0 10px" data-i18n="lifeAreasNote"></p>
         <div class="houses" id="house-weather"></div>
       </div>
-      <div class="panel" style="margin-top:22px">
+      <div style="margin-top:22px">
         <h3 data-i18n="yearAhead"></h3>
         <p class="note" style="margin:2px 0 10px" data-i18n="yearAheadNote"></p>
         <div class="tl-wrap" id="timeline"></div>
-      </div>
+      </div></div></details>
     </section>
 
     <section id="tab-learn" data-panel="learn" hidden>
