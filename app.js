@@ -685,17 +685,21 @@ const GAMES={
     const homes=SIGNS.filter(z=>z.rulers.includes(id)).map(z=>z.i);
     const good=kind==='home'?homes:kind==='detriment'?homes.map(i=>(i+6)%12):kind==='exalt'?[EXALT[id]]:[(EXALT[id]+6)%12],a=pick(good);
     return {g:pl.g,q:Q.dignityQ(id,kind),ans:sN(a),options:opts(sN(a),SIGNS.filter(z=>!good.includes(z.i)).map(z=>sN(z.i))),why:Q.dignityWhy(id,kind,good.map(sN).join(' / '))};}},
+  mistakes:{lvl:'practice',i:'↺',gen(){return {...game.queue[game.i]};}},
   exam:{lvl:'expert',i:'✦',total:15,timer:20,gen(){
     const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements','domains','natural','whoswhere','dignity']),q=GAMES[k].gen();q.from=L.games[k].t;return q;}}
 };
 let game=null,qTimer=null;
 const LEVELS=['beginner','intermediate','hard','expert'];
-const total=()=>GAMES[game.k].total||10;
+const total=()=>game.n||GAMES[game.k].total||10;
 function renderGames(){
-  const best=store.get('tf.best',{});
-  $('#games').innerHTML=LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${L.games[k].t}</h3><p>${L.games[k].d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
+  const best=store.get('tf.best',{}),missed=store.get('tf.missed',[]).filter(x=>x.lang===LANG).length,pr=store.get('tf.practice',{last:'',streak:0});
+  const live=pr.last===new Date().toISOString().slice(0,10)||pr.last===new Date(Date.now()-DAY).toISOString().slice(0,10);
+  $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${L.games[k].t}</h3><p>${L.games[k].d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
 }
-function startGame(k){game={k,i:0,score:0,res:[],streak:0,bestStreak:0};nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;window.scrollTo(0,0);}
+function startGame(k){game={k,i:0,score:0,res:[],streak:0,bestStreak:0};
+  if(k==='mistakes'){const m=store.get('tf.missed',[]).filter(x=>x.lang===LANG);game.queue=shuffle(m).slice(0,10).map(x=>x.q);game.n=game.queue.length;}
+nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;window.scrollTo(0,0);}
 function stopTimer(){if(qTimer){clearInterval(qTimer);qTimer=null;}}
 function nextQ(){stopTimer();if(game.i>=total())return endGame();game.q=GAMES[game.k].gen();game.picked=null;
   const T=GAMES[game.k].timer;
@@ -703,7 +707,13 @@ function nextQ(){stopTimer();if(game.i>=total())return endGame();game.q=GAMES[ga
     if(game.left<=0){stopTimer();answerQ(-1);}},1000);}
   renderQ();}
 function answerQ(idx){if(game.picked!=null)return;stopTimer();game.picked=idx;const ok=idx>=0&&game.q.options[idx]===game.q.ans;
-  game.res[game.i]=ok;if(ok){game.score++;game.streak++;game.bestStreak=Math.max(game.bestStreak,game.streak);}else game.streak=0;
+  game.res[game.i]=ok;
+  {const qq=game.q.q,m=store.get('tf.missed',[]);
+   if(!ok&&game.k!=='mistakes'&&!m.some(x=>x.q.q===qq)){m.push({lang:LANG,k:game.k,q:{g:game.q.g,q:qq,ans:game.q.ans,options:game.q.options,why:game.q.why,from:game.q.from}});store.set('tf.missed',m.slice(-40));}
+   if(ok&&game.k==='mistakes')store.set('tf.missed',m.filter(x=>x.q.q!==qq));
+   const day=d=>d.toISOString().slice(0,10),pr=store.get('tf.practice',{last:'',streak:0}),td=day(new Date()),yd=day(new Date(Date.now()-DAY));
+   if(pr.last!==td){pr.streak=pr.last===yd?pr.streak+1:1;pr.last=td;store.set('tf.practice',pr);}}
+  if(ok){game.score++;game.streak++;game.bestStreak=Math.max(game.bestStreak,game.streak);}else game.streak=0;
   try{navigator.vibrate&&navigator.vibrate(ok?12:[30,50,30]);}catch(e){}renderQ();}
 function renderQ(){
   const q=game.q,G=GAMES[game.k],N=total();

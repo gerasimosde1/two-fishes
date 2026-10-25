@@ -106,6 +106,7 @@ L.games={
  natural:{t:'Case e segni',d:'Ogni casa rispecchia un segno e il suo governatore: abbina segno, casa e pianeta.'},
  whoswhere:{t:'Chi abita dove?',d:'Quale dei tuoi pianeti si trova in una certa casa del tuo tema.'},
  dignity:{t:'A casa o fuori casa?',d:'Domicilio, esilio, esaltazione e caduta: dove ogni pianeta è forte o fatica.'},
+ mistakes:{t:'Ripassa i miei errori',d:''},
  exam:{t:'Grande esame',d:'15 domande miste da tutti i giochi, 20 secondi ciascuna. Se finisce il tempo, conta come sbagliata.'}
 };
 
@@ -179,6 +180,7 @@ L.ui={
 };
 
 L.f={
+ mistakesCta:n=>`Ripassa i miei errori (${n})`,practiceStreak:n=>`${n} ${n===1?'giorno':'giorni'} di fila`,
  aspMeaning:(a,b,c)=>`${cap(L.planets[a].what)} e ${L.planets[b].what} ${c==='soft'?'si sostengono con facilità':c==='hard'?'tirano in direzioni diverse, quindi cresci trovando equilibrio':'lavorano insieme come un’unica forza'}.`,
  voidMoon:(t,s)=>`La Luna è fuori corso fino a ${t}, quando entra in ${s}. Buon momento per riposare e concludere, non per iniziare cose nuove.`,moonNext:(a,p,t)=>`Prossimo aspetto della Luna: ${a} · ${p}, alle ${t}.`,
  retroEnds:n=>`Finisce tra ${n>=60?Math.round(n/30.4)+' mesi':n+(n===1?' giorno':' giorni')}`,retroStarts:n=>`Inizia tra ${n>=60?Math.round(n/30.4)+' mesi':n+(n===1?' giorno':' giorni')}`,

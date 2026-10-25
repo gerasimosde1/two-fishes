@@ -101,6 +101,7 @@ L.games={
  natural:{t:'Houses & Signs',d:'Each house mirrors a sign and its ruler: match sign, house and planet.'},
  whoswhere:{t:'Who Lives Where?',d:'Which of your planets sits in a given house of your own chart.'},
  dignity:{t:'At Home or Away?',d:'Home, detriment, exaltation and fall: where each planet is strong or struggles.'},
+ mistakes:{t:'Practise my mistakes',d:''},
  exam:{t:'Master Exam',d:'15 mixed questions from every game, 20 seconds each. Run out of time and it counts as wrong.'}
 };
 
@@ -174,6 +175,7 @@ L.ui={
 };
 
 L.f={
+ mistakesCta:n=>`Practise my mistakes (${n})`,practiceStreak:n=>`${n}-day practice streak`,
  aspMeaning:(a,b,c)=>`${cap(L.planets[a].what)} and ${L.planets[b].what} ${c==='soft'?'support each other easily':c==='hard'?'pull in different directions, so you grow by balancing them':'work together as one force'}.`,
  voidMoon:(t,s)=>`The Moon is void of course until ${t}, when it enters ${s}. A good time to rest and finish things, not to start new ones.`,moonNext:(a,p,t)=>`Next Moon aspect: ${a} · ${p}, at ${t}.`,
  retroEnds:n=>`Ends in ${n>=60?Math.round(n/30.4)+' months':n+(n===1?' day':' days')}`,retroStarts:n=>`Starts in ${n>=60?Math.round(n/30.4)+' months':n+(n===1?' day':' days')}`,
