@@ -101,6 +101,10 @@ L.games={
  aspectpro:{t:'Maestro degli aspetti',d:'Gradi esatti, orbite reali, aspetti fuori segno e la risposta trappola: nessun aspetto.'},
  rulersmine:{t:'Governatori delle case',d:'Segui la catena nel tuo tema: quale pianeta governa ogni casa e dove si trova.'},
  combos:{t:'Leggi la combinazione',d:'Unisci pianeta, segno e casa in un significato, come si fa nella vera astrologia.'},
+ domains:{t:'Chi governa cosa',d:'Quale segno governa un pianeta e quale pianeta riguarda quale tema.'},
+ natural:{t:'Case e segni',d:'Ogni casa rispecchia un segno e il suo governatore: abbina segno, casa e pianeta.'},
+ whoswhere:{t:'Chi abita dove?',d:'Quale dei tuoi pianeti si trova in una certa casa del tuo tema.'},
+ dignity:{t:'A casa o fuori casa?',d:'Domicilio, esilio, esaltazione e caduta: dove ogni pianeta è forte o fatica.'},
  exam:{t:'Grande esame',d:'15 domande miste da tutti i giochi, 20 secondi ciascuna. Se finisce il tempo, conta come sbagliata.'}
 };
 
@@ -224,6 +228,17 @@ L.f={
 };
 
 L.q={
+ planetSignQ:id=>`Quale segno ha ${P(id).art} come governatore?`,
+ planetThemeQ:id=>`Quale pianeta riguarda ${P(id).key}?`,
+ planetThemeWhy:id=>`${cap(P(id).art)} riguarda ${P(id).key}.`,
+ houseSignQ:n=>`Quale segno corrisponde per natura a questa casa: ${L.hl(n)}?`,
+ signHouseQ:i=>`Quale casa corrisponde per natura a questo segno: ${L.signs[i].n}?`,
+ housePlanetQ:n=>`Quale pianeta governa per natura questa casa: ${L.hl(n)}?`,
+ houseSignWhy:(n,s)=>`Le case rispecchiano i segni in ordine: ${L.hl(n)} ↔ ${L.signs[s].n}. ${cap(L.hl(n))}: ${L.houses[n-1].key}.`,
+ housePlanetWhy:(n,s,r)=>`Le case rispecchiano i segni in ordine: ${L.hl(n)} ↔ ${L.signs[s].n}, il cui governatore è ${P(r).art}. Quindi ${P(r).art} è il governatore naturale di questa casa.`,
+ whichPlanetInHouse:n=>`Quale pianeta si trova ${inYourH(n)} (${L.houses[n-1].short.toLowerCase()})?`,
+ dignityQ:(id,k)=>`${P(id).n}: ${{home:'quale segno è la sua casa (domicilio), dove è più forte?',detriment:'in quale segno è in esilio, opposto alla sua casa, dove fatica?',exalt:'in quale segno è in esaltazione, come un ospite d’onore?',fall:'in quale segno è in caduta, opposto alla sua esaltazione?'}[k]}`,
+ dignityWhy:(id,k,list)=>`${P(id).n}: ${list}. ${{home:'A casa un pianeta si esprime con facilità e forza.',detriment:'In esilio un pianeta è opposto alla sua casa: funziona, ma con fatica e goffaggine.',exalt:'In esaltazione un pianeta è come un ospite d’onore: le sue qualità migliori sono celebrate.',fall:'In caduta un pianeta è opposto alla sua esaltazione: le sue qualità faticano a emergere.'}[k]}`,
  whichPlanet:()=>'Quale pianeta è questo?',
  whichSign:()=>'Quale segno è questo?',
  whoRules:i=>`Quale pianeta governa ${L.signs[i].art}?`,

@@ -96,6 +96,10 @@ L.games={
  aspectpro:{t:'Aspect Master',d:'Exact degrees, real orbs, out-of-sign aspects and the trap answer: no aspect at all.'},
  rulersmine:{t:'House Rulers',d:'Follow the chain in your own chart: which planet rules each house, and where it sits.'},
  combos:{t:'Read the Combo',d:'Put planet, sign and house together into a meaning, like a real astrologer.'},
+ domains:{t:'What Rules What',d:'Which sign a planet rules, and which planet is about which theme.'},
+ natural:{t:'Houses & Signs',d:'Each house mirrors a sign and its ruler: match sign, house and planet.'},
+ whoswhere:{t:'Who Lives Where?',d:'Which of your planets sits in a given house of your own chart.'},
+ dignity:{t:'At Home or Away?',d:'Home, detriment, exaltation and fall: where each planet is strong or struggles.'},
  exam:{t:'Master Exam',d:'15 mixed questions from every game, 20 seconds each. Run out of time and it counts as wrong.'}
 };
 
@@ -220,6 +224,17 @@ L.f={
 const cap=s=>s[0].toUpperCase()+s.slice(1);
 
 L.q={
+ planetSignQ:id=>`Which sign has ${L.planets[id].n} as its ruler?`,
+ planetThemeQ:id=>`Which planet is about ${L.planets[id].key}?`,
+ planetThemeWhy:id=>`${L.planets[id].n} is about ${L.planets[id].key}.`,
+ houseSignQ:n=>`Which sign naturally goes with this house: ${L.hl(n)}?`,
+ signHouseQ:i=>`Which house naturally goes with this sign: ${L.signs[i].n}?`,
+ housePlanetQ:n=>`Which planet naturally rules this house: ${L.hl(n)}?`,
+ houseSignWhy:(n,s)=>`The houses mirror the signs in order: ${L.hl(n)} ↔ ${L.signs[s].n}. ${cap(L.hl(n))}: ${L.houses[n-1].key}.`,
+ housePlanetWhy:(n,s,r)=>`The houses mirror the signs in order: ${L.hl(n)} ↔ ${L.signs[s].n}, which is ruled by ${L.planets[r].n}. So ${L.planets[r].n} is the natural ruler of the ${L.hl(n)}.`,
+ whichPlanetInHouse:n=>`Which planet is in ${yourH(n)} (${L.houses[n-1].short})?`,
+ dignityQ:(id,k)=>`${L.planets[id].n}: ${{home:'which sign is its home (domicile), where it is strongest?',detriment:'in which sign is it in detriment, opposite its home, where it struggles?',exalt:'in which sign is it exalted, like an honoured guest?',fall:'in which sign is it in fall, opposite its exaltation?'}[k]}`,
+ dignityWhy:(id,k,list)=>`${L.planets[id].n}: ${list}. ${{home:'At home a planet expresses itself easily and strongly.',detriment:'In detriment a planet sits opposite its home: it works, but with effort and awkwardness.',exalt:'When exalted a planet is like an honoured guest: its best qualities are celebrated.',fall:'In fall a planet sits opposite its exaltation: its qualities are harder to show.'}[k]}`,
  whichPlanet:()=>'Which planet is this?',
  whichSign:()=>'Which sign is this?',
  whoRules:i=>`Which planet rules ${L.signs[i].n}?`,

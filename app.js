@@ -618,8 +618,29 @@ const GAMES={
       const ans=ph(p.id,n);return {g:p.g,q:Q.comboHouseQ(p.id,n),ans,options:opts(ans,[ph(p.id,oh[0]),ph(others[0].id,n),ph(others[1].id,oh[1]),ph(p.id,oh[2])]),why:Q.comboHouseWhy(p.id,n)};}
     const z=rnd(12),oz=shuffle([...Array(12).keys()].filter(x=>x!==z));const ps=(pid,zz)=>Q.comboSign(pid,zz);
     const ans=ps(p.id,z);return {g:p.g,q:Q.comboSignQ(p.id,z,SIGNS[z].g),ans,options:opts(ans,[ps(p.id,oz[0]),ps(others[0].id,z),ps(p.id,oz[1]),ps(others[1].id,oz[2])]),why:Q.comboSignWhy(p.id,z)};}},
+  domains:{lvl:'beginner',i:'♂'+VS,gen(){
+    if(Math.random()<.5){const p=pick(TEN),mine=SIGNS.filter(z=>z.rulers.includes(p.id)).map(z=>z.i),a=pick(mine);
+      return {g:p.g,q:Q.planetSignQ(p.id),ans:sN(a),options:opts(sN(a),SIGNS.filter(z=>!mine.includes(z.i)).map(z=>sN(z.i))),why:Q.whoRulesWhy(a,SIGNS[a].rulers)};}
+    const p=pick(TEN);return {g:'',q:Q.planetThemeQ(p.id),ans:pN(p.id),options:opts(pN(p.id),TEN.map(x=>pN(x.id))),why:Q.planetThemeWhy(p.id)};}},
+  natural:{lvl:'intermediate',i:'↔',gen(){
+    const k=pick(['houseSign','signHouse','housePlanet']),n=rnd(12)+1,s=n-1;
+    if(k==='houseSign')return {g:'',q:Q.houseSignQ(n),ans:sN(s),options:opts(sN(s),SIGNS.map(x=>sN(x.i))),why:Q.houseSignWhy(n,s)};
+    if(k==='signHouse')return {g:SIGNS[s].g,q:Q.signHouseQ(s),ans:hl(n),options:opts(hl(n),L.houses.map((_,i)=>hl(i+1))),why:Q.houseSignWhy(n,s)};
+    const r=SIGNS[s].rulers[0];return {g:'',q:Q.housePlanetQ(n),ans:pN(r),options:opts(pN(r),TEN.map(x=>x.id).filter(x=>!SIGNS[s].rulers.slice(1).includes(x)).map(pN)),why:Q.housePlanetWhy(n,s,r)};}},
+  whoswhere:{lvl:'intermediate',i:'☽'+VS,gen(){
+    const ps=natal.pts.filter(p=>TEN.some(t=>t.id===p.id)),by={};ps.forEach(p=>(by[p.house]=by[p.house]||[]).push(p));
+    const ones=Object.entries(by).filter(([,a])=>a.length===1);
+    if(!ones.length){const p=pick(ps);return {g:p.g,q:Q.yourHouseQ(p.id),ans:hl(p.house),options:opts(hl(p.house),L.houses.map((_,i)=>hl(i+1))),why:Q.yourHouseWhy(p.id,p.house)};}
+    const [h,[p]]=pick(ones);
+    return {g:'',q:Q.whichPlanetInHouse(+h),ans:pN(p.id),options:opts(pN(p.id),TEN.map(x=>pN(x.id))),why:Q.yourHouseWhy(p.id,+h)};}},
+  dignity:{lvl:'hard',i:'♔',gen(){
+    const EXALT={Sun:0,Moon:1,Venus:11,Mars:9,Jupiter:3,Saturn:6},kind=pick(['home','home','detriment','detriment','exalt','fall']);
+    const id=pick(kind==='exalt'||kind==='fall'?Object.keys(EXALT):['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn']),pl=TEN.find(x=>x.id===id);
+    const homes=SIGNS.filter(z=>z.rulers.includes(id)).map(z=>z.i);
+    const good=kind==='home'?homes:kind==='detriment'?homes.map(i=>(i+6)%12):kind==='exalt'?[EXALT[id]]:[(EXALT[id]+6)%12],a=pick(good);
+    return {g:pl.g,q:Q.dignityQ(id,kind),ans:sN(a),options:opts(sN(a),SIGNS.filter(z=>!good.includes(z.i)).map(z=>sN(z.i))),why:Q.dignityWhy(id,kind,good.map(sN).join(' / '))};}},
   exam:{lvl:'expert',i:'✦',total:15,timer:20,gen(){
-    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements']),q=GAMES[k].gen();q.from=L.games[k].t;return q;}}
+    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements','domains','natural','whoswhere','dignity']),q=GAMES[k].gen();q.from=L.games[k].t;return q;}}
 };
 let game=null,qTimer=null;
 const LEVELS=['beginner','intermediate','hard','expert'];
