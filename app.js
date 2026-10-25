@@ -740,9 +740,19 @@ $('#t-play').addEventListener('click',()=>{if(playTimer)return stopPlay();$('#t-
 
 
 /* ---------- planets tab ---------- */
+let skyDate=null;
+function renderSky(){
+  const d=skyDate||new Date(),tr=computeTransits(natal,d);
+  $('#sky-label').textContent=(skyDate?'':'● '+u('skyLive')+' · ')+d.toLocaleString(L.locale,{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  $('#sky-list').innerHTML=tr.pts.map(p=>`<div class="prow"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(p.house)}</span></div>`).join('');
+}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sky]');if(!b)return;const n=+b.dataset.sky;
+  skyDate=n===0?null:new Date((skyDate||new Date()).getTime()+n*DAY);renderSky();});
+setInterval(()=>{if(curTab==='planets'&&!skyDate&&!document.hidden)renderSky();},30000);
 function renderPlanets(){
   const pts=natal.pts.filter(p=>p.id!=='ASC'&&p.id!=='MC').concat(natal.pts.filter(p=>p.id==='ASC'||p.id==='MC'));
   $('#planet-list').innerHTML=pts.map(p=>`<button type="button" class="prow" data-pick="natal:${p.id}"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(homeHouse(p))}</span></button>`).join('');
+  renderSky();
   const rn=natal.pts.filter(p=>p.retro);
   $('#retro-natal').innerHTML=rn.length?rn.map(p=>`<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(homeHouse(p))}.</b> ${F.retroNatal(p.id,p.sign,homeHouse(p))}</div>`).join(''):`<p class="note">${u('retroNone')}</p>`;
   const now=startOfDayNoon(new Date()),tr=computeTransits(natal,now).pts.filter(p=>p.retro);
@@ -750,7 +760,7 @@ function renderPlanets(){
     let end=null;for(let i=1;i<=500;i++){const d=new Date(now.getTime()+i*DAY);if(speedOf(p.id,d)>=0){end=d;break;}}
     return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(p.house)}.</b> ${F.retroNow(p.id,p.sign,p.house,end&&fmtShort(end))}</div>`;}).join(''):`<p class="note">${u('retroNoneNow')}</p>`;
 }
-document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.prow');if(!r)return;showTab('chart');selN=r.dataset.pick;renderNatal();});
+document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.prow[data-pick]');if(!r)return;showTab('chart');selN=r.dataset.pick;renderNatal();});
 
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 function showTab(t){closeSheet();curTab=t;window.scrollTo(0,0);document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
