@@ -396,7 +396,33 @@ function renderNatal(){
   if(profile.unknown)d+=`<p class="note">${u('timeUnknownNote')}</p>`;
   $('#detail-natal').innerHTML=d;
 }
+/* ---------- today strip (moon phase, void of course Moon) ---------- */
+function moonForecast(now){
+  const ids=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],ang=[0,60,90,120,180],AID={0:'conj',60:'sext',90:'sq',120:'trine',180:'opp'};
+  const base=Object.fromEntries(ids.map(id=>[id,[eclLon(id,now),speedOf(id,now)]])),z0=Math.floor(eclLon('Moon',now)/30);
+  const f=(ml,pl,a)=>{let d=norm(ml-pl-a);return d>180?d-360:d;};let prev=null;
+  for(let i=1;i<=150;i++){const t=new Date(now.getTime()+i*30*60000),ml=eclLon('Moon',t);
+    if(Math.floor(ml/30)!==z0)return {void:true,until:t,sign:Math.floor(ml/30)};
+    for(const id of ids)for(const a of ang){const pl=base[id][0]+base[id][1]*(t-now)/DAY,pm=prev&&base[id][0]+base[id][1]*(prev.t-now)/DAY;
+      if(prev){const f0=f(prev.ml,pm,a),f1=f(ml,pl,a);if(f0<=0&&f1>=0&&Math.abs(f1-f0)<5)return {void:false,t,id,asp:AID[a]};}}
+    prev={t,ml};}
+  return {void:false};
+}
+function renderToday(){
+  const now=new Date(),sun=eclLon('Sun',now),moon=eclLon('Moon',now),k=Math.round(norm(moon-sun)/45)%8,ill=Math.round((1-Math.cos(rad(norm(moon-sun))))/2*100);
+  const mz=Math.floor(moon/30),mh=houseOf(moon,natal.cusps),fc=moonForecast(now);
+  const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
+  renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
+  $('#today-strip').innerHTML=`<h2>${u('todayTitle')}</h2>
+   <div class="tl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b>${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
+   <div class="tadv">${L.moonAdvice[k]}</div>
+   <div class="tl"><span class="gl">☽︎</span><span>${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
+   <div class="tvoid">${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
+   ${on.length?`<div class="tl"><span>℞</span><span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</span></div>`:''}`;
+}
+document.addEventListener('click',e=>{if(!(e.target.closest&&e.target.closest('[data-goretro]')))return;showTab('planets');setPseg('retro');setRseg('now');});
 function renderTransits(){
+  renderToday();
   transit=computeTransits(natal,tDate);
   $('#t-label').textContent=fmtDate(tDate);
   $('#t-date').value=isoDate(tDate);

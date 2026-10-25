@@ -106,7 +106,10 @@ L.games={
 
 L.retroInfo={"Chiron": "Wounds and healing. Old hurts and old patterns surface so you can look at them with kindness. Good for therapy, forgiveness and self-compassion; not for pushing past what still hurts.", "Mercury": "Thinking, talking, travel and tech. Plans slip, messages get crossed. Good for re-reading, revising and reconnecting; bad for signing big things in a rush.", "Venus": "Love, money and taste. Old flames and old questions about what you value come back. Review relationships and spending rather than starting new ones.", "Mars": "Drive and anger. Energy runs low or turns inward, and pushing hard backfires. Rest, rethink the plan, and avoid fights over old issues.", "Jupiter": "Growth and luck. Expansion is inner more than outer: re-examine your beliefs, goals and what \"enough\" means.", "Saturn": "Duty and structure. Time to check your foundations and the rules you live by, and to take back responsibility you gave away.", "Uranus": "Change and freedom. The urge to break free works underground, as inner restlessness before an outer shake-up.", "Neptune": "Dreams and intuition. Illusions thin out, so you see what was foggy. Good for honest looks at ideals and escapes.", "Pluto": "Power and depth. Slow inner transformation: old fears, control and what you need to let go of."};
 const RI=id=>L.retroInfo[id]||'';
+L.moonPhases=["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"];
+L.moonAdvice=["Quiet and fresh: set intentions and plant seeds.", "Momentum builds: take the first small steps.", "Decision time: push through the first obstacles.", "Refine and adjust: nearly there, keep polishing.", "Peak energy and emotion: celebrate, share, notice what is ripe.", "Give thanks and share what you have learned.", "Let go: release what no longer works.", "Rest and recover before the next cycle."];
 L.ui={
+ todayTitle:"Today in the sky",
  segSigns:"Signs",segSky:"Sky now",segRetro:"Retrograde",fNow:"Now",fSoon:"Coming up",fBirth:"My birth chart",badgeBirth:"At birth",retroWhatQ:"What does retrograde mean?",rNoteNow:"Planets that are retrograde today, and how each one touches your chart. Tap a card to read more.",rNoteSoon:"The retrogrades coming over the next two years. Tap a card to read more.",rNoteBirth:"These planets were retrograde when you were born, so they work in a more personal, inward way. Tap a card to read more.",
  retroRulesH:"Houses it rules in your chart",retroHitsH:"What it crosses in your chart",retroHitsNote:"Each time it passes one of these points, that part of you is activated, often up to three times because of the back-and-forth.",retroNoHits:"It does not cross any major point of your chart this time.",retroNatalAspH:"Its links in your birth chart",
  calTitle:"Retrograde calendar",calNote:"When each planet from Mercury to Pluto turns retrograde over the next two years, which signs and houses of your chart it passes through, and how it touches you.",calNow:"Retrograde now",
@@ -166,6 +169,7 @@ L.ui={
 };
 
 L.f={
+ voidMoon:(t,s)=>`The Moon is void of course until ${t}, when it enters ${s}. A good time to rest and finish things, not to start new ones.`,moonNext:(a,p,t)=>`Next Moon aspect: ${a} · ${p}, at ${t}.`,
  retroEnds:n=>`Ends in ${n>=60?Math.round(n/30.4)+' months':n+(n===1?' day':' days')}`,retroStarts:n=>`Starts in ${n>=60?Math.round(n/30.4)+' months':n+(n===1?' day':' days')}`,
  retroPeriod:(id,h1,h2)=>`${RI(id)} For you this touches: ${L.houses[h1-1].short}${h2!==h1?' → '+L.houses[h2-1].short:''}.`,
  retroNatal:(id,s,h)=>`${RI(id)} In your chart this shows up in: ${L.houses[h-1].short}, ${L.signs[s].how}.`,
