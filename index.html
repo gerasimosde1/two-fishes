@@ -191,6 +191,8 @@ nav.tabs button:hover{color:var(--pink)}
 .rcard .rb{padding:0 12px 12px}.rcard[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
 .badge.soon{color:var(--pink);border-color:var(--pink)}.rcard .badge{white-space:nowrap}
 .today-strip h2{margin:0 0 6px}.today-strip .tl{display:flex;gap:8px;align-items:baseline;margin:4px 0}.today-strip .em{font-size:1.5rem;line-height:1}.today-strip .tadv{font-style:italic;margin:2px 0 8px}.today-strip .tvoid{font-size:.92rem;color:var(--ink-soft);margin:6px 0}
+.seg{overflow-x:auto}.seg button{flex:1 0 auto;padding:9px 12px}.seg.sm button{padding:7px 10px}
+.ret-card{border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:2px;margin:0 0 10px;background:var(--paper);padding:10px 12px}.ret-card .rh{font-family:var(--f-display);font-size:1.1rem}.ret-card p{margin:6px 0}.ret-card .rd{font-size:.88rem;color:var(--ink-soft)}
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.98rem}
 th{font-family:var(--f-display);font-weight:400;letter-spacing:.06em;color:var(--ink-soft);text-align:left;border-bottom:1px solid var(--ink-line);padding:6px 8px;font-size:.9rem}
@@ -494,7 +496,7 @@ body.sheet-open{overflow:hidden}
 
     <section id="tab-planets" data-panel="planets" hidden>
       <div class="switch-row" data-switch hidden><label><span data-i18n="viewing"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
-      <div class="seg" id="pseg"><button type="button" data-pseg="signs" aria-pressed="true" data-i18n="segSigns"></button><button type="button" data-pseg="sky" aria-pressed="false" data-i18n="segSky"></button><button type="button" data-pseg="retro" aria-pressed="false" data-i18n="segRetro"></button></div>
+      <div class="seg" id="pseg"><button type="button" data-pseg="signs" aria-pressed="true" data-i18n="segSigns"></button><button type="button" data-pseg="sky" aria-pressed="false" data-i18n="segSky"></button><button type="button" data-pseg="retro" aria-pressed="false" data-i18n="segRetro"></button><button type="button" data-pseg="cycles" aria-pressed="false" data-i18n="segCycles"></button></div>
       <div class="panel" data-pp="signs">
         <h2 data-i18n="planetsTitle"></h2>
         <p class="note" style="margin:4px 0 10px" data-i18n="planetsNote"></p>
@@ -505,6 +507,14 @@ body.sheet-open{overflow:hidden}
         <p class="note" style="margin:4px 0 10px" data-i18n="skyNote"></p>
         <div class="sky-bar"><button class="btn sm" type="button" data-sky="-1" data-i18n="d1"></button><span class="mono" id="sky-label"></span><button class="btn sm" type="button" data-sky="1" data-i18n="p1d"></button><button class="btn sm" type="button" data-sky="0" data-i18n="today"></button></div>
         <div id="sky-list"></div>
+      </div>
+      <div class="panel" data-pp="cycles" hidden>
+        <h2 data-i18n="cycTitle"></h2>
+        <p class="note" style="margin:4px 0 10px" data-i18n="cycNote"></p>
+        <div id="returns"></div>
+        <h2 style="margin-top:22px" data-i18n="progTitle"></h2>
+        <p class="note" style="margin:4px 0 10px" data-i18n="progNote"></p>
+        <div id="progressed"></div>
       </div>
       <div class="panel" data-pp="retro" hidden>
         <h2 data-i18n="retroTitle"></h2>

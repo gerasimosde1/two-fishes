@@ -816,8 +816,35 @@ function renderSky(){
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sky]');if(!b)return;const n=+b.dataset.sky;
   skyDate=n===0?null:new Date((skyDate||new Date()).getTime()+n*DAY);renderSky();});
 setInterval(()=>{if(curTab==='planets'&&!skyDate&&!document.hidden)renderSky();},30000);
+/* ---------- cycles: returns and progressions ---------- */
+let cyc=null;
+function computeReturns(){
+  const birth=natal.date,now=new Date(),t0=now.getTime()-53*365.25*DAY,t1=now.getTime()+56*365.25*DAY,out={};
+  for(const id of ['Jupiter','Saturn','Chiron','Node']){const nl=natal.byId[id];if(!nl)continue;const cr=[];let pt=null,pd=null;
+    for(let t=Math.max(t0,birth.getTime()+2*365.25*DAY);t<=t1;t+=7*DAY){const l=eclLon(id,new Date(t));if(isNaN(l)){pd=null;continue;}let d=l-nl.lon;if(d>180)d-=360;if(d<-180)d+=360;
+      if(pd!=null&&Math.abs(d)<20&&Math.abs(pd)<20&&((pd<0&&d>=0)||(pd>0&&d<=0)))cr.push(pt+(t-pt)*(Math.abs(pd)/(Math.abs(pd)+Math.abs(d))));pt=t;pd=d;}
+    const groups=[];cr.forEach(t=>{const g=groups[groups.length-1];if(g&&t-g.last<2*365.25*DAY){g.last=t;g.n++;}else groups.push({first:t,last:t,n:1});});
+    out[id]={prev:[...groups].reverse().find(g=>g.first<=now.getTime()),next:groups.find(g=>g.first>now.getTime())};}
+  return out;
+}
+function retRange(g,birth){const a=new Date(g.first),b=new Date(g.last),age=x=>Math.round((x-birth)/(365.25*DAY));
+  return `${fmtShort(a)}${g.n>1?' → '+fmtShort(b):''} · ${g.n>1?g.n+' '+u('passes')+' · ':''}${u('age')} ${age(g.first)}`;}
+function renderCycles(){
+  const key=natal.date.getTime()+'|'+new Date().toDateString();
+  if(!cyc||cyc.key!==key){
+    const ret=computeReturns(),pd=new Date(natal.date.getTime()+(Date.now()-natal.date.getTime())/365.2422),prog=['Sun','Moon','Mercury','Venus','Mars'].map(id=>{
+      const l=eclLon(id,pd),z=Math.floor(l/30);let until=null;
+      for(let dd=0.25;dd<=70;dd+=0.25){if(Math.floor(eclLon(id,new Date(pd.getTime()+dd*DAY))/30)!==z){let lo=dd-0.25,hi=dd;for(let k=0;k<12;k++){const m=(lo+hi)/2;if(Math.floor(eclLon(id,new Date(pd.getTime()+m*DAY))/30)!==z)hi=m;else lo=m;}until=new Date(Date.now()+hi*365.2422*DAY);break;}}
+      return {id,l,z,h:houseOf(l,natal.cusps),until};});
+    cyc={key,ret,prog};}
+  const now=Date.now(),birth=natal.date.getTime();
+  $('#returns').innerHTML=Object.entries(cyc.ret).map(([id,r])=>{const p=PDEF[id],act=r.prev&&r.prev.last>=now;
+    return `<div class="ret-card"><div class="rh">${glyph(p)} ${nm(p)}${act?` <span class="badge">${u('retNow')}</span>`:''}</div><p>${L.returnInfo[id]}</p>${r.next?`<div class="rd"><b>${u('retNext')}:</b> ${retRange(r.next,birth)}</div>`:''}${r.prev?`<div class="rd"><b>${u('retLast')}:</b> ${retRange(r.prev,birth)}</div>`:''}</div>`;}).join('');
+  $('#progressed').innerHTML=cyc.prog.map(x=>{const p=PDEF[x.id];
+    return `<div class="ret-card"><div class="rh">${glyph(p)} ${nm(p)} · ${sIn(x.z)} <span class="mono muted" style="font-size:.85rem">${fmtIn(x.l)}</span></div><div class="rd">${hl(x.h)} (${hShort(x.h)})${x.until?` · ${u('progUntil')} ${fmtShort(x.until)}`:''}</div><p>${L.progInfo[x.id]}</p></div>`;}).join('');
+}
 let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
-function setPseg(v){psegV=v;store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
+function setPseg(v){psegV=v;if(v==='cycles')renderCycles();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
 function retroCard(p,badge,cls,dates,where,tag,body){
   return `<details class="rcard"><summary><div class="rh"><span>${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;
