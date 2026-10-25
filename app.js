@@ -34,7 +34,7 @@ const SIGNS=[['♈','fire','cardinal',['Mars']],['♉','earth','fixed',['Venus']
  ['♌','fire','fixed',['Sun']],['♍','earth','mutable',['Mercury']],['♎','air','cardinal',['Venus']],['♏','water','fixed',['Pluto','Mars']],
  ['♐','fire','mutable',['Jupiter']],['♑','earth','cardinal',['Saturn']],['♒','air','fixed',['Uranus','Saturn']],['♓','water','mutable',['Neptune','Jupiter']]
 ].map(([g,el,mod,rulers],i)=>({g:g+VS,el,mod,rulers,i}));
-const PLANETS=[['Sun','☉'],['Moon','☽'],['Mercury','☿'],['Venus','♀'],['Mars','♂'],['Jupiter','♃'],['Saturn','♄'],['Uranus','♅'],['Neptune','♆'],['Pluto','♇'],['Node','☊']].map(([id,g])=>({id,g:g+VS}));
+const PLANETS=[['Sun','☉'],['Moon','☽'],['Mercury','☿'],['Venus','♀'],['Mars','♂'],['Jupiter','♃'],['Saturn','♄'],['Uranus','♅'],['Neptune','♆'],['Pluto','♇'],['Node','☊'],['Chiron','⚷']].map(([id,g])=>({id,g:g+VS}));
 const ANGLES=[{id:'ASC',g:'AC'},{id:'MC',g:'MC'}];
 const PDEF=Object.fromEntries([...PLANETS,...ANGLES].map(p=>[p.id,p]));
 const HOUSE_TYPE=['angular','succedent','cadent'];
@@ -69,10 +69,21 @@ const CITIES=[
 
 /* ---------- astronomy ---------- */
 const jc=d=>(d.getTime()/DAY+2440587.5-2451545)/36525;
+let CHIRON_T=null;
+function chironLon(date){
+  const c=window.CHIRON;if(!c)return NaN;
+  if(!CHIRON_T){const a=new Float64Array(c.n),d=c.d.split(',');let v=c.first;a[0]=v/1000;for(let i=1;i<c.n;i++){v+=+d[i-1];a[i]=v/1000;}CHIRON_T=a;}
+  const x=(date.getTime()-c.t0)/(c.step*DAY);if(!(x>=1&&x<CHIRON_T.length-2))return NaN;
+  const i=Math.floor(x),t=x-i,p0=CHIRON_T[i-1],p1=CHIRON_T[i],p2=CHIRON_T[i+1],p3=CHIRON_T[i+2];
+  return norm(0.5*(2*p1+(p2-p0)*t+(2*p0-5*p1+4*p2-p3)*t*t+(3*p1-p0-3*p2+p3)*t*t*t));
+}
+const chironOK=date=>!isNaN(chironLon(date));
+const livePlanets=date=>PLANETS.filter(p=>p.id!=='Chiron'||chironOK(date));
 function eclLon(id,date){
   const A=window.Astronomy;
   if(id==='Sun') return norm(A.SunPosition(date).elon);
   if(id==='Moon') return norm(A.EclipticGeoMoon?A.EclipticGeoMoon(date).lon:A.Ecliptic(A.GeoMoon(date)).elon);
+  if(id==='Chiron')return chironLon(date);
   if(id==='Node'){const T=jc(date);return norm(125.04452-1934.136261*T+0.0020708*T*T+T*T*T/450000);}
   return norm(A.Ecliptic(A.GeoVector(id,date,true)).elon);
 }
@@ -117,7 +128,7 @@ function aspectBetween(l1,l2,orbFn){
   return best;
 }
 function computeChart(date,lat,lon,sys){
-  const pts=PLANETS.map(p=>({...p,lon:eclLon(p.id,date),speed:speedOf(p.id,date)}));
+  const pts=livePlanets(date).map(p=>({...p,lon:eclLon(p.id,date),speed:speedOf(p.id,date)}));
   const ang=angles(date,lat,lon);
   let cusps=sys==='whole'?wholeCusps(ang.asc):sys==='equal'?equalCusps(ang.asc):placidus(ang,lat),sysUsed=sys;
   if(!cusps){cusps=equalCusps(ang.asc);sysUsed='equal';}
@@ -127,19 +138,19 @@ function computeChart(date,lat,lon,sys){
   for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){
     const a=all[i],b=all[j]; if(a.id==='ASC'&&b.id==='MC')continue;
     const lum=['Sun','Moon'].includes(a.id)||['Sun','Moon'].includes(b.id);
-    const minor=['Node','ASC','MC'].includes(a.id)||['Node','ASC','MC'].includes(b.id);
+    const minor=['Node','Chiron','ASC','MC'].includes(a.id)||['Node','Chiron','ASC','MC'].includes(b.id);
     const hit=aspectBetween(a.lon,b.lon,x=>(x.orb+(lum?1:0))*(minor?.6:1));
     if(hit)aspects.push({p1:a,p2:b,...hit});
   }
   aspects.sort((x,y)=>x.orb-y.orb);
   return {date,pts:all,cusps,ang,sysUsed,aspects,byId:Object.fromEntries(all.map(p=>[p.id,p]))};
 }
-const LONG_IDS=['Jupiter','Saturn','Uranus','Neptune','Pluto','Node'];
+const LONG_IDS=['Jupiter','Saturn','Uranus','Neptune','Pluto','Chiron','Node'];
 const TRANSIT_GROUPS=[{k:'long',ids:LONG_IDS},{k:'short',ids:['Sun','Mercury','Venus','Mars']},{k:'moon',ids:['Moon']}];
-const SLOW={Pluto:9,Neptune:8,Uranus:7,Saturn:6,Jupiter:5,Node:4,Mars:3,Sun:2,Venus:2,Mercury:2,Moon:0};
+const SLOW={Pluto:9,Neptune:8,Uranus:7,Saturn:6,Jupiter:5,Chiron:4.5,Node:4,Mars:3,Sun:2,Venus:2,Mercury:2,Moon:0};
 const slowRank=p=>SLOW[p.id]??1;
 function computeTransits(natal,date){
-  const pts=PLANETS.map(p=>{const lon=eclLon(p.id,date),speed=speedOf(p.id,date);
+  const pts=livePlanets(date).map(p=>{const lon=eclLon(p.id,date),speed=speedOf(p.id,date);
     return {...p,lon,speed,sign:Math.floor(lon/30),house:houseOf(lon,natal.cusps),retro:speed<0&&p.id!=='Node'};});
   const aspects=[];
   for(const t of pts)for(const n of natal.pts){
@@ -583,7 +594,7 @@ const GAMES={
     return {g:'',q:`<span class="gl" style="font-size:2rem">${f(p1,l1)} &nbsp;·&nbsp; ${f(p2,l2)}</span><br>${pN(p1.id)} ${Math.floor(l1%30)}° ${sN(Math.floor(l1/30))}, ${pN(p2.id)} ${Math.floor(l2%30)}° ${sN(Math.floor(l2/30))}`,
       ans:aN(a.id),options:A5.map(x=>aN(x.id)),why:Q.spotWhy(s,a.id,a.a)};}},
   mine:{lvl:'intermediate',i:'☉'+VS,gen(){
-    const ps=natal.pts.filter(p=>!['MC','Node','ASC'].includes(p.id)),kind=pick(['sign','sign','house','rising','ruler']);
+    const ps=natal.pts.filter(p=>!['MC','Node','ASC','Chiron'].includes(p.id)),kind=pick(['sign','sign','house','rising','ruler']);
     if(kind==='rising'){const s=natal.byId.ASC.sign;return {g:'AC',q:Q.yourRising(),ans:sN(s),options:opts(sN(s),SIGNS.map(x=>sN(x.i))),why:Q.yourRisingWhy(fmtIn(natal.byId.ASC.lon),s)};}
     if(kind==='ruler'){const s=natal.byId.ASC.sign,r=natal.byId[SIGNS[s].rulers[0]];return {g:SIGNS[s].g,q:Q.chartRulerQ(s),ans:pN(r.id),options:opts(pN(r.id),TEN.map(x=>pN(x.id))),why:Q.chartRulerWhy(s,r.id,r.sign,r.house)};}
     const p=pick(ps);
@@ -740,20 +751,37 @@ $('#t-play').addEventListener('click',()=>{if(playTimer)return stopPlay();$('#t-
 
 
 /* ---------- planets tab ---------- */
+function retroTouches(lo,hi){
+  const rank={0:0,180:1,90:2,120:3,60:4},out=[];
+  natal.pts.forEach(n=>ASPECTS.filter(a=>a.id!=='qx').forEach(a=>(a.a===0||a.a===180?[a.a]:[a.a,-a.a]).forEach(sg=>{const t=norm(n.lon+sg);
+    for(const k of [-360,0,360]){const x=t+k;if(x>=lo&&x<=hi){out.push({n,a,lon:t});break;}}})));
+  out.sort((x,y)=>(rank[x.a.a]??9)-(rank[y.a.a]??9));return out.slice(0,6);
+}
+function retroDetail(id,lo,hi){
+  const ruled=housesRuledBy(natal,id),hits=lo==null?[]:retroTouches(lo,hi);let h='<ul class="ctx">';
+  if(ruled.length)h+=`<li><span>${u('retroRulesH')}</span>${ruled.map(n=>`${hl(n)} (${hShort(n)})`).join(', ')}</li>`;
+  if(lo!=null)h+=`<li><span>${u('retroHitsH')}</span>${hits.length?hits.map(x=>`<div class="rt">${aN(x.a.id)} → ${glyph(x.n)} ${nm(x.n)} (${fmtIn(x.n.lon)} ${sN(x.n.sign)})</div>`).join('')+`<div class="rt note">${u('retroHitsNote')}</div>`:u('retroNoHits')}</li>`;
+  return h+'</ul>';
+}
+function retroNatalAsp(id){
+  const as=natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id).slice(0,5);
+  return as.length?`<ul class="ctx"><li><span>${u('retroNatalAspH')}</span>${as.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<div class="rt">${aN(a.asp.id)} → ${glyph(o)} ${nm(o)} (${sN(o.sign)})</div>`;}).join('')}</li></ul>`:'';
+}
 let retroCal=null;
 function renderRetroCal(){
   const t0=startOfDayNoon(new Date()),key=natal.date.getTime()+'|'+t0.getTime();
   if(!retroCal||retroCal.key!==key){const rows=[];
-    for(const id of ['Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']){
+    for(const id of ['Mercury','Venus','Mars','Jupiter','Saturn','Chiron','Uranus','Neptune','Pluto']){
       let run=null;
       for(let i=-220;i<=730;i++){const d=new Date(t0.getTime()+i*DAY),r=speedOf(id,d)<0;
-        if(r&&!run)run={id,s:d};
+        if(r&&!run)run={id,s:d,lons:[]};
+        if(r&&run){const l=eclLon(id,d),pv=run.lons.length?run.lons[run.lons.length-1]:l;let dd=l-pv;if(dd>180)dd-=360;if(dd<-180)dd+=360;run.lons.push(pv+dd);}
         if(run&&(!r||i===730)){const e=r?d:d,last=new Date(e.getTime()-(r?0:DAY)),l1=eclLon(id,run.s),l2=eclLon(id,last);
-          if(e>=t0)rows.push({id,s:run.s,e,z1:Math.floor(l1/30),z2:Math.floor(l2/30),h1:houseOf(l1,natal.cusps),h2:houseOf(l2,natal.cusps),on:run.s<=t0});
+          if(e>=t0)rows.push({id,s:run.s,e,lo:Math.min(...run.lons),hi:Math.max(...run.lons),z1:Math.floor(l1/30),z2:Math.floor(l2/30),h1:houseOf(l1,natal.cusps),h2:houseOf(l2,natal.cusps),on:run.s<=t0});
           run=null;}}}
     rows.sort((a,b)=>a.s-b.s);retroCal={key,rows};}
   $('#retro-cal').innerHTML=retroCal.rows.map(r=>{const p=PDEF[r.id];
-    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${fmtShort(r.s)} → ${fmtShort(r.e)}</b>${r.on?` <span class="badge">${u('calNow')}</span>`:''}<br><span class="mono" style="font-size:.85rem">${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}</span><br>${F.retroPeriod(r.id,r.h1,r.h2)}</div>`;}).join('');
+    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${fmtShort(r.s)} → ${fmtShort(r.e)}</b>${r.on?` <span class="badge">${u('calNow')}</span>`:''}<br><span class="mono" style="font-size:.85rem">${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}</span><br>${F.retroPeriod(r.id,r.h1,r.h2)}${retroDetail(r.id,r.lo,r.hi)}</div>`;}).join('');
 }
 let skyDate=null;
 function renderSky(){
@@ -769,11 +797,11 @@ function renderPlanets(){
   $('#planet-list').innerHTML=pts.map(p=>`<button type="button" class="prow" data-pick="natal:${p.id}"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(homeHouse(p))}</span></button>`).join('');
   renderSky();renderRetroCal();
   const rn=natal.pts.filter(p=>p.retro);
-  $('#retro-natal').innerHTML=rn.length?rn.map(p=>`<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(homeHouse(p))}.</b> ${F.retroNatal(p.id,p.sign,homeHouse(p))}</div>`).join(''):`<p class="note">${u('retroNone')}</p>`;
+  $('#retro-natal').innerHTML=rn.length?rn.map(p=>`<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(homeHouse(p))}.</b> ${F.retroNatal(p.id,p.sign,homeHouse(p))}${retroDetail(p.id,null,null)}${retroNatalAsp(p.id)}</div>`).join(''):`<p class="note">${u('retroNone')}</p>`;
   const now=startOfDayNoon(new Date()),tr=computeTransits(natal,now).pts.filter(p=>p.retro);
   $('#retro-now').innerHTML=tr.length?tr.map(p=>{
     let end=null;for(let i=1;i<=500;i++){const d=new Date(now.getTime()+i*DAY);if(speedOf(p.id,d)>=0){end=d;break;}}
-    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(p.house)}.</b> ${F.retroNow(p.id,p.sign,p.house,end&&fmtShort(end))}</div>`;}).join(''):`<p class="note">${u('retroNoneNow')}</p>`;
+    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(p.house)}.</b> ${F.retroNow(p.id,p.sign,p.house,end&&fmtShort(end))}${(()=>{const row=retroCal.rows.find(x=>x.id===p.id&&x.on);return retroDetail(p.id,row&&row.lo,row&&row.hi);})()}</div>`;}).join(''):`<p class="note">${u('retroNoneNow')}</p>`;
 }
 document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.prow[data-pick]');if(!r)return;showTab('chart');selN=r.dataset.pick;renderNatal();});
 
