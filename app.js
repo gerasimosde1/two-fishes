@@ -292,7 +292,7 @@ function natalPointHTML(id,showTransits){
   }else{
     h+=`<h4>${u('aspects')}</h4><p class="note">${u('aspectsNote')}</p>`;
     h+=asps.length?asps.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<span class="chip" data-pick="natal:${o.id}"><span class="gl">${a.asp.g}</span>${aN(a.asp.id).toLowerCase()} ${nm(o)} <span class="mono" style="font-size:.75rem">${fmtOrb(a.orb)}</span></span>`;}).join(''):`<p class="note">${u('noAspects')}</p>`;
-    if(asps.length&&!isAngle)h+=`<h4>${u('plainWords')}</h4>`+asps.slice(0,4).map(a=>{const o=a.p1.id===id?a.p2:a.p1;return o.id==='ASC'||o.id==='MC'?'':`<p class="note"><b>${nm(p)} ${a.asp.g} ${nm(o)}.</b> ${F.aspMeaning(id,o.id,a.asp.cls)}</p>`;}).join('');
+    if(asps.length&&!isAngle)h+=`<h4>${u('plainWords')}</h4>`+asps.slice(0,4).map(a=>{const o=a.p1.id===id?a.p2:a.p1;return o.id==='ASC'||o.id==='MC'?'':`<p class="note" data-pick="na:${natal.aspects.indexOf(a)}" style="cursor:pointer"><b class="exl">${nm(p)} ${a.asp.g} ${nm(o)}.</b> ${F.aspMeaning(id,o.id,a.asp.cls)}</p>`;}).join('');
   }
   return h;
 }
@@ -405,6 +405,43 @@ function renderNatal(){
   if(profile.unknown)d+=`<p class="note">${u('timeUnknownNote')}</p>`;
   $('#detail-natal').innerHTML=d;
 }
+/* ---------- tap-to-explain: every dotted item opens a plain explanation in the sheet ---------- */
+const EX={};let exN=0;
+const exReg=fn=>{const k='r'+(++exN);EX[k]=fn;return k;};
+const exS=z=>`<span class="exl" data-ex="sign:${z}">${sN(z)}</span>`,exHs=h=>`<span class="exl" data-ex="house:${h}">${hl(h)}</span>`;
+function exPlacement(chart,id,who){
+  const p=chart.byId[id],ang=id==='ASC'||id==='MC',hh=ang?(id==='ASC'?1:10):p.house,S=L.signs[p.sign];
+  return `<div class="eyebrow">${esc(who)}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3><div class="pos">${posStr(p)} · ${hl(hh)}</div><p>${L.planets[id].info}</p>${ang?'':`<div class="explain">${F.howRead(id,p.sign,p.house)}</div>`}<h4>${S.n}</h4><p>${S.body}</p><h4>${F.houseHeading(hh,ang)}</h4><p>${L.houses[hh-1].body}</p>`;
+}
+function exMatchLink(x,A,B,other){
+  const a=x.a,b=x.b,Z=L.aspects[x.asp.id],cls=x.asp.cls,ha=houseOf(a.lon,other.cusps),hb=houseOf(b.lon,natal.cusps);
+  return `<div class="eyebrow">${u('exLink')}</div><h3>${esc(A)} ${glyph(a)} ${pN(a.id)} <span class="gl">${x.asp.g}</span> ${glyph(b)} ${pN(b.id)} ${esc(B)}</h3><div class="pos">${Z.n} · ${u('orb')} ${fmtOrb(x.orb)}</div>
+  <p><b>${Z.n}.</b> ${Z.key}</p><div class="explain">${Z.angle}</div>
+  <ul class="ctx"><li class="${cls}"><span>${esc(A)}: ${pN(a.id)} ${sIn(a.sign)} · ${hl(homeHouse(a))}</span>${L.planets[a.id].key}</li><li class="${cls}"><span>${esc(B)}: ${pN(b.id)} ${sIn(b.sign)} · ${hl(homeHouse(b))}</span>${L.planets[b.id].key}</li></ul>
+  <p>${F.aspMeaning(a.id,b.id,cls)}</p>
+  <h4>${u('exLands')}</h4><p>${esc(A)} ${pN(a.id)} → ${esc(B)}: ${hl(ha)} (${hShort(ha)})<br>${esc(B)} ${pN(b.id)} → ${esc(A)}: ${hl(hb)} (${hShort(hb)})</p>`;
+}
+function exCross(id,x){
+  const Z=L.aspects[x.a.id],n=x.n;
+  return `<div class="eyebrow">${u('retroHitsH')}</div><h3>${glyph(PDEF[id])} ${pN(id)} ℞ <span class="gl">${x.a.g}</span> ${glyph(n)} ${nm(n)}</h3><div class="pos">${Z.n} · ${fmtIn(n.lon)} ${sN(n.sign)} · ${hl(homeHouse(n))}</div>
+  <p><b>${Z.n}.</b> ${Z.key}</p><p>${F.aspMeaning(id,n.id,x.a.cls)}</p><div class="explain">${u('crossWhy')}</div>
+  <ul class="ctx"><li class="${x.a.cls}"><span>${nm(n)} ${sIn(n.sign)} · ${hl(homeHouse(n))}</span>${L.planets[n.id].info}</li></ul>`;
+}
+function exSky(p,tr){
+  const as=tr.aspects.filter(a=>a.t.id===p.id).slice(0,6);
+  return `<div class="eyebrow">${u('skyTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}${p.retro?' ℞':''}</h3><div class="pos">${posStr(p)} · ${hl(p.house)}</div><p>${L.planets[p.id].info}</p><div class="explain">${F.howRead(p.id,p.sign,p.house)}</div>
+  <h4>${u('transitsNow')}</h4>${as.length?as.map(a=>`<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>exSkyAsp(a))}">${aN(a.asp.id)} → ${glyph(a.n)} ${nm(a.n)} · ${fmtOrb(a.orb)} · ${a.applying?u('applying'):u('separating')}</span></div>`).join(''):`<p class="note">${u('nothingInOrb')}</p>`}${p.retro&&L.retroInfo[p.id]?`<p class="note">${L.retroInfo[p.id]}</p>`:''}`;
+}
+function exSkyAsp(a){const s=transitStoryHTML(a);return s;}
+function exReturn(id){return `<p>${L.returnInfo[id]}</p>`+natalPointHTML(id);}
+function exProg(x){const p=PDEF[x.id];return `<div class="eyebrow">${u('progTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(x.z)}</h3><div class="pos">${fmtIn(x.l)} · ${hl(x.h)}</div><p>${L.progInfo[x.id]}</p><div class="explain">${F.howRead(x.id,x.z,x.h)}</div><h4>${L.signs[x.z].n}</h4><p>${L.signs[x.z].body}</p><h4>${F.houseHeading(x.h,false)}</h4><p>${L.houses[x.h-1].body}</p>`;}
+document.addEventListener('click',e=>{
+  const t=e.target.closest&&e.target.closest('[data-ex]');if(!t)return;
+  if(t.closest('summary'))e.preventDefault();
+  const [k,v]=t.dataset.ex.split(':');let h='';
+  try{if(k==='planet')h=natalPointHTML(v);else if(k==='sign')h=signHTML(+v,natal);else if(k==='house')h=houseHTML(+v,natal);else if(k==='fn'&&EX[v])h=EX[v]();}catch(err){h='';console.error('explain failed',t.dataset.ex,err);}
+  if(h)openSheet(h);
+});
 /* ---------- today strip (moon phase, void of course Moon) ---------- */
 function moonForecast(now){
   const ids=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],ang=[0,60,90,120,180],AID={0:'conj',60:'sext',90:'sq',120:'tri',180:'opp'};
@@ -423,10 +460,10 @@ function renderToday(){
   const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
   renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
   $('#today-strip').innerHTML=`<h2>${u('todayTitle')}</h2>
-   <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b>${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
+   <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${L.moonPhases[k]} · ${ill}%</h3><p>${L.moonAdvice[k]}</p><div class="explain">${u('moonWhat')}</div>`)}">${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
    <div class="tadv">${L.moonAdvice[k]}</div>
-   <div class="tsl"><span class="gl">☽︎</span><span>${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
-   <div class="tvoid">${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
+   <div class="tsl"><span class="gl">☽︎</span><span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(mz)}</h3><div class="pos">${hl(mh)}</div><p>${L.planets.Moon.info}</p><div class="explain">${F.howRead('Moon',mz,mh)}</div><h4>${L.signs[mz].n}</h4><p>${L.signs[mz].body}</p><h4>${F.houseHeading(mh,false)}</h4><p>${L.houses[mh-1].body}</p>`)}">${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
+   <div class="tvoid ${fc.void||fc.id?'exl':''}" ${fc.void||fc.id?`data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${fc.void?L.moonPhases[k]:aN(fc.asp)}</h3><p>${u('voidInfo')}</p>`)}"`:''}>${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
    ${on.length?`<div class="chips"><span>℞</span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</div>`:''}<p class="honest">${u('honestNote')}</p>`;
 }
 document.addEventListener('click',e=>{if(!(e.target.closest&&e.target.closest('[data-goretro]')))return;showTab('planets');setPseg('retro');setRseg('now');});
@@ -811,13 +848,13 @@ function retroTouches(lo,hi){
 }
 function retroDetail(id,lo,hi){
   const ruled=housesRuledBy(natal,id),hits=lo==null?[]:retroTouches(lo,hi);let h='<ul class="ctx">';
-  if(ruled.length)h+=`<li><span>${u('retroRulesH')}</span>${ruled.map(n=>`${hl(n)} (${hShort(n)})`).join(', ')}</li>`;
-  if(lo!=null)h+=`<li><span>${u('retroHitsH')}</span>${hits.length?hits.map(x=>`<div class="rt">${aN(x.a.id)} → ${glyph(x.n)} ${nm(x.n)} (${fmtIn(x.n.lon)} ${sN(x.n.sign)})</div>`).join('')+`<div class="rt note">${u('retroHitsNote')}</div>`:u('retroNoHits')}</li>`;
+  if(ruled.length)h+=`<li><span>${u('retroRulesH')}</span>${ruled.map(n=>`<span class="exl" data-ex="house:${n}">${hl(n)} (${hShort(n)})</span>`).join(', ')}</li>`;
+  if(lo!=null)h+=`<li><span>${u('retroHitsH')}</span>${hits.length?hits.map(x=>`<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>exCross(id,x))}">${aN(x.a.id)} → ${glyph(x.n)} ${nm(x.n)} (${fmtIn(x.n.lon)} ${sN(x.n.sign)})</span></div>`).join('')+`<div class="rt note">${u('retroHitsNote')}</div>`:u('retroNoHits')}</li>`;
   return h+'</ul>';
 }
 function retroNatalAsp(id){
   const as=natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id).slice(0,5);
-  return as.length?`<ul class="ctx"><li><span>${u('retroNatalAspH')}</span>${as.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<div class="rt">${aN(a.asp.id)} → ${glyph(o)} ${nm(o)} (${sN(o.sign)})</div>`;}).join('')}</li></ul>`:'';
+  return as.length?`<ul class="ctx"><li><span>${u('retroNatalAspH')}</span>${as.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>natalAspectHTML(natal.aspects.indexOf(a)))}">${aN(a.asp.id)} → ${glyph(o)} ${nm(o)} (${sN(o.sign)})</span></div>`;}).join('')}</li></ul>`:'';
 }
 let retroCal=null;
 function renderRetroCal(){
@@ -837,7 +874,7 @@ let skyDate=null;
 function renderSky(){
   const d=skyDate||new Date(),tr=computeTransits(natal,d);
   $('#sky-label').textContent=(skyDate?'':'● '+u('skyLive')+' · ')+d.toLocaleString(L.locale,{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  $('#sky-list').innerHTML=tr.pts.map(p=>`<div class="prow"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(p.house)}</span></div>`).join('');
+  $('#sky-list').innerHTML=tr.pts.map(p=>`<div class="prow" data-ex="fn:${exReg(()=>exSky(p,tr))}"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(p.house)}</span></div>`).join('');
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sky]');if(!b)return;const n=+b.dataset.sky;
   skyDate=n===0?null:new Date((skyDate||new Date()).getTime()+n*DAY);renderSky();});
@@ -865,9 +902,9 @@ function renderCycles(){
     cyc={key,ret,prog};}
   const now=Date.now(),birth=natal.date.getTime();
   $('#returns').innerHTML=Object.entries(cyc.ret).map(([id,r])=>{const p=PDEF[id],act=r.prev&&r.prev.last>=now;
-    return `<div class="ret-card"><div class="rh">${glyph(p)} ${nm(p)}${act?` <span class="badge">${u('retNow')}</span>`:''}</div><p>${L.returnInfo[id]}</p>${r.next?`<div class="rd"><b>${u('retNext')}:</b> ${retRange(r.next,birth)}</div>`:''}${r.prev?`<div class="rd"><b>${u('retLast')}:</b> ${retRange(r.prev,birth)}</div>`:''}</div>`;}).join('');
+    return `<div class="ret-card" data-ex="fn:${exReg(()=>exReturn(id))}"><div class="rh">${glyph(p)} ${nm(p)}${act?` <span class="badge">${u('retNow')}</span>`:''}</div><p>${L.returnInfo[id]}</p>${r.next?`<div class="rd"><b>${u('retNext')}:</b> ${retRange(r.next,birth)}</div>`:''}${r.prev?`<div class="rd"><b>${u('retLast')}:</b> ${retRange(r.prev,birth)}</div>`:''}</div>`;}).join('');
   $('#progressed').innerHTML=cyc.prog.map(x=>{const p=PDEF[x.id];
-    return `<div class="ret-card"><div class="rh">${glyph(p)} ${nm(p)} · ${sIn(x.z)} <span class="mono muted" style="font-size:.85rem">${fmtIn(x.l)}</span></div><div class="rd">${hl(x.h)} (${hShort(x.h)})${x.until?` · ${u('progUntil')} ${fmtShort(x.until)}`:''}</div><p>${L.progInfo[x.id]}</p></div>`;}).join('');
+    return `<div class="ret-card" data-ex="fn:${exReg(()=>exProg(x))}"><div class="rh">${glyph(p)} ${nm(p)} · ${sIn(x.z)} <span class="mono muted" style="font-size:.85rem">${fmtIn(x.l)}</span></div><div class="rd">${hl(x.h)} (${hShort(x.h)})${x.until?` · ${u('progUntil')} ${fmtShort(x.until)}`:''}</div><p>${L.progInfo[x.id]}</p></div>`;}).join('');
 }
 /* ---------- match (compare two charts) ---------- */
 function renderMatch(){
@@ -879,12 +916,12 @@ function renderMatch(){
   const hits=[];pa.forEach(a=>pb.forEach(b=>{const lum=['Sun','Moon'].includes(a.id)||['Sun','Moon'].includes(b.id),hit=aspectBetween(a.lon,b.lon,x=>Math.min(x.orb,6)+(lum?1:0));if(hit&&hit.asp.id!=='qx')hits.push({a,b,...hit});}));
   hits.sort((x,y)=>x.orb-y.orb);const top=hits.slice(0,10),ease=top.filter(x=>x.asp.cls==='soft').length,hard=top.filter(x=>x.asp.cls==='hard').length;
   const kind=x=>x.asp.cls==='soft'?['soft',u('matchEase')]:x.asp.cls==='hard'?['hard',u('matchTension')]:['neu',u('matchFusion')];
-  const big3=(c,n)=>['Sun','Moon','ASC'].map(id=>{const p=c.byId[id];return `${glyph(p)} ${sN(p.sign)}`;}).join(' · ');
-  const lands=(from,fname,to,tname)=>['Sun','Moon','Venus','Mars'].map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps);return `<div class="rt">${glyph(p)} ${fname} → ${tname}: ${hl(h)} (${hShort(h)})</div>`;}).join('');
+  const big3=(c,n)=>['Sun','Moon','ASC'].map(id=>{const p=c.byId[id];return `<span class="exl" data-ex="fn:${exReg(()=>exPlacement(c,id,n))}">${glyph(p)} ${sN(p.sign)}</span>`;}).join(' · ');
+  const lands=(from,fname,to,tname)=>['Sun','Moon','Venus','Mars'].map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps);return `<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('exLands')}</div><h3>${glyph(p)} ${fname} → ${tname}: ${hl(h)}</h3><p>${L.houses[h-1].body}</p><div class="explain">${L.houses[h-1].q}</div>`)}">${glyph(p)} ${fname} → ${tname}: ${hl(h)} (${hShort(h)})</span></div>`;}).join('');
   box.innerHTML=`<div class="switch-row"><label>${u('matchWith')} <select id="match-sel">${others.map(([c,i])=>`<option value="${i}"${i===sel?' selected':''}>${esc(c.name||'Chart '+(i+1))}</option>`).join('')}</select></label></div>
-   <p class="tadv">${ease>hard+1?u('matchSumEase'):hard>ease+1?u('matchSumSpark'):u('matchSumMix')}</p>
-   <ul class="ctx"><li><span>${u('matchBig3')}</span><div class="rt"><b>${esc(A)}</b>: ${big3(natal)}</div><div class="rt"><b>${esc(B)}</b>: ${big3(other)}</div></li></ul>
-   <h3>${u('matchAsp')}</h3>${top.map(x=>{const [cls,txt]=kind(x);return `<div class="explain ${cls==='hard'?'hardx':''}"><b>${esc(A)}</b> ${glyph(x.a)} ${pN(x.a.id)} <span class="gl">${x.asp.g}</span> ${aN(x.asp.id)} ${glyph(x.b)} ${pN(x.b.id)} <b>${esc(B)}</b><br><span class="muted">${txt} · ${fmtOrb(x.orb)}</span></div>`;}).join('')}
+   <p class="tadv exl" data-ex="fn:${exReg(()=>`<p>${F.matchHow(ease,hard,top.length)}</p>`)}">${ease>hard+1?u('matchSumEase'):hard>ease+1?u('matchSumSpark'):u('matchSumMix')}</p>
+   <ul class="ctx"><li><span>${u('matchBig3')}</span><div class="rt"><b>${esc(A)}</b>: ${big3(natal,A)}</div><div class="rt"><b>${esc(B)}</b>: ${big3(other,B)}</div></li></ul>
+   <h3>${u('matchAsp')}</h3>${top.map(x=>{const [cls,txt]=kind(x);return `<div class="explain tapcard ${cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>exMatchLink(x,A,B,other))}"><b>${esc(A)}</b> ${glyph(x.a)} ${pN(x.a.id)} <span class="gl">${x.asp.g}</span> ${aN(x.asp.id)} ${glyph(x.b)} ${pN(x.b.id)} <b>${esc(B)}</b><br><span class="muted">${txt} · ${fmtOrb(x.orb)}</span></div>`;}).join('')}
    <h3>${u('matchHouses')}</h3><ul class="ctx"><li>${lands(natal,esc(A),other,esc(B))}</li><li>${lands(other,esc(B),natal,esc(A))}</li></ul>`;
 }
 document.addEventListener('change',e=>{if(e.target.id==='match-sel'){store.set('tf.match',+e.target.value);renderMatch();}});
@@ -934,20 +971,20 @@ let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
 function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
 function retroCard(p,badge,cls,dates,where,tag,body){
-  return `<details class="rcard"><summary><div class="rh"><span>${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;
+  return `<details class="rcard"><summary><div class="rh"><span class="exl" data-ex="planet:${p.id}">${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;
 }
 function renderRetroCards(){
   document.querySelectorAll('[data-rseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rseg===rsegV));
   $('#rseg-note').textContent=u({now:'rNoteNow',soon:'rNoteSoon',birth:'rNoteBirth'}[rsegV]);
   const t0=startOfDayNoon(new Date()),tagOf=id=>((L.retroInfo[id]||'').split('. ')[0]).replace(/\.$/,'.');let h='';
   if(rsegV==='birth'){
-    h=natal.pts.filter(p=>p.retro).map(p=>retroCard(p,u('badgeBirth'),'',null,`${sN(p.sign)} · ${hl(homeHouse(p))}`,tagOf(p.id),`<p>${F.retroNatal(p.id,p.sign,homeHouse(p))}</p>${retroDetail(p.id,null,null)}${retroNatalAsp(p.id)}`)).join('');
+    h=natal.pts.filter(p=>p.retro).map(p=>retroCard(p,u('badgeBirth'),'',null,`${exS(p.sign)} · ${exHs(homeHouse(p))}`,tagOf(p.id),`<p>${F.retroNatal(p.id,p.sign,homeHouse(p))}</p>${retroDetail(p.id,null,null)}${retroNatalAsp(p.id)}`)).join('');
     if(!h)h=`<p class="note">${u('retroNone')}</p>`;
   }else{
     let rows=retroCal.rows.filter(r=>rsegV==='now'?r.on:!r.on);
     if(rsegV==='now')rows=[...rows].sort((a,b)=>a.e-b.e);
     h=rows.map(r=>{const p=PDEF[r.id],days=Math.max(1,Math.round(((r.on?r.e:r.s)-t0)/DAY));
-      return retroCard(p,r.on?F.retroEnds(days):F.retroStarts(days),r.on?'':'soon',`${fmtShort(r.s)} → ${fmtShort(r.e)}`,`${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}`,tagOf(r.id),`<p>${F.retroPeriod(r.id,r.h1,r.h2)}</p>${retroDetail(r.id,r.lo,r.hi)}`);}).join('');
+      return retroCard(p,r.on?F.retroEnds(days):F.retroStarts(days),r.on?'':'soon',`${fmtShort(r.s)} → ${fmtShort(r.e)}`,`${exS(r.z1)}${r.z2!==r.z1?' → '+exS(r.z2):''} · ${exHs(r.h1)}${r.h2!==r.h1?' → '+exHs(r.h2):''}`,tagOf(r.id),`<p>${F.retroPeriod(r.id,r.h1,r.h2)}</p>${retroDetail(r.id,r.lo,r.hi)}`);}).join('');
     if(!h)h=`<p class="note">${u('retroNoneNow')}</p>`;
   }
   $('#retro-cards').innerHTML=h;

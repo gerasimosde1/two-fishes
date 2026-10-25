@@ -17,6 +17,9 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 - Every shade of blue (turquoise to baby blue) and pink, with vintage-looking type (IM Fell English, EB Garamond, Courier Prime).
 - Logo: two Pisces fishes around a sun. Colours are CSS tokens on `:root`, with light and dark themes.
 
+## Tap to explain
+- She wants to be able to tap anything and see what it means for HER chart. Any item that shows a planet, sign, house, aspect, phase or date range must carry a `data-ex` attribute (`planet:ID`, `sign:N`, `house:N`, or `fn:<key>` from `exReg(() => html)`), styled with `.exl` (dotted underline) or `.tapcard`; a click opens the sheet with a plain explanation tied to her own placements. Reuse `natalPointHTML`, `signHTML`, `houseHTML`, `natalAspectHTML`, `transitStoryHTML`, `exPlacement` and friends. Add the wording to all three i18n packs.
+
 ## Voice
 - Warm, wry and honest. Light humor (never at her expense), no fearmongering: a hard transit is a hard day, not a doom. Say plainly that transits describe themes and moods, not fixed outcomes (`honestNote`, `tidesNote`). Keep every sentence plain and beginner friendly, and keep the same tone in all three languages (write natural jokes, don't translate word for word).
 

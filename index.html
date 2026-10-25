@@ -197,6 +197,7 @@ nav.tabs button:hover{color:var(--pink)}
 .day-note{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:2px}
 .cal-d.has-note{position:relative}.cal-d.has-note::after{content:"✎";position:absolute;top:1px;right:3px;font-size:.6rem;color:var(--pink)}
 .honest{font-size:.85rem;font-style:italic;color:var(--ink-soft);margin:10px 0 0;border-top:1px dashed var(--line);padding-top:8px}
+.exl{border-bottom:1px dotted var(--pink);cursor:pointer}.tapcard{cursor:pointer}.tapcard:hover,.prow[data-ex]:hover{border-color:var(--pink)}.taphint{font-size:.85rem;margin:0 0 10px}
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.98rem}
 th{font-family:var(--f-display);font-weight:400;letter-spacing:.06em;color:var(--ink-soft);text-align:left;border-bottom:1px solid var(--ink-line);padding:6px 8px;font-size:.9rem}
@@ -509,13 +510,13 @@ body.sheet-open{overflow:hidden}
       </div>
       <div class="panel" data-pp="sky" hidden>
         <h2 data-i18n="skyTitle"></h2>
-        <p class="note" style="margin:4px 0 10px" data-i18n="skyNote"></p>
+        <p class="note" style="margin:4px 0 10px" data-i18n="skyNote"></p><p class="note taphint" data-i18n="tapHint"></p>
         <div class="sky-bar"><button class="btn sm" type="button" data-sky="-1" data-i18n="d1"></button><span class="mono" id="sky-label"></span><button class="btn sm" type="button" data-sky="1" data-i18n="p1d"></button><button class="btn sm" type="button" data-sky="0" data-i18n="today"></button></div>
         <div id="sky-list"></div>
       </div>
       <div class="panel" data-pp="cycles" hidden>
         <h2 data-i18n="cycTitle"></h2>
-        <p class="note" style="margin:4px 0 10px" data-i18n="cycNote"></p>
+        <p class="note" style="margin:4px 0 10px" data-i18n="cycNote"></p><p class="note taphint" data-i18n="tapHint"></p>
         <div id="returns"></div>
         <h2 style="margin-top:22px" data-i18n="progTitle"></h2>
         <p class="note" style="margin:4px 0 10px" data-i18n="progNote"></p>
@@ -523,14 +524,14 @@ body.sheet-open{overflow:hidden}
       </div>
       <div class="panel" data-pp="match" hidden>
         <h2 data-i18n="matchTitle"></h2>
-        <p class="note" style="margin:4px 0 10px" data-i18n="matchNote"></p>
+        <p class="note" style="margin:4px 0 10px" data-i18n="matchNote"></p><p class="note taphint" data-i18n="tapHint"></p>
         <div id="match-body"></div>
       </div>
       <div class="panel" data-pp="retro" hidden>
         <h2 data-i18n="retroTitle"></h2>
         <details class="rguide"><summary data-i18n="retroWhatQ"></summary><div data-i18n-html="retroGuide"></div></details>
         <div class="seg sm" id="rseg"><button type="button" data-rseg="now" aria-pressed="true" data-i18n="fNow"></button><button type="button" data-rseg="soon" aria-pressed="false" data-i18n="fSoon"></button><button type="button" data-rseg="birth" aria-pressed="false" data-i18n="fBirth"></button></div>
-        <p class="note" id="rseg-note" style="margin:0 0 12px"></p>
+        <p class="note" id="rseg-note" style="margin:0 0 12px"></p><p class="note taphint" data-i18n="tapHint"></p>
         <div id="retro-cards"></div>
         <div style="margin-top:14px"><button class="btn sm" id="ics-btn" type="button" data-i18n="icsBtn"></button><p class="note" style="margin:6px 0 0" data-i18n="icsNote"></p></div>
       </div>
