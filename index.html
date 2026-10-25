@@ -181,6 +181,15 @@ nav.tabs button:hover{color:var(--pink)}
 @media(max-width:520px){.prow{grid-template-columns:1.6em 1fr auto;row-gap:0}.prow .pd{grid-column:2;grid-row:2}.prow .ph{grid-column:3;grid-row:2;text-align:right}}
 .sky-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 8px}.sky-bar .mono{flex:1;min-width:9em;text-align:center;font-size:.85rem}
 .ctx li .rt{margin:2px 0}.ctx li .rt span{display:inline;font-family:inherit;letter-spacing:normal;font-size:inherit;color:inherit}.ctx li .rt .gl{font-family:var(--f-glyph)}
+.seg{display:flex;gap:6px;margin:0 0 14px}.seg button{flex:1;padding:9px 4px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);font-family:var(--f-display);font-size:.95rem;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--pink);color:var(--ink);background:var(--sel-wash)}.seg.sm button{font-size:.85rem;padding:7px 4px}
+.rguide{margin:6px 0 14px}.rguide summary{cursor:pointer;color:var(--teal);font-family:var(--f-display);font-size:.95rem}
+.rcard{border:1px solid var(--line);border-left:3px solid var(--pink);border-radius:2px;margin:0 0 10px;background:var(--paper)}
+.rcard summary{list-style:none;cursor:pointer;padding:10px 12px}.rcard summary::-webkit-details-marker{display:none}
+.rcard .rh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--f-display);font-size:1.1rem}
+.rcard .rd{font-size:.85rem;color:var(--ink-soft);margin-top:2px}.rcard .rtag{font-style:italic;margin-top:4px}
+.rcard .rb{padding:0 12px 12px}.rcard[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+.badge.soon{color:var(--pink);border-color:var(--pink)}.rcard .badge{white-space:nowrap}
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.98rem}
 th{font-family:var(--f-display);font-weight:400;letter-spacing:.06em;color:var(--ink-soft);text-align:left;border-bottom:1px solid var(--ink-line);padding:6px 8px;font-size:.9rem}
@@ -484,27 +493,24 @@ body.sheet-open{overflow:hidden}
 
     <section id="tab-planets" data-panel="planets" hidden>
       <div class="switch-row" data-switch hidden><label><span data-i18n="viewing"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
-      <div class="panel">
+      <div class="seg" id="pseg"><button type="button" data-pseg="signs" aria-pressed="true" data-i18n="segSigns"></button><button type="button" data-pseg="sky" aria-pressed="false" data-i18n="segSky"></button><button type="button" data-pseg="retro" aria-pressed="false" data-i18n="segRetro"></button></div>
+      <div class="panel" data-pp="signs">
         <h2 data-i18n="planetsTitle"></h2>
         <p class="note" style="margin:4px 0 10px" data-i18n="planetsNote"></p>
         <div id="planet-list"></div>
       </div>
-      <div class="panel" style="margin-top:22px">
+      <div class="panel" data-pp="sky" hidden>
         <h2 data-i18n="skyTitle"></h2>
         <p class="note" style="margin:4px 0 10px" data-i18n="skyNote"></p>
         <div class="sky-bar"><button class="btn sm" type="button" data-sky="-1" data-i18n="d1"></button><span class="mono" id="sky-label"></span><button class="btn sm" type="button" data-sky="1" data-i18n="p1d"></button><button class="btn sm" type="button" data-sky="0" data-i18n="today"></button></div>
         <div id="sky-list"></div>
-        <h3 style="margin-top:18px" data-i18n="calTitle"></h3>
-        <p class="note" style="margin:4px 0 10px" data-i18n="calNote"></p>
-        <div id="retro-cal"></div>
       </div>
-      <div class="panel" style="margin-top:22px">
+      <div class="panel" data-pp="retro" hidden>
         <h2 data-i18n="retroTitle"></h2>
-        <div data-i18n-html="retroGuide"></div>
-        <h3 data-i18n="retroNatalH"></h3>
-        <div id="retro-natal"></div>
-        <h3 style="margin-top:18px" data-i18n="retroNowH"></h3>
-        <div id="retro-now"></div>
+        <details class="rguide"><summary data-i18n="retroWhatQ"></summary><div data-i18n-html="retroGuide"></div></details>
+        <div class="seg sm" id="rseg"><button type="button" data-rseg="now" aria-pressed="true" data-i18n="fNow"></button><button type="button" data-rseg="soon" aria-pressed="false" data-i18n="fSoon"></button><button type="button" data-rseg="birth" aria-pressed="false" data-i18n="fBirth"></button></div>
+        <p class="note" id="rseg-note" style="margin:0 0 12px"></p>
+        <div id="retro-cards"></div>
       </div>
     </section>
 

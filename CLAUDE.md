@@ -19,7 +19,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 
 ## Features so far
 - Birth Chart tab: a clickable wheel with placements, signs, houses and aspects.
-- Planets tab: a written list of every planet in its sign, degree and house (tap a row to open it on the Chart tab), plus a Retrograde section (what ℞ means, which natal planets are retrograde, which planets are retrograde today and when they turn direct). Wording lives in the i18n packs (`retroInfo`, `L.f.retroNatal/retroNow`, `L.ui` keys).
+- Planets tab, three sections (Signs, Sky now, Retrograde). Signs: every planet and Chiron in its sign, degree and house (tap a row to open it on the Chart tab). Sky now: live positions with day steps. Retrograde: filter Now / Coming up (two years) / My birth chart, each retrograde as an expandable card (dates, status, signs and houses crossed, houses it rules in her chart, natal points it crosses). Chiron comes from `chiron.js` (JPL Horizons table 1900-2100, 5-day steps, interpolated); outside that range it is simply left out. Wording lives in the i18n packs (`retroInfo`, `L.f.retro*`, `L.ui` keys).
 - Transits tab (opens first):
   - "Today's Tides": star ratings for Love, Work, Money, Energy, Mind, Home, Friends and Inner world, with practical advice, a "why" built from transits, and a "learn" line. Also a daily visit streak. She likes this as the hook that keeps her coming back.
   - A calendar (tap any day, past or future) and a biwheel.

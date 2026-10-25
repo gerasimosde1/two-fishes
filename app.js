@@ -780,8 +780,6 @@ function renderRetroCal(){
           if(e>=t0)rows.push({id,s:run.s,e,lo:Math.min(...run.lons),hi:Math.max(...run.lons),z1:Math.floor(l1/30),z2:Math.floor(l2/30),h1:houseOf(l1,natal.cusps),h2:houseOf(l2,natal.cusps),on:run.s<=t0});
           run=null;}}}
     rows.sort((a,b)=>a.s-b.s);retroCal={key,rows};}
-  $('#retro-cal').innerHTML=retroCal.rows.map(r=>{const p=PDEF[r.id];
-    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${fmtShort(r.s)} → ${fmtShort(r.e)}</b>${r.on?` <span class="badge">${u('calNow')}</span>`:''}<br><span class="mono" style="font-size:.85rem">${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}</span><br>${F.retroPeriod(r.id,r.h1,r.h2)}${retroDetail(r.id,r.lo,r.hi)}</div>`;}).join('');
 }
 let skyDate=null;
 function renderSky(){
@@ -792,16 +790,33 @@ function renderSky(){
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sky]');if(!b)return;const n=+b.dataset.sky;
   skyDate=n===0?null:new Date((skyDate||new Date()).getTime()+n*DAY);renderSky();});
 setInterval(()=>{if(curTab==='planets'&&!skyDate&&!document.hidden)renderSky();},30000);
+let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
+function setPseg(v){psegV=v;store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
+function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
+function retroCard(p,badge,cls,dates,where,tag,body){
+  return `<details class="rcard"><summary><div class="rh"><span>${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;
+}
+function renderRetroCards(){
+  document.querySelectorAll('[data-rseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rseg===rsegV));
+  $('#rseg-note').textContent=u({now:'rNoteNow',soon:'rNoteSoon',birth:'rNoteBirth'}[rsegV]);
+  const t0=startOfDayNoon(new Date()),tagOf=id=>((L.retroInfo[id]||'').split('. ')[0]).replace(/\.$/,'.');let h='';
+  if(rsegV==='birth'){
+    h=natal.pts.filter(p=>p.retro).map(p=>retroCard(p,u('badgeBirth'),'',null,`${sN(p.sign)} · ${hl(homeHouse(p))}`,tagOf(p.id),`<p>${F.retroNatal(p.id,p.sign,homeHouse(p))}</p>${retroDetail(p.id,null,null)}${retroNatalAsp(p.id)}`)).join('');
+    if(!h)h=`<p class="note">${u('retroNone')}</p>`;
+  }else{
+    let rows=retroCal.rows.filter(r=>rsegV==='now'?r.on:!r.on);
+    if(rsegV==='now')rows=[...rows].sort((a,b)=>a.e-b.e);
+    h=rows.map(r=>{const p=PDEF[r.id],days=Math.max(1,Math.round(((r.on?r.e:r.s)-t0)/DAY));
+      return retroCard(p,r.on?F.retroEnds(days):F.retroStarts(days),r.on?'':'soon',`${fmtShort(r.s)} → ${fmtShort(r.e)}`,`${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}`,tagOf(r.id),`<p>${F.retroPeriod(r.id,r.h1,r.h2)}</p>${retroDetail(r.id,r.lo,r.hi)}`);}).join('');
+    if(!h)h=`<p class="note">${u('retroNoneNow')}</p>`;
+  }
+  $('#retro-cards').innerHTML=h;
+}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-pseg],[data-rseg]');if(!a)return;if(a.dataset.pseg)setPseg(a.dataset.pseg);else setRseg(a.dataset.rseg);});
 function renderPlanets(){
   const pts=natal.pts.filter(p=>p.id!=='ASC'&&p.id!=='MC').concat(natal.pts.filter(p=>p.id==='ASC'||p.id==='MC'));
   $('#planet-list').innerHTML=pts.map(p=>`<button type="button" class="prow" data-pick="natal:${p.id}"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(homeHouse(p))}</span></button>`).join('');
-  renderSky();renderRetroCal();
-  const rn=natal.pts.filter(p=>p.retro);
-  $('#retro-natal').innerHTML=rn.length?rn.map(p=>`<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(homeHouse(p))}.</b> ${F.retroNatal(p.id,p.sign,homeHouse(p))}${retroDetail(p.id,null,null)}${retroNatalAsp(p.id)}</div>`).join(''):`<p class="note">${u('retroNone')}</p>`;
-  const now=startOfDayNoon(new Date()),tr=computeTransits(natal,now).pts.filter(p=>p.retro);
-  $('#retro-now').innerHTML=tr.length?tr.map(p=>{
-    let end=null;for(let i=1;i<=500;i++){const d=new Date(now.getTime()+i*DAY);if(speedOf(p.id,d)>=0){end=d;break;}}
-    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(p.house)}.</b> ${F.retroNow(p.id,p.sign,p.house,end&&fmtShort(end))}${(()=>{const row=retroCal.rows.find(x=>x.id===p.id&&x.on);return retroDetail(p.id,row&&row.lo,row&&row.hi);})()}</div>`;}).join(''):`<p class="note">${u('retroNoneNow')}</p>`;
+  renderSky();renderRetroCal();renderRetroCards();setPseg(psegV);
 }
 document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.prow[data-pick]');if(!r)return;showTab('chart');selN=r.dataset.pick;renderNatal();});
 
