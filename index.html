@@ -190,10 +190,12 @@ nav.tabs button:hover{color:var(--pink)}
 .rcard .rd{font-size:.85rem;color:var(--ink-soft);margin-top:2px}.rcard .rtag{font-style:italic;margin-top:4px}
 .rcard .rb{padding:0 12px 12px}.rcard[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
 .badge.soon{color:var(--pink);border-color:var(--pink)}.rcard .badge{white-space:nowrap}
-.today-strip h2{margin:0 0 6px}.today-strip .tl{display:flex;gap:8px;align-items:baseline;margin:4px 0}.today-strip .em{font-size:1.5rem;line-height:1}.today-strip .tadv{font-style:italic;margin:2px 0 8px}.today-strip .tvoid{font-size:.92rem;color:var(--ink-soft);margin:6px 0}
+.today-strip h2{margin:0 0 6px}.today-strip .tsl{display:flex;gap:8px;align-items:baseline;margin:4px 0;flex-wrap:wrap}.today-strip{min-width:0}.today-strip .chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:6px 0}.today-strip .chips .chip{margin:0}.today-strip .em{font-size:1.5rem;line-height:1}.today-strip .tadv{font-style:italic;margin:2px 0 8px}.today-strip .tvoid{font-size:.92rem;color:var(--ink-soft);margin:6px 0}
 .seg{overflow-x:auto}.seg button{flex:1 0 auto;padding:9px 12px}.seg.sm button{padding:7px 10px}
 .ret-card{border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:2px;margin:0 0 10px;background:var(--paper);padding:10px 12px}.ret-card .rh{font-family:var(--f-display);font-size:1.1rem}.ret-card p{margin:6px 0}.ret-card .rd{font-size:.88rem;color:var(--ink-soft)}
 .practice-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}.practice-bar:empty{display:none}
+.day-note{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:2px}
+.cal-d.has-note{position:relative}.cal-d.has-note::after{content:"✎";position:absolute;top:1px;right:3px;font-size:.6rem;color:var(--pink)}
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.98rem}
 th{font-family:var(--f-display);font-weight:400;letter-spacing:.06em;color:var(--ink-soft);text-align:left;border-bottom:1px solid var(--ink-line);padding:6px 8px;font-size:.9rem}

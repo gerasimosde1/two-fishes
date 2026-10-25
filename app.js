@@ -423,11 +423,11 @@ function renderToday(){
   const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
   renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
   $('#today-strip').innerHTML=`<h2>${u('todayTitle')}</h2>
-   <div class="tl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b>${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
+   <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b>${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
    <div class="tadv">${L.moonAdvice[k]}</div>
-   <div class="tl"><span class="gl">☽︎</span><span>${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
+   <div class="tsl"><span class="gl">☽︎</span><span>${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
    <div class="tvoid">${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
-   ${on.length?`<div class="tl"><span>℞</span><span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</span></div>`:''}`;
+   ${on.length?`<div class="chips"><span>℞</span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</div>`:''}`;
 }
 document.addEventListener('click',e=>{if(!(e.target.closest&&e.target.closest('[data-goretro]')))return;showTab('planets');setPseg('retro');setRseg('now');});
 function renderTransits(){
@@ -539,6 +539,8 @@ function eventHTML(e){
   const np=natal.byId[e.nid];
   return `<button type="button" class="aitem" data-pick="${e.pick}" style="grid-template-columns:minmax(0,1fr) auto"><span><span><span class="gl">${PDEF[e.id].g}${ASP[e.aid].g}</span>${glyphTxt(np)} ${F.transitTitle(e.id,e.aid,e.nid)}</span><span class="sub" style="display:block">${F.tr(e.id,e.nid)} (${pWhat(e.nid)}, ${hl(homeHouse(np))}). ${L.aspects[e.aid].key}</span></span><span class="orb">${u('exact')}</span></button>`;
 }
+const dayNotes=()=>store.get('tf.notes',{})[natalKey()]||{};
+function saveDayNote(iso,txt){const all=store.get('tf.notes',{}),k=natalKey();all[k]=all[k]||{};if(txt.trim())all[k][iso]=txt;else delete all[k][iso];store.set('tf.notes',all);}
 function renderCalendar(){
   const y=tDate.getFullYear(),m=tDate.getMonth();
   if(!cal||cal.y!==y||cal.m!==m||cal.key!==natalKey())cal=computeMonth(y,m);
@@ -547,16 +549,21 @@ function renderCalendar(){
   const mon=new Date(2024,0,1,12);
   let h=Array.from({length:7},(_,i)=>`<div class="cal-wd">${new Date(mon.getTime()+i*DAY).toLocaleDateString(L.locale,{weekday:'short'}).replace('.','')}</div>`).join('');
   for(let i=0;i<lead;i++)h+='<div class="cal-d pad"></div>';
+  const notes=dayNotes();
   cal.days.forEach(x=>{const iso=isoDate(x.date),z=SIGNS[Math.floor(x.moon/30)];
     const dots=x.ev.slice(0,3).map(e=>`<i class="${e.cls}"></i>`).join('');
-    h+=`<button type="button" class="cal-d${iso===todayIso?' today':''}${iso===selIso?' sel':''}" data-day="${iso}" aria-label="${esc(fmtShort(x.date))}"><span class="n">${x.date.getDate()}</span><span class="mg" style="color:var(--${z.el})">${z.g}</span><span class="dots">${dots}</span></button>`;});
+    h+=`<button type="button" class="cal-d${iso===todayIso?' today':''}${iso===selIso?' sel':''}${notes[iso]?' has-note':''}" data-day="${iso}" aria-label="${esc(fmtShort(x.date))}"><span class="n">${x.date.getDate()}</span><span class="mg" style="color:var(--${z.el})">${z.g}</span><span class="dots">${dots}</span></button>`;});
   $('#cal-grid').innerHTML=h;
   const x=cal.days[tDate.getDate()-1],ms=Math.floor(x.moon/30),mh=houseOf(x.moon,natal.cusps);
   let d=`<div class="eyebrow">${u('yourDay')}</div><h3>${tDate.toLocaleDateString(L.locale,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</h3><div class="rel">${F.rel(daysFromToday(tDate))}</div>
     <p class="moon"><span class="gl" style="color:var(--pink)">☽︎</span> ${F.calMoon(ms,mh,SIGNS[ms].g)}</p>`;
   d+=x.ev.length?x.ev.map(eventHTML).join(''):`<p class="note">${u('noExact')}</p>`;
+  d+=`<h4>${u('myNote')}</h4><textarea id="day-note" class="day-note" rows="3" placeholder="${esc(u('notePh'))}">${esc(notes[selIso]||'')}</textarea><div class="note" id="day-note-ok" style="min-height:1.2em"></div>`;
   $('#cal-day').innerHTML=d;
 }
+let noteTimer=null;
+document.addEventListener('input',e=>{if(e.target.id!=='day-note')return;const iso=isoDate(tDate),v=e.target.value;clearTimeout(noteTimer);
+  noteTimer=setTimeout(()=>{saveDayNote(iso,v);const c=document.querySelector(`.cal-d[data-day="${iso}"]`);if(c)c.classList.toggle('has-note',!!v.trim());const ok=$('#day-note-ok');if(ok)ok.textContent='✓ '+u('noteSaved');},400);});
 
 /* ---------- timeline ---------- */
 const TL_BODIES=['Jupiter','Saturn','Uranus','Neptune','Pluto','Node'];
