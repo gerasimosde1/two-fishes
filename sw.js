@@ -1,6 +1,6 @@
 // Two Fishes service worker: app shell works offline, updates arrive on next launch.
-const VERSION = 'tf-v5';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
+const VERSION = 'tf-v6';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './app.js', './i18n/en.js', './i18n/el.js', './i18n/it.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -16,8 +16,8 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Pages: network first so new versions show up, cache as fallback offline.
-  if (req.mode === 'navigate' || (url.origin === location.origin && url.pathname.endsWith('.html'))) {
+  // Our own pages and scripts: network first so new versions show up, cache as fallback offline.
+  if (req.mode === 'navigate' || (url.origin === location.origin && /\.(html|js|webmanifest)$|\/$/.test(url.pathname))) {
     e.respondWith(fetch(req).then(res => {
       const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res;
     }).catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));

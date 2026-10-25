@@ -3,7 +3,8 @@
 Astrology web app built for the owner's girlfriend, who describes the features she wants. She is relearning astrology after about 10 years, so explanations should be plain and beginner friendly.
 
 ## How it ships
-- Everything lives in `index.html` (HTML, CSS and JS in one file), plus `manifest.webmanifest`, `sw.js` and `icons/`.
+- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), plus `manifest.webmanifest`, `sw.js` and `icons/`.
+- Languages: English, Greek, Italian (the owner said these three for now). No user-visible text belongs in app.js or index.html: static labels use `data-i18n` keys (`L.ui`), sentences are template functions in `L.f` / `L.q`. When adding text, add the key to all three packs. Greek and Italian templates handle articles and cases (e.g. Greek `art`, `acc`, `your`, `yourS`, sign `inS`/`gen`), so build sentences inside the pack, not by concatenating in app.js.
 - GitHub Pages serves `main` at https://gerasimosde1.github.io/two-fishes/. Her phone QR code opens that URL, so pushing to `main` updates her app within a minute or two.
 - It is an installable PWA. After changing cached files, bump `VERSION` in `sw.js` so phones pick up the new version.
 - Run locally with `python3 -m http.server 8791` and open http://localhost:8791.
@@ -18,6 +19,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 
 ## Features so far
 - Birth Chart tab: a clickable wheel with placements, signs, houses and aspects.
+- Planets tab: a written list of every planet in its sign, degree and house (tap a row to open it on the Chart tab), plus a Retrograde section (what ℞ means, which natal planets are retrograde, which planets are retrograde today and when they turn direct). Wording lives in the i18n packs (`retroInfo`, `L.f.retroNatal/retroNow`, `L.ui` keys).
 - Transits tab (opens first):
   - "Today's Tides": star ratings for Love, Work, Money, Energy, Mind, Home, Friends and Inner world, with practical advice, a "why" built from transits, and a "learn" line. Also a daily visit streak. She likes this as the hook that keeps her coming back.
   - A calendar (tap any day, past or future) and a biwheel.
