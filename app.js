@@ -740,6 +740,21 @@ $('#t-play').addEventListener('click',()=>{if(playTimer)return stopPlay();$('#t-
 
 
 /* ---------- planets tab ---------- */
+let retroCal=null;
+function renderRetroCal(){
+  const t0=startOfDayNoon(new Date()),key=natal.date.getTime()+'|'+t0.getTime();
+  if(!retroCal||retroCal.key!==key){const rows=[];
+    for(const id of ['Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']){
+      let run=null;
+      for(let i=-220;i<=730;i++){const d=new Date(t0.getTime()+i*DAY),r=speedOf(id,d)<0;
+        if(r&&!run)run={id,s:d};
+        if(run&&(!r||i===730)){const e=r?d:d,last=new Date(e.getTime()-(r?0:DAY)),l1=eclLon(id,run.s),l2=eclLon(id,last);
+          if(e>=t0)rows.push({id,s:run.s,e,z1:Math.floor(l1/30),z2:Math.floor(l2/30),h1:houseOf(l1,natal.cusps),h2:houseOf(l2,natal.cusps),on:run.s<=t0});
+          run=null;}}}
+    rows.sort((a,b)=>a.s-b.s);retroCal={key,rows};}
+  $('#retro-cal').innerHTML=retroCal.rows.map(r=>{const p=PDEF[r.id];
+    return `<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${fmtShort(r.s)} → ${fmtShort(r.e)}</b>${r.on?` <span class="badge">${u('calNow')}</span>`:''}<br><span class="mono" style="font-size:.85rem">${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}</span><br>${F.retroPeriod(r.id,r.h1,r.h2)}</div>`;}).join('');
+}
 let skyDate=null;
 function renderSky(){
   const d=skyDate||new Date(),tr=computeTransits(natal,d);
@@ -752,7 +767,7 @@ setInterval(()=>{if(curTab==='planets'&&!skyDate&&!document.hidden)renderSky();}
 function renderPlanets(){
   const pts=natal.pts.filter(p=>p.id!=='ASC'&&p.id!=='MC').concat(natal.pts.filter(p=>p.id==='ASC'||p.id==='MC'));
   $('#planet-list').innerHTML=pts.map(p=>`<button type="button" class="prow" data-pick="natal:${p.id}"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(homeHouse(p))}</span></button>`).join('');
-  renderSky();
+  renderSky();renderRetroCal();
   const rn=natal.pts.filter(p=>p.retro);
   $('#retro-natal').innerHTML=rn.length?rn.map(p=>`<div class="explain"><b>${glyph(p)} ${nm(p)} ℞ · ${sN(p.sign)} · ${hl(homeHouse(p))}.</b> ${F.retroNatal(p.id,p.sign,homeHouse(p))}</div>`).join(''):`<p class="note">${u('retroNone')}</p>`;
   const now=startOfDayNoon(new Date()),tr=computeTransits(natal,now).pts.filter(p=>p.retro);
