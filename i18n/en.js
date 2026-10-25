@@ -112,6 +112,7 @@ L.moonAdvice=["Quiet and fresh: set intentions and plant seeds.", "Momentum buil
 L.returnInfo={"Jupiter": "Jupiter return (about every 12 years): a fresh cycle of growth, luck and belief. Good for new goals and travel.", "Saturn": "Saturn return (about every 29 years): the big coming-of-age. Time to build your life on solid ground and let go of what is not yours.", "Chiron": "Chiron return (about every 50 years): an old wound comes round again to be understood and finally healed.", "Node": "North Node return (about every 18.6 years): a reset of your life direction, with turning points that feel fated."};
 L.progInfo={"Sun": "Your core chapter: the sign colouring who you are becoming. It changes sign only about every 30 years.", "Moon": "Your emotional chapter: the mood and needs of the last two and a half years. It changes sign about every 2½ years, so it marks clear eras of your life.", "Mercury": "How your mind and the way you communicate are developing.", "Venus": "How your love, values and taste are developing.", "Mars": "How your drive and desire are developing."};
 L.ui={
+ shareBtn:"Share my big three",icsBtn:"Add retrogrades and moons to my calendar",icsNote:"Downloads a calendar file with the next two years of retrograde dates and New and Full Moons. Open it on your phone to add them, with a reminder each morning.",
  myNote:"My note for this day",notePh:"How did the day feel? Write it here…",noteSaved:"Saved",
  digHome:"Strong here: this planet is in a sign it rules, so it works easily.",digExalt:"Honoured here: this planet is exalted in this sign, like a welcome guest.",digDet:"Tricky here: this planet is in detriment, opposite the sign it rules, so it works with effort.",digFall:"Tender here: this planet is in its fall, opposite the sign where it is exalted, so it needs patience.",plainWords:"In plain words",
  segMatch:"Match",matchTitle:"Match with another chart",matchNote:"Compare two charts: where they flow, where they spark, and where each person lands in the other’s life.",matchNone:"Add a second chart in the Me tab to compare.",matchBig3:"The big three",matchAsp:"Strongest links",matchHouses:"Where each lands in the other’s chart",matchEase:"flows easily",matchTension:"creates spark and friction",matchFusion:"blends strongly",matchSumEase:"Mostly flowing: things come naturally.",matchSumMix:"A mix of ease and spark.",matchSumSpark:"Lots of spark and friction: exciting, but it asks for patience.",matchWith:"Compare with",
@@ -176,6 +177,7 @@ L.ui={
 };
 
 L.f={
+ icsStart:n=>`Start of ${n} retrograde`,icsEnd:n=>`End of ${n} retrograde`,icsMoon:(k,s)=>`${k}: ${s}`,
  mistakesCta:n=>`Practise my mistakes (${n})`,practiceStreak:n=>`${n}-day practice streak`,
  aspMeaning:(a,b,c)=>`${cap(L.planets[a].what)} and ${L.planets[b].what} ${c==='soft'?'support each other easily':c==='hard'?'pull in different directions, so you grow by balancing them':'work together as one force'}.`,
  voidMoon:(t,s)=>`The Moon is void of course until ${t}, when it enters ${s}. A good time to rest and finish things, not to start new ones.`,moonNext:(a,p,t)=>`Next Moon aspect: ${a} · ${p}, at ${t}.`,

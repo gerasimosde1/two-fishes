@@ -889,6 +889,47 @@ function renderMatch(){
 }
 document.addEventListener('change',e=>{if(e.target.id==='match-sel'){store.set('tf.match',+e.target.value);renderMatch();}});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-tab-go]');if(b)showTab(b.dataset.tabGo);});
+/* ---------- share card and calendar file ---------- */
+async function shareFile(file,fallbackName){
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=fallbackName;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+async function shareBig3(){
+  try{await document.fonts.ready;}catch(e){}
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,1350);g.addColorStop(0,'#0e1c36');g.addColorStop(.6,'#17436a');g.addColorStop(1,'#1d6b78');x.fillStyle=g;x.fillRect(0,0,1080,1350);
+  const r=x.createRadialGradient(900,160,10,900,160,520);r.addColorStop(0,'rgba(244,143,177,.45)');r.addColorStop(1,'rgba(244,143,177,0)');x.fillStyle=r;x.fillRect(0,0,1080,1350);
+  const F1='"IM Fell English", Georgia, serif',F2='"EB Garamond", Georgia, serif',F3='"Courier Prime", monospace';
+  x.textAlign='center';x.fillStyle='#fff';x.font=`96px ${F1}`;x.fillText('Two Fishes',540,160);
+  x.fillStyle='#f48fb1';x.font=`italic 44px ${F2}`;x.fillText(profile.name||u('matchBig3'),540,230);
+  x.fillStyle='rgba(255,255,255,.7)';x.font=`34px ${F3}`;x.fillText(natal.date.toLocaleDateString(L.locale,{day:'numeric',month:'long',year:'numeric'}),540,285);
+  [['Sun','sunSign'],['Moon','moonSign'],['ASC','risingSign']].forEach(([id,lab],i)=>{const p=natal.byId[id],y=470+i*280;
+    x.fillStyle='rgba(255,255,255,.08)';x.fillRect(110,y-130,860,230);
+    x.fillStyle='#ffd1e1';x.font='120px "Noto Sans Symbols","Apple Symbols",serif';x.fillText(id==='ASC'?SIGNS[p.sign].g:p.g,260,y+30);
+    x.textAlign='left';x.fillStyle='rgba(255,255,255,.65)';x.font=`36px ${F3}`;x.fillText(u(lab).toUpperCase(),380,y-30);
+    x.fillStyle='#fff';x.font=`78px ${F1}`;x.fillText(sN(p.sign),380,y+50);
+    x.fillStyle='#9fd6df';x.font=`34px ${F3}`;x.fillText(fmtIn(p.lon),380,y+95);x.textAlign='center';});
+  x.fillStyle='rgba(255,255,255,.55)';x.font=`30px ${F3}`;x.fillText('gerasimosde1.github.io/two-fishes',540,1290);
+  const blob=await new Promise(res=>c.toBlob(res,'image/png'));if(!blob)return;
+  await shareFile(new File([blob],'two-fishes-big-three.png',{type:'image/png'}),'two-fishes-big-three.png');
+}
+$('#share-big3').addEventListener('click',shareBig3);
+function buildICS(){
+  const pad=n=>String(n).padStart(2,'0'),dd=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`,esc2=t=>String(t).replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+  const now=new Date(),stamp=`${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}T000000Z`,ev=[];
+  const add=(uid,date,title,desc)=>{const nx=new Date(date.getTime()+DAY);ev.push(['BEGIN:VEVENT',`UID:${uid}@two-fishes`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${dd(date)}`,`DTEND;VALUE=DATE:${dd(nx)}`,`SUMMARY:${esc2(title)}`,`DESCRIPTION:${esc2(desc)}`,'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${esc2(title)}`,'TRIGGER:PT9H','END:VALARM','END:VEVENT'].join('\r\n'));};
+  renderRetroCal();
+  retroCal.rows.forEach(r=>{const p=PDEF[r.id],tag=(L.retroInfo[r.id]||'').split('. ')[0],where=`${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}`;
+    if(!r.on)add(`rs-${r.id}-${dd(r.s)}`,r.s,F.icsStart(pN(r.id)),`${tag}. ${where}`);
+    add(`re-${r.id}-${dd(r.e)}`,r.e,F.icsEnd(pN(r.id)),`${where}`);});
+  let prev=null;const t0=Date.now();
+  for(let t=t0;t<=t0+730*DAY;t+=6*3600000){const d=new Date(t),e=norm(eclLon('Moon',d)-eclLon('Sun',d));
+    if(prev!=null){for(const [target,idx] of [[0,0],[180,4]]){const f0=((prev-target+540)%360)-180,f1=((e-target+540)%360)-180;
+      if(f0<0&&f1>=0&&Math.abs(f1-f0)<60){const ml=eclLon('Moon',d),h=houseOf(ml,natal.cusps);add(`mn-${idx}-${dd(d)}`,d,F.icsMoon(L.moonPhases[idx],sN(Math.floor(ml/30))),`${hl(h)} (${hShort(h)}). ${L.moonAdvice[idx]}`);}}}
+    prev=e;}
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Two Fishes//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:Two Fishes',...ev,'END:VCALENDAR'].join('\r\n');
+}
+$('#ics-btn').addEventListener('click',()=>shareFile(new File([buildICS()],'two-fishes.ics',{type:'text/calendar'}),'two-fishes.ics'));
 let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
 function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
