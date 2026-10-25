@@ -398,7 +398,7 @@ function renderNatal(){
 }
 /* ---------- today strip (moon phase, void of course Moon) ---------- */
 function moonForecast(now){
-  const ids=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],ang=[0,60,90,120,180],AID={0:'conj',60:'sext',90:'sq',120:'trine',180:'opp'};
+  const ids=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],ang=[0,60,90,120,180],AID={0:'conj',60:'sext',90:'sq',120:'tri',180:'opp'};
   const base=Object.fromEntries(ids.map(id=>[id,[eclLon(id,now),speedOf(id,now)]])),z0=Math.floor(eclLon('Moon',now)/30);
   const f=(ml,pl,a)=>{let d=norm(ml-pl-a);return d>180?d-360:d;};let prev=null;
   for(let i=1;i<=150;i++){const t=new Date(now.getTime()+i*30*60000),ml=eclLon('Moon',t);
@@ -843,8 +843,28 @@ function renderCycles(){
   $('#progressed').innerHTML=cyc.prog.map(x=>{const p=PDEF[x.id];
     return `<div class="ret-card"><div class="rh">${glyph(p)} ${nm(p)} · ${sIn(x.z)} <span class="mono muted" style="font-size:.85rem">${fmtIn(x.l)}</span></div><div class="rd">${hl(x.h)} (${hShort(x.h)})${x.until?` · ${u('progUntil')} ${fmtShort(x.until)}`:''}</div><p>${L.progInfo[x.id]}</p></div>`;}).join('');
 }
+/* ---------- match (compare two charts) ---------- */
+function renderMatch(){
+  const others=charts.map((c,i)=>[c,i]).filter(([,i])=>i!==active),box=$('#match-body');
+  if(!others.length){box.innerHTML=`<p class="note">${u('matchNone')}</p><button type="button" class="btn sm" data-tab-go="me">${u('tabMe')}</button>`;return;}
+  let sel=+store.get('tf.match',others[0][1]);if(!others.some(([,i])=>i===sel))sel=others[0][1];
+  const oc=charts[sel],other=computeChart(localToUTC(oc.date,oc.time,oc.tz),oc.lat,oc.lon,oc.sys),A=profile.name||'A',B=oc.name||'B';
+  const ids=[...TEN.map(x=>x.id),'ASC','MC'],pa=natal.pts.filter(p=>ids.includes(p.id)),pb=other.pts.filter(p=>ids.includes(p.id));
+  const hits=[];pa.forEach(a=>pb.forEach(b=>{const lum=['Sun','Moon'].includes(a.id)||['Sun','Moon'].includes(b.id),hit=aspectBetween(a.lon,b.lon,x=>Math.min(x.orb,6)+(lum?1:0));if(hit&&hit.asp.id!=='qx')hits.push({a,b,...hit});}));
+  hits.sort((x,y)=>x.orb-y.orb);const top=hits.slice(0,10),ease=top.filter(x=>x.asp.cls==='soft').length,hard=top.filter(x=>x.asp.cls==='hard').length;
+  const kind=x=>x.asp.cls==='soft'?['soft',u('matchEase')]:x.asp.cls==='hard'?['hard',u('matchTension')]:['neu',u('matchFusion')];
+  const big3=(c,n)=>['Sun','Moon','ASC'].map(id=>{const p=c.byId[id];return `${glyph(p)} ${sN(p.sign)}`;}).join(' · ');
+  const lands=(from,fname,to,tname)=>['Sun','Moon','Venus','Mars'].map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps);return `<div class="rt">${glyph(p)} ${fname} → ${tname}: ${hl(h)} (${hShort(h)})</div>`;}).join('');
+  box.innerHTML=`<div class="switch-row"><label>${u('matchWith')} <select id="match-sel">${others.map(([c,i])=>`<option value="${i}"${i===sel?' selected':''}>${esc(c.name||'Chart '+(i+1))}</option>`).join('')}</select></label></div>
+   <p class="tadv">${ease>hard+1?u('matchSumEase'):hard>ease+1?u('matchSumSpark'):u('matchSumMix')}</p>
+   <ul class="ctx"><li><span>${u('matchBig3')}</span><div class="rt"><b>${esc(A)}</b>: ${big3(natal)}</div><div class="rt"><b>${esc(B)}</b>: ${big3(other)}</div></li></ul>
+   <h3>${u('matchAsp')}</h3>${top.map(x=>{const [cls,txt]=kind(x);return `<div class="explain ${cls==='hard'?'hardx':''}"><b>${esc(A)}</b> ${glyph(x.a)} ${pN(x.a.id)} <span class="gl">${x.asp.g}</span> ${aN(x.asp.id)} ${glyph(x.b)} ${pN(x.b.id)} <b>${esc(B)}</b><br><span class="muted">${txt} · ${fmtOrb(x.orb)}</span></div>`;}).join('')}
+   <h3>${u('matchHouses')}</h3><ul class="ctx"><li>${lands(natal,esc(A),other,esc(B))}</li><li>${lands(other,esc(B),natal,esc(A))}</li></ul>`;
+}
+document.addEventListener('change',e=>{if(e.target.id==='match-sel'){store.set('tf.match',+e.target.value);renderMatch();}});
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-tab-go]');if(b)showTab(b.dataset.tabGo);});
 let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
-function setPseg(v){psegV=v;if(v==='cycles')renderCycles();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
+function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
 function retroCard(p,badge,cls,dates,where,tag,body){
   return `<details class="rcard"><summary><div class="rh"><span>${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;

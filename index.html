@@ -496,7 +496,7 @@ body.sheet-open{overflow:hidden}
 
     <section id="tab-planets" data-panel="planets" hidden>
       <div class="switch-row" data-switch hidden><label><span data-i18n="viewing"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
-      <div class="seg" id="pseg"><button type="button" data-pseg="signs" aria-pressed="true" data-i18n="segSigns"></button><button type="button" data-pseg="sky" aria-pressed="false" data-i18n="segSky"></button><button type="button" data-pseg="retro" aria-pressed="false" data-i18n="segRetro"></button><button type="button" data-pseg="cycles" aria-pressed="false" data-i18n="segCycles"></button></div>
+      <div class="seg" id="pseg"><button type="button" data-pseg="signs" aria-pressed="true" data-i18n="segSigns"></button><button type="button" data-pseg="sky" aria-pressed="false" data-i18n="segSky"></button><button type="button" data-pseg="retro" aria-pressed="false" data-i18n="segRetro"></button><button type="button" data-pseg="cycles" aria-pressed="false" data-i18n="segCycles"></button><button type="button" data-pseg="match" aria-pressed="false" data-i18n="segMatch"></button></div>
       <div class="panel" data-pp="signs">
         <h2 data-i18n="planetsTitle"></h2>
         <p class="note" style="margin:4px 0 10px" data-i18n="planetsNote"></p>
@@ -515,6 +515,11 @@ body.sheet-open{overflow:hidden}
         <h2 style="margin-top:22px" data-i18n="progTitle"></h2>
         <p class="note" style="margin:4px 0 10px" data-i18n="progNote"></p>
         <div id="progressed"></div>
+      </div>
+      <div class="panel" data-pp="match" hidden>
+        <h2 data-i18n="matchTitle"></h2>
+        <p class="note" style="margin:4px 0 10px" data-i18n="matchNote"></p>
+        <div id="match-body"></div>
       </div>
       <div class="panel" data-pp="retro" hidden>
         <h2 data-i18n="retroTitle"></h2>
