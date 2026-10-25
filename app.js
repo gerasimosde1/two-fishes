@@ -262,6 +262,13 @@ function dispositorLine(p){
   if(!rp)return '';
   return F.disp(p.sign,r,rp.sign,rp.house);
 }
+const DIGN_EXALT={Sun:0,Moon:1,Venus:11,Mars:9,Jupiter:3,Saturn:6};
+function dignityOf(id,sign){
+  if(!['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn'].includes(id))return null;
+  const homes=SIGNS.filter(z=>z.rulers.includes(id)).map(z=>z.i);
+  if(homes.includes(sign))return 'digHome';if(DIGN_EXALT[id]===sign)return 'digExalt';
+  if(homes.some(i=>(i+6)%12===sign))return 'digDet';if(DIGN_EXALT[id]!=null&&(DIGN_EXALT[id]+6)%12===sign)return 'digFall';return null;
+}
 function natalPointHTML(id,showTransits){
   const p=natal.byId[id],S=L.signs[p.sign],hh=homeHouse(p),rules=housesRuledBy(natal,id),isAngle=id==='ASC'||id==='MC',z=SIGNS[p.sign];
   const asps=natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id);
@@ -275,6 +282,7 @@ function natalPointHTML(id,showTransits){
   h+=`<h4>${F.houseHeading(hh,isAngle)}</h4><p>${L.houses[hh-1].body}</p>`;
   if(rules.length&&!isAngle)h+=`<h4>${u('housesItRules')}</h4><p>${F.rulesPara(id,rules,p.house)}</p>`;
   if(p.retro)h+=`<p class="note">${F.retro(id)}</p>`;
+  {const dg=dignityOf(id,p.sign);if(dg)h+=`<p class="explain">${u(dg)}</p>`;}
   if(id==='ASC'){const r=SIGNS[p.sign].rulers[0],rp=natal.byId[r];h+=`<h4>${u('chartRuler')}</h4><p>${F.chartRuler(r,rp.sign,rp.house)}</p>`;}
   else if(!isAngle){const dl=dispositorLine(p);if(dl)h+=`<p class="note">${dl}</p>`;}
   if(showTransits&&transit){
@@ -284,6 +292,7 @@ function natalPointHTML(id,showTransits){
   }else{
     h+=`<h4>${u('aspects')}</h4><p class="note">${u('aspectsNote')}</p>`;
     h+=asps.length?asps.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<span class="chip" data-pick="natal:${o.id}"><span class="gl">${a.asp.g}</span>${aN(a.asp.id).toLowerCase()} ${nm(o)} <span class="mono" style="font-size:.75rem">${fmtOrb(a.orb)}</span></span>`;}).join(''):`<p class="note">${u('noAspects')}</p>`;
+    if(asps.length&&!isAngle)h+=`<h4>${u('plainWords')}</h4>`+asps.slice(0,4).map(a=>{const o=a.p1.id===id?a.p2:a.p1;return o.id==='ASC'||o.id==='MC'?'':`<p class="note"><b>${nm(p)} ${a.asp.g} ${nm(o)}.</b> ${F.aspMeaning(id,o.id,a.asp.cls)}</p>`;}).join('');
   }
   return h;
 }
