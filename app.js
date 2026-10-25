@@ -427,7 +427,7 @@ function renderToday(){
    <div class="tadv">${L.moonAdvice[k]}</div>
    <div class="tsl"><span class="gl">☽︎</span><span>${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span></div>
    <div class="tvoid">${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
-   ${on.length?`<div class="chips"><span>℞</span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</div>`:''}`;
+   ${on.length?`<div class="chips"><span>℞</span>${on.map(r=>`<button type="button" class="chip" data-goretro="1">${glyph(PDEF[r.id])} ${pN(r.id)}</button>`).join('')}</div>`:''}<p class="honest">${u('honestNote')}</p>`;
 }
 document.addEventListener('click',e=>{if(!(e.target.closest&&e.target.closest('[data-goretro]')))return;showTab('planets');setPseg('retro');setRseg('now');});
 function renderTransits(){

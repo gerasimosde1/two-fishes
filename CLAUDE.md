@@ -17,6 +17,9 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 - Every shade of blue (turquoise to baby blue) and pink, with vintage-looking type (IM Fell English, EB Garamond, Courier Prime).
 - Logo: two Pisces fishes around a sun. Colours are CSS tokens on `:root`, with light and dark themes.
 
+## Voice
+- Warm, wry and honest. Light humor (never at her expense), no fearmongering: a hard transit is a hard day, not a doom. Say plainly that transits describe themes and moods, not fixed outcomes (`honestNote`, `tidesNote`). Keep every sentence plain and beginner friendly, and keep the same tone in all three languages (write natural jokes, don't translate word for word).
+
 ## Features so far
 - Birth Chart tab: a clickable wheel with placements, signs, houses and aspects.
 - Planets tab, three sections (Signs, Sky now, Retrograde). Signs: every planet and Chiron in its sign, degree and house (tap a row to open it on the Chart tab). Sky now: live positions with day steps. Retrograde: filter Now / Coming up (two years) / My birth chart, each retrograde as an expandable card (dates, status, signs and houses crossed, houses it rules in her chart, natal points it crosses). Chiron comes from `chiron.js` (JPL Horizons table 1900-2100, 5-day steps, interpolated); outside that range it is simply left out. Wording lives in the i18n packs (`retroInfo`, `L.f.retro*`, `L.ui` keys).
