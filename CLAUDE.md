@@ -28,3 +28,20 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 - Explanations everywhere: house, sign and planet write-ups, plus the "How to read your chart" and "What is a transit?" guides. She is relearning, so keep everything explained.
 - Learn tab: 16 games across Beginner, Intermediate, Hard and Expert levels (Master Exam: 15 timed questions). She wants them challenging.
 - Me tab: multiple saved charts (add, edit, switch, delete) stored in localStorage `tf.charts` and `tf.active`, plus install help.
+
+## Optional features (each one can be removed on its own)
+Added in one batch; the owner's girlfriend may not want all of them. Each is its own commit, so you can see exactly what it touched (`git show <commit>`). Later small fixes touched the same files, so to remove one, edit the code listed here rather than blindly reverting. Remove the matching keys from all three i18n packs too, and bump `VERSION` in `sw.js`.
+
+| Feature | Commit | What to remove |
+|---|---|---|
+| Today strip (moon phase, void Moon, retro chips) | 329b75c | `renderToday`, `moonForecast`, `#today-strip` in index.html, `.today-strip`/`.tsl`/`.chips` CSS, `L.moonPhases`, `L.moonAdvice`, `F.voidMoon`, `F.moonNext`, ui `todayTitle`, the `renderToday();` call in `renderTransits` |
+| Cycles (returns, progressions) | d04c3fc | `computeReturns`, `renderCycles`, `data-pseg="cycles"` button and `data-pp="cycles"` panel, `.ret-card` CSS, `L.returnInfo`, `L.progInfo`, ui `segCycles cycTitle cycNote ret* passes age prog*` |
+| Match (compare two charts) | 4084e61 | `renderMatch`, `data-pseg="match"` button and `data-pp="match"` panel, ui `segMatch match*` |
+| Explain-this (dignity notes, plain-words aspects) | 1e8b726 | `dignityOf`, `DIGN_EXALT`, the two small inserts in `natalPointHTML`, `F.aspMeaning`, ui `digHome digExalt digDet digFall plainWords` |
+| Practice (mistakes review, streak) | cd89aa7 | `GAMES.mistakes`, `game.queue`/`game.n` handling, the `tf.missed` and `tf.practice` code in `answerQ`, the practice bar in `renderGames`, `L.games.mistakes`, `F.mistakesCta`, `F.practiceStreak`, `.practice-bar` CSS |
+| Day journal | 263df5b | `dayNotes`, `saveDayNote`, the note box in `renderCalendar`, `.day-note` and `.has-note` CSS, ui `myNote notePh noteSaved` (notes live in localStorage `tf.notes`) |
+| Share card and calendar file | a0c937a | `shareBig3`, `buildICS`, `shareFile`, `#share-big3` and `#ics-btn` in index.html, ui `shareBtn icsBtn icsNote`, `F.icsStart icsEnd icsMoon` |
+| Offline start | (sw.js) | the `OUTSIDE` precache list in `sw.js` |
+
+Gotcha: `.tl` is an existing timeline class (min-width 640px); do not reuse that name for new styles.
+
