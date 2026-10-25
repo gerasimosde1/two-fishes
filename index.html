@@ -251,6 +251,58 @@ input[type=range]{width:100%;accent-color:var(--pink)}
 footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);font-size:.85rem;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){.qopt,.btn,.hcell,.chip{transition:border-color .15s,color .15s,background .15s}}
 
+.detail h4,#sheet-body h4{font-family:var(--f-display);font-weight:400;font-size:1.02rem;letter-spacing:.05em;color:var(--pink);margin:16px 0 4px}
+.explain{background:var(--paper);border-left:3px solid var(--rose);padding:9px 12px;margin:10px 0;font-size:.96rem;border-radius:0 4px 4px 0}
+.guide{margin-bottom:14px}
+.guide summary{cursor:pointer;font-family:var(--f-display);font-size:1.15rem;color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary::before{content:'✦';color:var(--pink)}
+.guide summary::after{content:'+';margin-left:auto;font-family:var(--f-mono);color:var(--ink-soft)}
+.guide[open] summary::after{content:'−'}
+.guide[open] summary{margin-bottom:8px}
+.guide p{margin:.5em 0}
+
+.tgroup{margin-top:10px}
+.tgroup h4{font-family:var(--f-display);font-weight:400;font-size:1.08rem;color:var(--pink);margin:6px 0 0;display:flex;align-items:center;gap:8px}
+.tgroup .count{font-family:var(--f-mono);font-size:.75rem;color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.tgroup>.note{margin:2px 0 4px}
+.lvl{font-size:1.15rem;color:var(--pink);margin:22px 0 10px}
+.lvl:first-child{margin-top:4px}
+.switch-row{margin-bottom:12px}
+.switch-row label{font-family:var(--f-italic);font-style:italic;font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.switch-row select{font-family:var(--f-body);font-style:normal;background:var(--card);border:1px solid var(--ink-line);border-radius:999px;padding:5px 12px;font-size:1rem;max-width:70vw}
+.clist{display:flex;flex-direction:column}
+.citem{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.citem.on{background:var(--tband)}
+.cmain{flex:1;min-width:180px;background:none;border:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;padding:2px}
+.cmain .it{font-size:1.15rem}
+.cmain .mono{font-size:.8rem}
+.badge{font-family:var(--f-display);font-size:.75rem;letter-spacing:.08em;color:var(--teal);border:1px solid var(--teal);border-radius:999px;padding:1px 8px}
+.btn.danger{border-color:var(--pink);color:var(--pink)}
+
+.pot-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.pot-head h2{font-size:1.45rem}
+.pot-streak{font-family:var(--f-mono);font-size:.78rem;color:var(--teal);border:1px solid var(--teal);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pot-sum{margin:8px 0 10px;font-size:1.02rem}
+.pot-sum b{font-weight:600}
+.pot-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:879px){.pot-list{grid-template-columns:minmax(0,1fr)}}
+.pot{border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.pot summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:2.1em minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 12px}
+.pot summary::-webkit-details-marker{display:none}
+.pot .pi{font-family:var(--f-glyph);font-size:1.45rem;color:var(--pink);text-align:center;grid-row:span 2}
+.pot .pn{font-family:var(--f-display);font-size:1.08rem}
+.pot .stars{font-size:1rem;letter-spacing:1px;color:var(--pink);white-space:nowrap}
+.pot .stars .off{color:var(--line)}
+.pot .adv{grid-column:2 / 4;font-size:.93rem;color:var(--ink-soft);line-height:1.35}
+.pot.good{border-color:var(--teal)} .pot.hard{border-color:var(--rose)}
+.pot[open]{background:var(--card)}
+.pot .why{padding:0 12px 12px 12px;font-size:.93rem}
+.pot .why ul{margin:6px 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.pot .why li{border-left:2px solid var(--sky);padding-left:8px}
+.pot .why li.soft{border-left-color:var(--teal)} .pot .why li.hard{border-left-color:var(--pink)}
+.pot .why .learn{background:var(--paper);border-radius:6px;padding:7px 9px;margin-top:6px;color:var(--ink-soft)}
+
 /* calendar */
 .cal-head{display:flex;align-items:center;gap:4px;margin-bottom:10px}
 .cal-head h3{flex:1;text-align:center;font-size:1.35rem}
@@ -390,7 +442,9 @@ body.sheet-open{overflow:hidden}
 
   <main>
     <section id="tab-chart" data-panel="chart">
+      <div class="switch-row" data-switch hidden><label>Viewing <select class="chart-switch" aria-label="Choose a chart"></select></label></div>
       <div class="big3" id="big3"></div>
+      <details class="panel guide" id="guide-chart"><summary>How to read your chart</summary><div id="guide-chart-body"></div></details>
       <div class="split">
         <div class="panel">
           <div id="wheel-natal"></div>
@@ -412,6 +466,12 @@ body.sheet-open{overflow:hidden}
     </section>
 
     <section id="tab-transits" data-panel="transits" hidden>
+      <div class="panel pot-panel" style="margin-bottom:22px">
+        <div class="pot-head"><div><div class="eyebrow" id="pot-eyebrow">Today’s Tides</div><h2 id="pot-title"></h2></div><div class="pot-streak" id="pot-streak"></div></div>
+        <p class="pot-sum" id="pot-sum"></p>
+        <div id="pot-list" class="pot-list"></div>
+        <p class="note" style="margin:10px 0 0">Ratings come from the transits to your birth chart on this day. Tap a category to see why and learn the astrology behind it.</p>
+      </div>
       <div class="panel cal-panel" style="margin-bottom:22px">
         <div class="cal-head">
           <button class="cal-nav" type="button" data-cal="-12" aria-label="Previous year">«</button>
@@ -427,6 +487,16 @@ body.sheet-open{overflow:hidden}
           <div class="cal-day" id="cal-day"></div>
         </div>
       </div>
+      <div class="switch-row" data-switch hidden><label>Transits for <select class="chart-switch" aria-label="Choose a chart"></select></label></div>
+      <details class="panel guide" style="margin-bottom:22px"><summary>What is a transit?</summary>
+        <p>The planets keep moving after you are born. A <b>transit</b> happens when a planet in today's sky makes an aspect (an angle) to a planet or point in your birth chart. That wakes up the part of you, and the area of life, that natal planet stands for.</p>
+        <ul class="ctx">
+          <li><span>Long-term transits: the chapters</span>Jupiter, Saturn, Uranus, Neptune and Pluto stay on one point for months, so they bring the big themes of a year.</li>
+          <li><span>Short-term transits: the days</span>The Sun, Mercury, Venus and Mars pass in days or weeks, bringing moods, conversations and events. The Moon changes sign every two to three days and colours your mood.</li>
+          <li><span>Applying and separating</span>Applying means the transit is still building towards exact. Separating means it has peaked and is fading.</li>
+          <li><span>The whole chart</span>Two Fishes also shows which of your houses the transiting planet is moving through, which houses the touched planet rules, and which other planets it is tied to, so you see the full story.</li>
+        </ul>
+      </details>
       <div class="split">
         <div class="panel">
           <div class="tctl">
@@ -473,7 +543,7 @@ body.sheet-open{overflow:hidden}
     <section id="tab-learn" data-panel="learn" hidden>
       <div id="games-home">
         <p class="it" style="font-size:1.2rem;margin:0 0 14px">Ten questions a round. Learn the alphabet of astrology, then practise on your own chart.</p>
-        <div class="games" id="games"></div>
+        <div id="games"></div>
       </div>
       <div id="quiz" class="panel quiz" hidden></div>
     </section>
@@ -485,9 +555,11 @@ body.sheet-open{overflow:hidden}
           <p id="install-text"><b>Put Two Fishes on your home screen.</b> It opens full screen like any other app and works offline.</p>
           <button class="btn pri sm" type="button" id="install-btn" hidden>Install</button>
         </div>
-        <div class="panel me-card"><span class="gl" id="me-glyph"></span><div><div class="eyebrow">Your chart</div><div class="it" style="font-size:1.35rem" id="me-name"></div><div class="mono muted" style="font-size:.85rem" id="me-meta"></div></div></div>
+        <div class="panel"><h2>Saved charts</h2><p class="note" style="margin:4px 0 10px">Add charts for friends, family or a partner, then switch between them. Charts are saved on this device.</p>
+          <div id="chart-list" class="clist"></div>
+          <div class="form-actions"><button class="btn pri" type="button" id="add-chart">+ Add a new chart</button></div></div>
         <div id="form-panel" class="panel">
-          <h2>Birth details</h2>
+          <h2 id="form-title">Birth details</h2>
           <p class="note" style="margin:4px 0 0">The exact birth time and place set your Rising sign and houses. Your details stay on this device.</p>
           <form id="bform" autocomplete="off">
             <div class="form">
@@ -502,7 +574,7 @@ body.sheet-open{overflow:hidden}
               <label>House system<select id="f-sys"><option value="placidus">Placidus</option><option value="whole">Whole Sign</option><option value="equal">Equal</option></select></label>
             </div>
             <div class="form-actions">
-              <button class="btn pri" type="submit">Draw my chart</button>
+              <button class="btn pri" type="submit" id="f-submit">Save changes</button>
               <button class="btn" type="button" id="f-cancel">Cancel</button>
               <span class="err" id="f-err"></span>
             </div>
@@ -586,6 +658,65 @@ const HOUSES=[
  ['friends & hopes','community, groups, networks, future dreams'],
  ['inner world','solitude, dreams, the unconscious, endings, spirituality']
 ].map(([short,key],i)=>({n:i+1,short,key}));
+
+const HOUSE_INFO=[
+ {type:'angular',natural:0,body:'The 1st house begins at your Ascendant, the sign that was rising on the eastern horizon when you were born. It describes your body, your looks, your first reaction to life and the way people see you before they know you. Planets here show strongly in your personality.',q:'How do I come across? How do I start things?'},
+ {type:'succedent',natural:1,body:'The 2nd house is about what you own and what you value: the money you earn, your possessions, the talents you can live from, and your sense of self-worth. It shows how you build security and what makes you feel safe.',q:'How do I earn and spend? What do I value?'},
+ {type:'cadent',natural:2,body:'The 3rd house rules your everyday mind: how you think, speak, write and learn. It also covers brothers and sisters, neighbours, your local area and short trips. It shows your style of communication.',q:'How do I think and talk? How do I get on with siblings?'},
+ {type:'angular',natural:3,body:'The 4th house begins at the IC, the lowest point of the chart. It is home, family, roots and the private self nobody else sees. It describes your childhood home, one parent (often the one who nurtured you) and what you need to feel emotionally safe. It also speaks about later life.',q:'What does home mean to me? Where do I belong?'},
+ {type:'succedent',natural:4,body:'The 5th house is joy and self-expression: romance and dating, creativity, hobbies, games, children and anything you do purely for pleasure. It shows how you play, flirt and shine.',q:'What makes me happy? How do I love and create?'},
+ {type:'cadent',natural:5,body:'The 6th house is daily life: work routines, colleagues, habits, health and how you care for your body. It also covers service, helping others, and pets. It shows how you organise your days and handle stress.',q:'What is my daily rhythm? How do I look after my health?'},
+ {type:'angular',natural:6,body:'The 7th house begins at the Descendant, opposite your Ascendant. It is about partners: marriage, committed relationships, business partners and open rivals. It often describes the kind of person you are drawn to, sometimes with qualities you have not yet shown yourself.',q:'Who do I attract? What do I need from a partner?'},
+ {type:'succedent',natural:7,body:'The 8th house is about what you share deeply with others: intimacy and sex, trust, joint money, debts, taxes and inheritance. It is also the house of crisis, loss and rebirth, of psychology and hidden things. It shows how you deal with power and with letting go.',q:'How do I bond deeply? How do I get through big changes?'},
+ {type:'cadent',natural:8,body:'The 9th house widens your world: long journeys, foreign countries and cultures, university and higher learning, philosophy, religion and beliefs. It shows what gives life meaning and how you search for truth. Studying astrology is a 9th house activity.',q:'What do I believe? Where do I want to explore?'},
+ {type:'angular',natural:9,body:'The 10th house begins at the Midheaven (MC), the top of the chart. It is your career, ambition, reputation and public role: what you are known for. It can also describe the parent who stood for authority and rules.',q:'What do I want to achieve? How does the world see my work?'},
+ {type:'succedent',natural:10,body:'The 11th house is your community: friends, groups, social networks, causes you believe in, and your hopes for the future. It shows the people who share your ideals and the dreams you are working towards.',q:'Who are my people? What future do I hope for?'},
+ {type:'cadent',natural:11,body:'The 12th house is the hidden side of life: the unconscious, dreams, solitude, rest, spirituality and endings. It covers places of retreat such as hospitals or quiet spaces, and things we hide even from ourselves. Planets here work quietly behind the scenes and grow strong through inner work.',q:'What do I need to let go of? Where do I find peace?'}
+];
+const HOUSE_TYPE={
+ angular:'Angular houses (1, 4, 7, 10) start at the four angles of the chart. Planets here act strongly and visibly.',
+ succedent:'Succedent houses (2, 5, 8, 11) build up and hold on to what the angular houses start: money, joy, shared power and community.',
+ cadent:'Cadent houses (3, 6, 9, 12) are about learning, adjusting and preparing. Planets here work through the mind and through service.'
+};
+const SIGN_INFO=[
+ {body:'The first sign and the spark of spring. Aries acts first and thinks later, loves a challenge and goes straight for what it wants.',plus:'courage, honesty, energy, getting things started',minus:'impatience, temper, starting without finishing'},
+ {body:'Steady and grounded, Taurus builds slowly and enjoys life through the senses: food, touch, nature, beauty and comfort.',plus:'patience, loyalty, reliability, good taste',minus:'stubbornness, possessiveness, resisting change'},
+ {body:'Quick and curious, Gemini wants to know a little about everything, loves conversation and needs variety.',plus:'wit, adaptability, communication, learning fast',minus:'restlessness, scattered focus, staying on the surface'},
+ {body:'Cancer feels deeply and protects what it loves. Home, family and emotional safety come first.',plus:'care, intuition, memory, loyalty',minus:'moodiness, clinging, hiding in its shell'},
+ {body:'Leo shines like the Sun that rules it: warm, creative and generous, it wants to express itself and be appreciated.',plus:'warmth, creativity, courage, big heart',minus:'pride, needing attention, drama'},
+ {body:'Virgo notices details and wants to make things better. It finds meaning in being useful, skilled and healthy.',plus:'precision, helpfulness, analysis, modesty',minus:'worry, criticism, perfectionism'},
+ {body:'Libra looks for balance, beauty and fairness, and comes alive through relationships and partnership.',plus:'diplomacy, charm, sense of justice, taste',minus:'indecision, people-pleasing, avoiding conflict'},
+ {body:'Scorpio goes deep. Intense and private, it wants truth, loyalty and emotional honesty, and it is transformed by crisis.',plus:'depth, loyalty, insight, resilience',minus:'jealousy, secrecy, holding grudges'},
+ {body:'Sagittarius is the explorer and philosopher, always looking for meaning, freedom and the bigger picture.',plus:'optimism, honesty, humour, vision',minus:'restlessness, bluntness, promising too much'},
+ {body:'Capricorn climbs the mountain step by step. Serious and ambitious, it builds things that last and gets better with age.',plus:'discipline, responsibility, patience, ambition',minus:'coldness, pessimism, overworking'},
+ {body:'Aquarius thinks differently. It values freedom, friendship and ideas that could make the world better for everyone.',plus:'originality, independence, fairness, vision',minus:'detachment, rebelliousness, fixed opinions'},
+ {body:'The last sign holds a little of all the others. Pisces is sensitive, imaginative and compassionate, open to dreams, art and spirit.',plus:'empathy, imagination, intuition, kindness',minus:'escapism, confusion, weak boundaries'}
+];
+const ELEMENT_INFO={fire:'Fire signs (Aries, Leo, Sagittarius) are enthusiastic, spontaneous and inspiring.',earth:'Earth signs (Taurus, Virgo, Capricorn) are practical, patient and focused on the real, physical world.',air:'Air signs (Gemini, Libra, Aquarius) live in ideas, conversation and relationships with people.',water:'Water signs (Cancer, Scorpio, Pisces) live through feelings, intuition and empathy.'};
+const MODE_INFO={cardinal:'Cardinal signs open each season, so they start things and take the lead.',fixed:'Fixed signs sit in the middle of each season, so they hold steady, stay loyal and finish what they start.',mutable:'Mutable signs close each season, so they adapt, change and prepare for what comes next.'};
+const PLANET_INFO={
+ Sun:'Your core self: what makes you feel alive, your will and your purpose. Your Sun sign is the "star sign" everyone knows. Its house shows where you most want to shine.',
+ Moon:'Your emotional nature: what you need to feel safe, how you react by instinct and how you care for others. Its house shows where you look for comfort.',
+ Mercury:'How your mind works: thinking, speaking, writing, learning and everyday decisions.',
+ Venus:'How and what you love: your style in relationships, what you find beautiful, what you value, and how you relate to money and pleasure.',
+ Mars:'Your drive: how you go after what you want, your energy, desire and courage, and how you get angry.',
+ Jupiter:'Where life feels generous: growth, luck, optimism, teachers and faith. Where Jupiter sits, you are encouraged to grow.',
+ Saturn:'Where life asks for effort: discipline, limits, responsibility and fear. Saturn teaches slowly, but what you build here lasts.',
+ Uranus:'Where you need freedom and do things your own way: sudden change, originality, awakening. It moves slowly, so everyone born around your year shares its sign; its house is what makes it personal.',
+ Neptune:'Where you dream, idealise and feel connected to something bigger: art, spirituality and compassion, but also confusion and illusion. Its sign is generational; its house is personal.',
+ Pluto:'Where you meet power and deep transformation: endings that lead to rebirth. Its sign is generational; its house is personal.',
+ Node:'The North Node points to your direction of growth in this life: qualities that feel unfamiliar but help you evolve. The opposite point, the South Node, is what already comes easily.',
+ ASC:'The Ascendant, or Rising sign, is the sign that was rising on the eastern horizon when you were born. It is your outer style, your body and the first impression you give. It sets out all twelve houses, which is why the exact birth time matters.',
+ MC:'The Midheaven is the highest point of the chart at your birth. It shows your career direction, your public image and what you want to be known for.'
+};
+const ASPECT_ANGLE={
+ conj:'0°: the planets sit together, usually in the same sign, so their energies blend into one.',
+ opp:'180°: the planets face each other across the chart, six signs apart, like the two ends of a see-saw.',
+ tri:'120°: four signs apart, usually in the same element, so they understand each other easily.',
+ sq:'90°: three signs apart, in signs with the same modality but different elements, so they want different things.',
+ sext:'60°: two signs apart, in friendly elements (fire with air, earth with water).',
+ qx:'150°: five signs apart, in signs with nothing in common, so they have to keep adjusting.'
+};
 
 const ASPECTS=[
  {id:'conj',n:'Conjunction',v:'conjunct',a:0,g:'☌',orb:8,t:3,cls:'neu',key:'The two energies merge and intensify each other.'},
@@ -695,6 +826,12 @@ function computeTransits(natal,date){
   aspects.sort((x,y)=>slowRank(y.t)-slowRank(x.t)||x.orb-y.orb);
   return {date,pts,aspects,byId:Object.fromEntries(pts.map(p=>[p.id,p]))};
 }
+const LONG_IDS=['Jupiter','Saturn','Uranus','Neptune','Pluto','Node'];
+const TRANSIT_GROUPS=[
+ {t:'Long-term transits',ids:LONG_IDS,d:'Jupiter, Saturn, Uranus, Neptune, Pluto and the Node move slowly, so they stay on one point for months or even years. They mark the big chapters and lessons of this time in your life.'},
+ {t:'Short-term transits',ids:['Sun','Mercury','Venus','Mars'],d:'The Sun, Mercury, Venus and Mars pass a point in a few days or weeks. They bring moods, conversations, meetings and events, and often switch on the long-term themes.'},
+ {t:'Today’s Moon',ids:['Moon'],d:'The Moon moves about 13° a day, so its aspects last only a few hours. They colour your mood and instincts.'}
+];
 const SLOW={Pluto:9,Neptune:8,Uranus:7,Saturn:6,Jupiter:5,Node:4,Mars:3,Sun:2,Venus:2,Mercury:2,Moon:0};
 const slowRank=p=>SLOW[p.id]??1;
 
@@ -727,7 +864,10 @@ function homeHouse(p){return p.id==='ASC'?1:p.id==='MC'?10:p.house;}
 /* ---------- state ---------- */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
 const EXAMPLE={name:'My chart',date:'2004-03-03',time:'16:05',unknown:false,city:'Cagliari',lat:39.22,lon:9.12,tz:'Europe/Rome',sys:'placidus',example:false};
-let profile=store.get('tf.profile',null)||EXAMPLE;
+let charts=store.get('tf.charts',null);
+if(!Array.isArray(charts)||!charts.length)charts=[store.get('tf.profile',null)||EXAMPLE];
+let active=Math.min(Math.max(0,+store.get('tf.active',0)||0),charts.length-1),profile=charts[active],editing=active,delArm=-1;
+function saveCharts(){store.set('tf.charts',charts);store.set('tf.active',active);}
 let natal=null,transit=null,tDate=startOfDayNoon(new Date()),selN=null,selT=null,tl=null,playTimer=null;
 function startOfDayNoon(d){const x=new Date(d);x.setHours(12,0,0,0);return x;}
 
@@ -797,59 +937,91 @@ function dispositorLine(p){
   if(!rp||r===p.id)return r===p.id?`${nm(p)} is at home in ${SIGNS[p.sign].n}, the sign it rules, so it acts with extra strength.`:'';
   return `${SIGNS[p.sign].n} is ruled by ${r}, which sits in ${SIGNS[rp.sign].n} in your ${ord(rp.house)} house, so ${HOUSES[rp.house-1].short} colours how this placement plays out.`;
 }
+const firstWord=k=>k.split(',')[0];
+const aWay=w=>(/^[aeiou]/i.test(w)?'an ':'a ')+w;
 function natalPointHTML(id,showTransits){
-  const p=natal.byId[id],z=SIGNS[p.sign],hh=homeHouse(p),rules=housesRuledBy(natal,id);
+  const p=natal.byId[id],z=SIGNS[p.sign],hh=homeHouse(p),rules=housesRuledBy(natal,id),SI=SIGN_INFO[p.sign],isAngle=id==='ASC'||id==='MC';
   const asps=natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id);
   let h=`<div class="eyebrow">${showTransits?'Natal point':'Your placement'}</div>
   <h3>${glyph(p)} ${nm(p)} in ${z.n}</h3>
-  <div class="pos">${posStr(p)} · ${id==='ASC'||id==='MC'?'cusp of the '+ord(hh)+' house':ord(p.house)+' house'}</div>`;
-  h+=`<dl class="kv"><dt>${nm(p)}</dt><dd>${PDEF[id].key}</dd><dt>${z.n} <span class="gl">${z.g}</span></dt><dd>${z.key} · ${z.el}, ${z.mod}</dd>
-  <dt>${ord(hh)} house</dt><dd>${HOUSES[hh-1].key}</dd>${rules.length?`<dt>Rules</dt><dd>your ${houseList(rules)}</dd>`:''}</dl>`;
-  if(id==='ASC'){const r=SIGNS[p.sign].rulers[0],rp=natal.byId[r];h+=`<p>Your chart ruler is <b>${r}</b>, in ${SIGNS[rp.sign].n} in your ${ord(rp.house)} house. Whatever touches ${r} touches you personally.</p>`;}
-  else if(id!=='MC'){h+=`<p>Your ${nm(p).toLowerCase()==='north node'?'North Node':nm(p)} (${PDEF[id].key.split(',')[0]}) works in a ${z.key.split(',').slice(0,2).join(' and ')} way, and plays out mostly through ${HOUSES[p.house-1].short}.</p>`;
-    const dl=dispositorLine(p);if(dl)h+=`<p class="note">${dl}</p>`;}
+  <div class="pos">${posStr(p)} · ${isAngle?'cusp of the '+ord(hh)+' house':ord(p.house)+' house'}</div>
+  <p>${PLANET_INFO[id]}</p>`;
+  if(!isAngle)h+=`<div class="explain"><b>How to read it.</b> The planet is <i>what</i>: ${firstWord(PDEF[id].key)}. The sign is <i>how</i>: in ${aWay(z.key.split(',').slice(0,2).join(' and '))} way. The house is <i>where</i>: in ${HOUSES[p.house-1].short}.</div>`;
+  h+=`<h4>${z.n} <span class="gl">${z.g}</span></h4><p>${SI.body}</p>
+  <dl class="kv"><dt>At its best</dt><dd>${SI.plus}</dd><dt>Watch for</dt><dd>${SI.minus}</dd><dt>Type</dt><dd>${z.el}, ${z.mod}</dd></dl>`;
+  h+=`<h4>${isAngle?'Opens':'In'} your ${ord(hh)} house</h4><p>${HOUSE_INFO[hh-1].body}</p>`;
+  if(rules.length&&!isAngle)h+=`<h4>Houses it rules</h4><p>${nm(p)} rules your ${houseList(rules)}. A planet carries the themes of the houses it rules into the house where it sits, so ${rules.map(r=>HOUSES[r-1].short).join(' and ')} ${rules.length>1?'are':'is'} linked with ${HOUSES[p.house-1].short} in your life.</p>`;
+  if(p.retro)h+=`<p class="note"><b>℞ Retrograde.</b> Seen from Earth, ${nm(p)} looked as if it were moving backwards when you were born. Its energy tends to turn inward: more reflective, slower to show, often very personal.</p>`;
+  if(id==='ASC'){const r=SIGNS[p.sign].rulers[0],rp=natal.byId[r];h+=`<h4>Your chart ruler</h4><p>The planet that rules your Rising sign is your chart ruler: <b>${r}</b>, in ${SIGNS[rp.sign].n} in your ${ord(rp.house)} house. It is like the captain of your chart, so whatever touches ${r} touches you personally.</p>`;}
+  else if(!isAngle){const dl=dispositorLine(p);if(dl)h+=`<p class="note">${dl}</p>`;}
   if(showTransits&&transit){
     const ts=transit.aspects.filter(a=>a.n.id===id);
-    h+=`<h3 style="font-size:1.05rem;margin-top:12px">Transits touching it now</h3>`;
+    h+=`<h4>Transits touching it now</h4>`;
     h+=ts.length?`<div class="alist">${ts.map(a=>aspectRow(a,'ta:'+a.t.id+'|'+a.n.id+'|'+a.asp.id,`${a.applying?'applying':'separating'}`,fmtOrb(a.orb))).join('')}</div>`:`<p class="note">Nothing within orb today.</p>`;
   }else{
-    h+=`<h3 style="font-size:1.05rem;margin-top:12px">Aspects</h3>`;
+    h+=`<h4>Aspects</h4><p class="note">Aspects are angles between planets. They show which parts of you work together and which pull against each other.</p>`;
     h+=asps.length?asps.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<span class="chip" data-pick="natal:${o.id}"><span class="gl">${a.asp.g}</span>${a.asp.n.toLowerCase()} ${nm(o)} <span class="mono" style="font-size:.75rem">${fmtOrb(a.orb)}</span></span>`;}).join(''):`<p class="note">No major aspects.</p>`;
   }
   return h;
 }
 function signHTML(i,chart){
-  const z=SIGNS[i],inSign=chart.pts.filter(p=>p.sign===i),cusps=chart.cusps.map((c,k)=>Math.floor(c/30)===i?k+1:0).filter(Boolean);
+  const z=SIGNS[i],SI=SIGN_INFO[i],inSign=chart.pts.filter(p=>p.sign===i),cusps=chart.cusps.map((c,k)=>Math.floor(c/30)===i?k+1:0).filter(Boolean);
   const rp=natal.byId[z.rulers[0]];
   return `<div class="eyebrow">Sign</div><h3><span class="gl">${z.g}</span> ${z.n}</h3>
   <div class="pos">${z.el} · ${z.mod} · ruled by ${z.rulers.join(z.rulers.length>1?' (modern) and ':'')}${z.rulers.length>1?' (traditional)':''}</div>
-  <p>${z.n} energy is ${z.key}.</p>
-  <dl class="kv"><dt>In this sign</dt><dd>${inSign.length?inSign.map(p=>`<span class="chip" data-pick="natal:${p.id}">${glyph(p)} ${nm(p)}</span>`).join(''):'none of your planets'}</dd>
-  <dt>House cusps</dt><dd>${cusps.length?'begins your '+houseList(cusps):'no cusp here (intercepted)'}</dd>
+  <p>${SI.body}</p>
+  <dl class="kv"><dt>At its best</dt><dd>${SI.plus}</dd><dt>Watch for</dt><dd>${SI.minus}</dd></dl>
+  <div class="explain"><b>${z.el[0].toUpperCase()+z.el.slice(1)}.</b> ${ELEMENT_INFO[z.el]}<br><b>${z.mod[0].toUpperCase()+z.mod.slice(1)}.</b> ${MODE_INFO[z.mod]}</div>
+  <h4>In your chart</h4>
+  <dl class="kv"><dt>Planets here</dt><dd>${inSign.length?inSign.map(p=>`<span class="chip" data-pick="natal:${p.id}">${glyph(p)} ${nm(p)}</span>`).join(''):'none of your planets'}</dd>
+  <dt>House cusps</dt><dd>${cusps.length?`${z.n} begins your ${houseList(cusps)}, so you meet ${cusps.map(c=>HOUSES[c-1].short).join(' and ')} in ${aWay(z.key.split(',')[0])} way`:'no house begins in this sign (it is intercepted)'}</dd>
   <dt>Its ruler</dt><dd>${rp?`${z.rulers[0]} in ${SIGNS[rp.sign].n}, ${ord(rp.house)} house`:''}</dd></dl>`;
 }
 function houseHTML(n,chart){
-  const H=HOUSES[n-1],c=chart.cusps[n-1],z=SIGNS[Math.floor(c/30)],inH=chart.pts.filter(p=>p.house===n&&p.id!=='ASC'&&p.id!=='MC');
-  const rulers=z.rulers.map(r=>natal.byId[r]).filter(Boolean);
-  let h=`<div class="eyebrow">House</div><h3>The ${ord(n)} house</h3><div class="pos">cusp ${fmtIn(c)} ${z.n}</div>
-  <p>${H.key[0].toUpperCase()+H.key.slice(1)}.</p>
-  <dl class="kv"><dt>Planets inside</dt><dd>${inH.length?inH.map(p=>`<span class="chip" data-pick="natal:${p.id}">${glyph(p)} ${nm(p)}</span>`).join(''):'empty; read it through its ruler'}</dd>
-  <dt>Ruler</dt><dd>${rulers.map(r=>`<span class="chip" data-pick="natal:${r.id}">${glyph(r)} ${nm(r)}</span> in ${SIGNS[r.sign].n}, ${ord(r.house)} house`).join('<br>')}</dd></dl>
-  <p class="note">With ${z.n} on the cusp you approach ${H.short} in a ${z.key.split(',')[0]} way, and ${z.rulers[0]}'s condition shows how it unfolds.</p>`;
+  const H=HOUSES[n-1],HI=HOUSE_INFO[n-1],c=chart.cusps[n-1],z=SIGNS[Math.floor(c/30)],inH=chart.pts.filter(p=>p.house===n&&p.id!=='ASC'&&p.id!=='MC');
+  const rulers=z.rulers.map(r=>natal.byId[r]).filter(Boolean),nat=SIGNS[HI.natural];
+  let h=`<div class="eyebrow">House · ${HI.type}</div><h3>The ${ord(n)} house: ${H.short}</h3><div class="pos">begins at ${fmtIn(c)} ${z.n}</div>
+  <p>${HI.body}</p>
+  <div class="explain"><b>Questions it answers:</b> ${HI.q}</div>
+  <h4>Your ${ord(n)} house</h4>
+  <p><b>${z.n} on the cusp.</b> You approach ${H.short} in ${aWay(z.key)} way. ${SIGN_INFO[z.i].body}</p>`;
+  h+=inH.length?`<p><b>Planets inside.</b></p><ul class="ctx">${inH.map(p=>`<li><span>${nm(p)} in ${SIGNS[p.sign].n}</span>${nm(p)} brings ${PDEF[p.id].key.split(',').slice(0,2).join(' and ')} into ${H.short}. <a href="#" class="chip" data-pick="natal:${p.id}" onclick="return false">${glyph(p)} more</a></li>`).join('')}</ul>`
+    :`<p><b>No planets inside.</b> An empty house is not a bad sign. It simply means you read this area through the sign on its cusp and through its ruler.</p>`;
+  rulers.forEach(r=>{h+=`<p><b>Its ruler, ${nm(r)}.</b> ${nm(r)} rules this house and sits in your ${ord(r.house)} house. ${r.house===n?'It sits in its own house, which makes this area strong and self-directed.':`So ${H.short} is linked with ${HOUSES[r.house-1].short} in your life.`} <a href="#" class="chip" data-pick="natal:${r.id}" onclick="return false">${glyph(r)} ${nm(r)}</a></p>`;});
+  h+=`<p class="note">${HOUSE_TYPE[HI.type]} Its natural sign is ${nat.n}, ruled by ${nat.rulers[0]}.</p>`;
   if(transit&&chart===natal&&curTab==='transits'){
     const tin=transit.pts.filter(p=>p.house===n);
-    h+=`<dl class="kv"><dt>Passing through now</dt><dd>${tin.length?tin.map(p=>`<span class="chip" data-pick="transit:${p.id}"><span class="gl">${p.g}</span> ${nm(p)}</span>`).join(''):'no transiting planets'}</dd></dl>`;
+    h+=`<h4>Passing through now</h4>${tin.length?tin.map(p=>`<span class="chip" data-pick="transit:${p.id}"><span class="gl">${p.g}</span> ${nm(p)}</span>`).join(''):'<p class="note">No transiting planets in this house right now.</p>'}`;
   }
   return h;
 }
 function natalAspectHTML(k){
-  const a=natal.aspects[k];
+  const a=natal.aspects[k],h1=homeHouse(a.p1),h2=homeHouse(a.p2);
   return `<div class="eyebrow">Aspect in your chart</div><h3>${glyph(a.p1)} <span class="gl">${a.asp.g}</span> ${glyph(a.p2)}</h3>
   <div class="pos">${nm(a.p1)} ${a.asp.v} ${nm(a.p2)} · orb ${fmtOrb(a.orb)}</div>
-  <p>${a.asp.key}</p>
-  <ul class="ctx"><li class="${a.asp.cls}"><span>${nm(a.p1)} · ${ord(homeHouse(a.p1))} house</span>${PDEF[a.p1.id].key}</li>
-  <li class="${a.asp.cls}"><span>${nm(a.p2)} · ${ord(homeHouse(a.p2))} house</span>${PDEF[a.p2.id].key}</li></ul>
-  <p class="note">This links ${HOUSES[homeHouse(a.p1)-1].short} with ${HOUSES[homeHouse(a.p2)-1].short} in your life.</p>`;
+  <p><b>${a.asp.n}.</b> ${a.asp.key}</p>
+  <div class="explain">${ASPECT_ANGLE[a.asp.id]} The orb (${fmtOrb(a.orb)}) is how far it is from exact. The smaller the orb, the stronger you feel it.</div>
+  <ul class="ctx"><li class="${a.asp.cls}"><span>${nm(a.p1)} in ${SIGNS[a.p1.sign].n} · ${ord(h1)} house</span>${PDEF[a.p1.id].key}</li>
+  <li class="${a.asp.cls}"><span>${nm(a.p2)} in ${SIGNS[a.p2.sign].n} · ${ord(h2)} house</span>${PDEF[a.p2.id].key}</li></ul>
+  <p>In your life this links <b>${HOUSES[h1-1].short}</b> with <b>${HOUSES[h2-1].short}</b>. Your ${firstWord(PDEF[a.p1.id].key)} and your ${firstWord(PDEF[a.p2.id].key)} ${a.asp.cls==='soft'?'support each other':a.asp.cls==='hard'?'push against each other, which creates tension and growth':a.asp.cls==='neu'?'work as one':'need constant small adjustments'}.</p>`;
+}
+function transitWindow(a){
+  if(a.t.id==='Moon')return null;
+  const max=a.asp.t,f=d=>Math.abs(sep(eclLon(a.t.id,new Date(tDate.getTime()+d*DAY)),a.n.lon)-a.asp.a);
+  const lim=LONG_IDS.includes(a.t.id)?800:120;let st=0,en=0;
+  while(st>-lim&&f(st-1)<=max)st--;
+  while(en<lim&&f(en+1)<=max)en++;
+  const ex=[];let prev=f(st-1),cur=f(st);
+  for(let d=st;d<=en;d++){const nx=f(d+1);if(cur<=prev&&cur<nx&&cur<.6)ex.push(d);prev=cur;cur=nx;}
+  const at=d=>new Date(tDate.getTime()+d*DAY);
+  return {start:at(st),end:at(en),days:en-st+1,ex:ex.map(at)};
+}
+function transitWindowHTML(a){
+  if(a.t.id==='Moon')return `<div class="explain"><b>Moon transit.</b> It lasts only a few hours: a passing mood, not a life chapter.</div>`;
+  const long=LONG_IDS.includes(a.t.id),w=transitWindow(a);
+  let h=`<div class="explain"><b>${long?'Long-term transit':'Short-term transit'}.</b> ${long?'A slow planet, so this is a chapter of your life rather than a single day. You feel it building, peaking and fading.':'A fast planet, so this is a few days of activity: an event, a mood or a conversation.'}`;
+  if(w)h+=` In orb from <b>${fmtShort(w.start)}</b> to <b>${fmtShort(w.end)}</b>, about ${w.days>60?Math.round(w.days/30.4)+' months':w.days+' days'}.${w.ex.length?` Exact on ${w.ex.map(fmtShort).join(', ')}.`:''}${w.ex.length>1?' It is exact more than once because the planet turns retrograde and crosses the point again.':''}`;
+  return h+'</div>';
 }
 function transitStoryHTML(a){
   const t=a.t,n=a.n,nh=homeHouse(n),nRules=housesRuledBy(natal,n.id),tRules=housesRuledBy(natal,t.id);
@@ -857,6 +1029,7 @@ function transitStoryHTML(a){
   <h3><span class="gl" style="color:var(--pink)">${t.g}</span> <span class="gl">${a.asp.g}</span> ${glyph(n)}</h3>
   <div class="pos">Transiting ${nm(t)} ${a.asp.v} natal ${nm(n)} · orb ${fmtOrb(a.orb)} · ${a.applying?'applying (building)':'separating (fading)'}</div>
   <p>${nm(t)} ${t.tr} your ${nm(n)}. ${a.asp.key} This kind of transit lasts ${t.dur}.</p>
+  ${transitWindowHTML(a)}
   <ul class="ctx">
    <li class="${a.asp.cls}"><span>Where it's happening</span>Transiting ${nm(t)} is in ${SIGNS[t.sign].n}, moving through your ${ord(t.house)} house: ${HOUSES[t.house-1].key}.</li>
    <li class="${a.asp.cls}"><span>What it touches</span>${n.id==='ASC'?'Your Ascendant opens the 1st house: '+HOUSES[0].key+'.':n.id==='MC'?'Your Midheaven opens the 10th house: '+HOUSES[9].key+'.':`Natal ${nm(n)} (${PDEF[n.id].key}) sits in your ${ord(n.house)} house: ${HOUSES[n.house-1].key}.`}</li>`;
@@ -884,8 +1057,7 @@ function renderHeader(){
   const d=new Date(profile.date+'T00:00:00');
   $('#who-meta').textContent=`${d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} · ${profile.unknown?'time unknown':profile.time} · ${profile.city||(profile.lat+', '+profile.lon)}`;
   $('#example-banner').hidden=!profile.example;
-  $('#me-name').textContent=$('#who-name').textContent;$('#me-meta').textContent=$('#who-meta').textContent;
-  if(natal)$('#me-glyph').textContent=SIGNS[natal.byId.Sun.sign].g;
+  renderChartList();
 }
 function renderNatal(){
   $('#wheel-natal').innerHTML=wheelSVG(natal,null,selN);
@@ -893,6 +1065,16 @@ function renderNatal(){
   $('#big3').innerHTML=[[S,'Sun sign'],[M,'Moon sign'],[A,'Rising sign']].map(([p,l])=>`<button type="button" class="b3" data-pick="natal:${p.id}"><span class="gl">${p.id==='ASC'?SIGNS[p.sign].g:p.g}</span><span><small>${l}</small><b>${SIGNS[p.sign].n}</b> <span class="mono muted" style="font-size:.8rem">${fmtIn(p.lon)}</span></span></button>`).join('');
   $('#ptable').innerHTML=`<thead><tr><th></th><th>Point</th><th>Sign</th><th>Degree</th><th>House</th></tr></thead><tbody>`+
     natal.pts.map(p=>`<tr class="click" data-pick="natal:${p.id}"><td>${glyph(p)}</td><td>${nm(p)}</td><td><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${SIGNS[p.sign].n}</td><td class="mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</td><td class="mono">${homeHouse(p)}</td></tr>`).join('')+'</tbody>';
+  const V=natal.byId.Venus,Mo=natal.byId.Moon;
+  $('#guide-chart-body').innerHTML=`<p>A birth chart is a map of the sky at the moment you were born, seen from where you were born. It has four ingredients:</p>
+   <ul class="ctx">
+    <li><span>Planets are the what</span>Ten energies inside you: ${PLANETS.slice(0,10).map(p=>`<span class="gl" style="color:var(--pink)">${p.g}</span> ${p.id} (${firstWord(p.key)})`).join(', ')}.</li>
+    <li><span>Signs are the how</span>The twelve signs around the outer ring give each planet its style. Each sign belongs to an element (fire, earth, air, water) and a modality (cardinal, fixed, mutable).</li>
+    <li><span>Houses are the where</span>The twelve numbered slices are areas of life, counted anticlockwise from your Ascendant (AC, on the left). Houses depend on your birth time and place.</li>
+    <li><span>Aspects are conversations</span>The lines in the middle join planets at meaningful angles. Teal lines flow easily; pink lines create tension that pushes growth.</li>
+   </ul>
+   <div class="explain"><b>Putting it together.</b> Your Venus is in ${SIGNS[V.sign].n} in the ${ord(V.house)} house: love and pleasure (what), expressed in ${aWay(SIGNS[V.sign].key.split(',').slice(0,2).join(' and '))} way (how), in ${HOUSES[V.house-1].short} (where). Your Moon in ${SIGNS[Mo.sign].n} in the ${ord(Mo.house)} house: your feelings are ${SIGNS[Mo.sign].key.split(',')[0]} and find comfort in ${HOUSES[Mo.house-1].short}.</div>
+   <p class="note">Tap any planet, sign or house number on the wheel to read about it.</p>`;
   $('#natal-aspects').innerHTML=natal.aspects.map((a,k)=>aspectRow(a,'na:'+k,`${ord(homeHouse(a.p1))} house ↔ ${ord(homeHouse(a.p2))} house`,fmtOrb(a.orb),selN)).join('');
   let d='';
   if(!selN)d=natalPointHTML('Sun')+(natal.sysUsed!==profile.sys?`<p class="note">Placidus can't be drawn at this latitude, so Equal houses are shown.</p>`:'');
@@ -908,7 +1090,9 @@ function renderTransits(){
   $('#t-range').value=Math.round((tDate-startOfDayNoon(new Date()))/DAY);
   $('#wheel-transit').innerHTML=wheelSVG(natal,transit,selT);
   const list=transit.aspects.filter(a=>a.t.id!=='Moon');
-  $('#transit-list').innerHTML=list.length?list.map(a=>aspectRow(a,'ta:'+a.t.id+'|'+a.n.id+'|'+a.asp.id,`${ord(a.t.house)} house → natal ${ord(homeHouse(a.n))}${housesRuledBy(natal,a.n.id).length?' · rules '+housesRuledBy(natal,a.n.id).map(ord).join(', '):''}`,`${fmtOrb(a.orb)}<br>${a.applying?'applying':'separating'}`,selT)).join(''):'<p class="note">No transits within orb.</p>';
+  const row=a=>aspectRow(a,'ta:'+a.t.id+'|'+a.n.id+'|'+a.asp.id,`${ord(a.t.house)} house → natal ${ord(homeHouse(a.n))}${housesRuledBy(natal,a.n.id).length?' · rules '+housesRuledBy(natal,a.n.id).map(ord).join(', '):''}`,`${fmtOrb(a.orb)}<br>${a.applying?'applying':'separating'}`,selT);
+  $('#transit-list').innerHTML=TRANSIT_GROUPS.map(g=>{const L=transit.aspects.filter(a=>g.ids.includes(a.t.id));
+    return `<div class="tgroup"><h4>${g.t} <span class="count">${L.length}</span></h4><p class="note">${g.d}</p>${L.length?L.map(row).join(''):'<p class="note">None in orb on this date.</p>'}</div>`;}).join('');
   // house weather
   const score=Array(12).fill(0);
   transit.pts.forEach(p=>{if(p.id!=='Moon')score[p.house-1]+=slowRank(p)>=4?2:1;});
@@ -926,10 +1110,80 @@ function renderTransits(){
     else if(k==='sign')d=signHTML(+v,natal);
     else if(k==='house')d=houseHTML(+v,natal);}
   $('#detail-transit').innerHTML=d;
+  renderPotential();
   renderCalendar();
   renderTimeline();
 }
 const isoDate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+/* ---------- the day's potential ---------- */
+const CATS=[
+ {id:'love',n:'Love',g:'♀',houses:[5,7],planets:['Venus','Mars','Moon'],learn:'Love is read from the 5th house (romance, dating) and the 7th house (partners), and from Venus, Mars and the Moon.',
+  adv:['A warm, open day for love. Say what you feel, plan a date or reach out to someone.','A steady day in love. Small, kind gestures count more than big talks.','Feelings can clash today. Listen before you react, and don’t test the other person.']},
+ {id:'work',n:'Work & career',g:'♄',houses:[10,6],planets:['Saturn','Sun','MC','Mars'],learn:'Work is read from the 10th house (career, reputation) and the 6th house (daily work), the Midheaven, Saturn and the Sun.',
+  adv:['Good day to pitch ideas, ask for something or show your work.','A routine work day. Clear your to-do list and keep going.','Expect friction or delays. Double-check details and don’t force big decisions.']},
+ {id:'money',n:'Money',g:'♃',houses:[2,8],planets:['Venus','Jupiter'],learn:'Money is read from the 2nd house (what you earn and own) and the 8th house (shared money, debts), with Venus and Jupiter.',
+  adv:['Favourable for planned purchases, negotiating or earning.','Nothing special with money. Stick to your budget.','Avoid impulse buys, risky deals and lending money today.']},
+ {id:'energy',n:'Energy & health',g:'♂',houses:[1,6],planets:['Mars','Sun','ASC'],learn:'Energy and health are read from the 1st house (your body) and the 6th house (habits, health), the Ascendant, Mars and the Sun.',
+  adv:['Energy is high. Move, exercise, start something new.','Normal energy. Keep a steady pace and sleep well.','You may feel tired or irritable. Rest, drink water and don’t overdo it.']},
+ {id:'mind',n:'Mind & talks',g:'☿',houses:[3,9],planets:['Mercury'],learn:'Thinking and communication are read from the 3rd house (everyday mind, messages) and the 9th house (study, beliefs), with Mercury.',
+  adv:['Clear thinking. Great for studying, writing and important conversations.','Fine for everyday talks, errands and admin.','Misunderstandings are likely. Re-read messages before you send them.']},
+ {id:'home',n:'Home & family',g:'☽',houses:[4],planets:['Moon'],learn:'Home and family are read from the 4th house (roots, home) and the Moon (care, belonging).',
+  adv:['A lovely day for family, cooking and making your space cosy.','A quiet day at home.','Family tension is possible. Give people some space.']},
+ {id:'social',n:'Friends & social',g:'♅',houses:[11,5],planets:['Venus','Jupiter','Uranus'],learn:'Friends and social life are read from the 11th house (friends, groups) and the 5th house (fun), with Venus, Jupiter and Uranus.',
+  adv:['Say yes to plans. Friends and groups bring good luck.','An ordinary social day.','Not everyone will be on your side today. Choose your company carefully.']},
+ {id:'inner',n:'Inner world',g:'♆',houses:[12,9],planets:['Neptune','Moon','Pluto'],learn:'Your inner and spiritual life is read from the 12th house (the unconscious, rest) and the 9th house (meaning), with Neptune, the Moon and Pluto.',
+  adv:['Your intuition is strong. Meditate, journal and notice your dreams.','Take a little quiet time for yourself.','Old worries may come up. Be gentle with yourself and rest.']}
+].map(c=>({...c,g:c.g+VS}));
+const BENEFIC=['Venus','Jupiter','Sun','Moon'],MALEFIC=['Mars','Saturn','Pluto','Uranus','Neptune'];
+function aspectValence(a){
+  const t=a.t.id,c=a.asp.cls,ben=BENEFIC.includes(t),mal=MALEFIC.includes(t);
+  if(c==='soft')return mal?.7:1;
+  if(c==='hard')return ben?-.45:-1;
+  if(c==='odd')return -.4;
+  return ben?.8:mal?-.6:.2;
+}
+function dayPotential(tr){
+  return CATS.map(cat=>{
+    let sum=0,act=0;const why=[];
+    tr.aspects.forEach(a=>{
+      const n=a.n,t=a.t;let rel=0;
+      if(cat.planets.includes(n.id))rel+=1;
+      if(cat.houses.includes(homeHouse(n)))rel+=.8;
+      if(housesRuledBy(natal,n.id).some(h=>cat.houses.includes(h)))rel+=.6;
+      if(cat.planets.includes(t.id))rel+=.5;
+      if(cat.houses.includes(t.house))rel+=.3;
+      if(!rel)return;rel=Math.min(rel,1.6);
+      const tight=1-a.orb/(t.id==='Moon'?1.5:a.asp.t),pw=t.id==='Moon'?.7:LONG_IDS.includes(t.id)?1.3:1;
+      const v=aspectValence(a)*rel*Math.max(.15,tight)*pw;sum+=v;act+=Math.abs(v);
+      why.push({a,v});
+    });
+    const moon=tr.byId.Moon;
+    if(cat.houses.includes(moon.house)){sum+=.25;act+=.25;}
+    const score=Math.max(1,Math.min(5,Math.round((3+Math.max(-2,Math.min(2,sum*1.1)))*2)/2));
+    why.sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
+    return {cat,score,act,why:why.slice(0,4),moonHere:cat.houses.includes(moon.house)};
+  });
+}
+const starHTML=sc=>{let h='';for(let i=1;i<=5;i++)h+=sc>=i?'★':sc>=i-.5?'<span style="position:relative">☆<span style="position:absolute;left:0;width:50%;overflow:hidden">★</span></span>':'<span class="off">★</span>';return h;};
+function renderPotential(){
+  const res=dayPotential(transit),diff=Math.round((startOfDayNoon(tDate)-startOfDayNoon(new Date()))/DAY);
+  $('#pot-eyebrow').textContent=diff===0?'Today’s Tides':'The Tides';
+  $('#pot-title').textContent=tDate.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const best=res.filter(r=>r.score>=4).sort((a,b)=>b.score-a.score).map(r=>r.cat.n.toLowerCase());
+  const care=res.filter(r=>r.score<=2).sort((a,b)=>a.score-b.score).map(r=>r.cat.n.toLowerCase());
+  const moon=transit.byId.Moon,mz=SIGNS[moon.sign];
+  $('#pot-sum').innerHTML=`${best.length?`<b>Best for</b> ${best.slice(0,3).join(', ')}. `:'A balanced day with no big highs. '}${care.length?`<b>Take care with</b> ${care.slice(0,2).join(' and ')}. `:''}<span class="muted">The Moon is in ${mz.n} <span class="gl">${mz.g}</span>, lighting up your ${ord(moon.house)} house (${HOUSES[moon.house-1].short}).</span>`;
+  $('#pot-list').innerHTML=res.map(r=>{
+    const tone=r.score>=4?0:r.score<=2?2:1,cls=tone===0?' good':tone===2?' hard':'';
+    const items=r.why.map(({a,v})=>`<li class="${v>=0?'soft':'hard'}"><span class="gl">${a.t.g}${a.asp.g}</span>${a.n.id==='ASC'||a.n.id==='MC'?`<span class="mono" style="font-size:.8em">${a.n.g}</span>`:`<span class="gl">${a.n.g}</span>`} ${nm(a.t)} ${a.asp.v} your ${nm(a.n)} <span class="mono muted" style="font-size:.75rem">${fmtOrb(a.orb)}</span><br><span class="muted">${v>=0?'Helps':'Challenges'}: ${nm(a.t)} (${firstWord(PDEF[a.t.id].key)}) meets your ${nm(a.n)} (${firstWord(PDEF[a.n.id].key)}, ${ord(homeHouse(a.n))} house).</span></li>`).join('');
+    return `<details class="pot${cls}"><summary><span class="pi">${r.cat.g}</span><span class="pn">${r.cat.n}</span><span class="stars" aria-label="${r.score} out of 5">${starHTML(r.score)}</span><span class="adv">${r.cat.adv[tone]}</span></summary>
+      <div class="why">${items?`<b>Why</b><ul>${items}</ul>`:'<p class="muted" style="margin:4px 0">No transits touch this part of your chart today, so it stays calm.</p>'}${r.moonHere?`<p style="margin:4px 0">The Moon is passing through your ${ord(transit.byId.Moon.house)} house, which puts feelings on this area.</p>`:''}<div class="learn"><b>Learn:</b> ${r.cat.learn} Flowing aspects (trine, sextile) help; tense ones (square, opposition) challenge.</div></div></details>`;}).join('');
+  // daily visit streak
+  let st=store.get('tf.visits',{last:'',n:0});const today=isoDate(new Date());
+  if(st.last!==today){const y=new Date();y.setDate(y.getDate()-1);st={last:today,n:st.last===isoDate(y)?st.n+1:1};store.set('tf.visits',st);}
+  $('#pot-streak').textContent=st.n>1?`${st.n} days in a row`:'Come back tomorrow';
+}
 
 /* ---------- calendar ---------- */
 let cal=null;
@@ -1027,66 +1281,115 @@ const rnd=n=>Math.floor(Math.random()*n),pick=a=>a[rnd(a.length)];
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 const opts=(ans,pool,k=4)=>shuffle([ans,...shuffle(pool.filter(x=>x!==ans)).slice(0,k-1)]);
 const TEN=PLANETS.slice(0,10);
+const SIGN_TIME={Moon:'about 2½ days',Sun:'about 1 month',Mercury:'about 3 weeks',Venus:'about 4 weeks',Mars:'about 6 to 7 weeks',Jupiter:'about 1 year',Saturn:'about 2½ years',Uranus:'about 7 years',Neptune:'about 14 years',Pluto:'12 to 30 years'};
+const CYCLE={Moon:'about 27 days',Sun:'1 year',Mercury:'about 1 year',Venus:'about 1 year',Mars:'about 2 years',Jupiter:'about 12 years',Saturn:'about 29 years',Uranus:'about 84 years',Neptune:'about 165 years',Pluto:'about 248 years'};
+const uniq=a=>[...new Set(a)];
+const signDist=(a,b)=>{const d=Math.abs(Math.floor(a/30)-Math.floor(b/30));return Math.min(d,12-d);};
 const GAMES={
-  glyphs:{t:'Glyph Flash',i:'♓'+VS,d:'See a symbol, name the planet or sign.',gen(){
+  glyphs:{lvl:'Beginner',t:'Glyph Flash',i:'♓'+VS,d:'See a symbol, name the planet or sign.',gen(){
     if(Math.random()<.5){const p=pick(TEN);return {g:p.g,q:'Which planet is this?',ans:p.id,options:opts(p.id,TEN.map(x=>x.id)),why:`${p.g} is ${p.id}: ${p.key}.`};}
     const z=pick(SIGNS);return {g:z.g,q:'Which sign is this?',ans:z.n,options:opts(z.n,SIGNS.map(x=>x.n)),why:`${z.g} is ${z.n}: ${z.key}.`};}},
-  rulers:{t:'Who Rules?',i:'♆'+VS,d:'Match each sign with its ruling planet.',gen(){
+  rulers:{lvl:'Beginner',t:'Who Rules?',i:'♆'+VS,d:'Match each sign with its ruling planet.',gen(){
     const z=pick(SIGNS);return {g:z.g,q:`Which planet rules ${z.n}?`,ans:z.rulers[0],options:opts(z.rulers[0],TEN.map(x=>x.id).filter(x=>!z.rulers.slice(1).includes(x))),
       why:`${z.n} is ruled by ${z.rulers[0]}${z.rulers[1]?`, with ${z.rulers[1]} as its traditional ruler`:''}.`};}},
-  elements:{t:'Elements & Modes',i:'△'+VS,d:'Fire, earth, air, water; cardinal, fixed, mutable.',gen(){
+  elements:{lvl:'Beginner',t:'Elements & Modes',i:'△'+VS,d:'Fire, earth, air, water; cardinal, fixed, mutable.',gen(){
     const z=pick(SIGNS);
     if(Math.random()<.55){const E=['fire','earth','air','water'];return {g:z.g,q:`What element is ${z.n}?`,ans:z.el,options:E,why:`${z.n} is a ${z.el} sign. The fire signs are Aries, Leo, Sagittarius; earth: Taurus, Virgo, Capricorn; air: Gemini, Libra, Aquarius; water: Cancer, Scorpio, Pisces.`};}
     return {g:z.g,q:`What modality is ${z.n}?`,ans:z.mod,options:['cardinal','fixed','mutable'],why:`${z.n} is ${z.mod}. Cardinal signs start each season, fixed signs hold it, mutable signs carry it into the next.`};}},
-  houses:{t:'House Keys',i:'⌂',d:'Learn what each of the twelve houses governs.',gen(){
+  houses:{lvl:'Beginner',t:'House Keys',i:'⌂',d:'Learn what each of the twelve houses governs.',gen(){
     const H=pick(HOUSES);
     if(Math.random()<.5)return {g:'',q:`Which house rules ${H.key.split(',').slice(0,2).join(' and ')}?`,ans:ord(H.n)+' house',options:opts(ord(H.n)+' house',HOUSES.map(x=>ord(x.n)+' house')),why:`The ${ord(H.n)} house: ${H.key}.`};
     return {g:'',q:`What is the ${ord(H.n)} house mainly about?`,ans:H.short,options:opts(H.short,HOUSES.map(x=>x.short)),why:`The ${ord(H.n)} house: ${H.key}.`};}},
-  aspects:{t:'Spot the Aspect',i:'☍'+VS,d:'Two planets, two degrees. Which aspect do they make?',gen(){
+  aspects:{lvl:'Intermediate',t:'Spot the Aspect',i:'☍'+VS,d:'Two planets, two degrees. Which aspect do they make?',gen(){
     const A5=ASPECTS.filter(a=>a.id!=='qx'),a=pick(A5),p1=pick(TEN),p2=pick(TEN.filter(x=>x!==p1));
     const l1=rnd(360),l2=norm(l1+(Math.random()<.5?1:-1)*a.a+(rnd(7)-3)),s=Math.round(sep(l1,l2));
     const f=(p,l)=>`${p.g} ${Math.floor(l%30)}° ${SIGNS[Math.floor(l/30)].g}`;
     return {g:'',q:`<span class="gl" style="font-size:2rem">${f(p1,l1)} &nbsp;and&nbsp; ${f(p2,l2)}</span><br>${p1.id} at ${Math.floor(l1%30)}° ${SIGNS[Math.floor(l1/30)].n}, ${p2.id} at ${Math.floor(l2%30)}° ${SIGNS[Math.floor(l2/30)].n}`,
       ans:a.n,options:A5.map(x=>x.n),why:`They are about ${s}° apart, which is a ${a.n.toLowerCase()} (${a.a}°). Tip: count the signs between them. 2 signs is a sextile, 3 a square, 4 a trine, 6 an opposition.`};}},
-  mine:{t:'My Own Chart',i:'☉'+VS,d:'Questions about your own placements, so you learn your chart by heart.',gen(){
+  mine:{lvl:'Intermediate',t:'My Own Chart',i:'☉'+VS,d:'Questions about your own placements, so you learn your chart by heart.',gen(){
     const ps=natal.pts.filter(p=>p.id!=='MC'&&p.id!=='Node'),kind=pick(['sign','sign','house','rising','ruler']);
     if(kind==='rising'){const z=SIGNS[natal.byId.ASC.sign];return {g:'AC',q:'What is your Rising sign?',ans:z.n,options:opts(z.n,SIGNS.map(x=>x.n)),why:`Your Ascendant is ${fmtIn(natal.byId.ASC.lon)} ${z.n}: ${z.key}.`};}
     if(kind==='ruler'){const z=SIGNS[natal.byId.ASC.sign],r=natal.byId[z.rulers[0]];return {g:z.g,q:`Your Rising sign is ${z.n}. Which planet is your chart ruler?`,ans:r.id,options:opts(r.id,TEN.map(x=>x.id)),why:`${z.n} is ruled by ${r.id}, so ${r.id} is your chart ruler. It sits in ${SIGNS[r.sign].n} in your ${ord(r.house)} house.`};}
     if(kind==='house'){const p=pick(ps.filter(x=>x.id!=='ASC'));return {g:p.g,q:`Which house is your ${nm(p)} in?`,ans:ord(p.house)+' house',options:opts(ord(p.house)+' house',HOUSES.map(x=>ord(x.n)+' house')),why:`Your ${nm(p)} is in the ${ord(p.house)} house: ${HOUSES[p.house-1].key}.`};}
-    const p=pick(ps.filter(x=>x.id!=='ASC'));return {g:p.g,q:`Which sign is your ${nm(p)} in?`,ans:SIGNS[p.sign].n,options:opts(SIGNS[p.sign].n,SIGNS.map(x=>x.n)),why:`Your ${nm(p)} is at ${fmtIn(p.lon)} ${SIGNS[p.sign].n}${p.retro?', retrograde':''}. ${nm(p)} is about ${PDEF[p.id].key}; ${SIGNS[p.sign].n} makes it ${SIGNS[p.sign].key}.`};}}
+    const p=pick(ps.filter(x=>x.id!=='ASC'));return {g:p.g,q:`Which sign is your ${nm(p)} in?`,ans:SIGNS[p.sign].n,options:opts(SIGNS[p.sign].n,SIGNS.map(x=>x.n)),why:`Your ${nm(p)} is at ${fmtIn(p.lon)} ${SIGNS[p.sign].n}${p.retro?', retrograde':''}. ${nm(p)} is about ${PDEF[p.id].key}; ${SIGNS[p.sign].n} makes it ${SIGNS[p.sign].key}.`};}},
+  timing:{lvl:'Intermediate',t:'Transit Timing',i:'⌛',d:'How long transits last, long-term or short-term, applying or separating.',gen(){
+    const k=pick(['sign','sign','longshort','applying','applying','cycle']);
+    if(k==='sign'){const p=pick(TEN);return {g:p.g,q:`About how long does ${p.id} stay in one sign?`,ans:SIGN_TIME[p.id],options:opts(SIGN_TIME[p.id],uniq(Object.values(SIGN_TIME))),why:`${p.id} spends ${SIGN_TIME[p.id]} in each sign and takes ${CYCLE[p.id]} to go round the whole zodiac. The slower the planet, the longer its transits last.`};}
+    if(k==='cycle'){const p=pick(TEN.filter(x=>!['Mercury','Venus'].includes(x.id)));return {g:p.g,q:`How long does ${p.id} take to travel once around the whole zodiac?`,ans:CYCLE[p.id],options:opts(CYCLE[p.id],uniq(Object.values(CYCLE)).filter(x=>x!=='about 1 year')),why:`${p.id} takes ${CYCLE[p.id]}. That is why a "${p.id} return" (${p.id} back where it was at your birth) happens every ${CYCLE[p.id].replace('about ','')}.`};}
+    if(k==='longshort'){const p=pick(TEN.filter(x=>x.id!=='Moon')),isL=LONG_IDS.includes(p.id),L='Long-term (months to years)',S='Short-term (days to weeks)';
+      return {g:p.g,q:`Is a transit of ${p.id} long-term or short-term?`,ans:isL?L:S,options:[L,S],why:`${p.id} takes ${CYCLE[p.id]} to circle the zodiac, so ${isL?'it stays on each point for months and marks a chapter of life':'it passes each point within days and brings moods and events'}.`};}
+    const pl=pick(['Mercury','Venus','Mars','Jupiter','Saturn']),tg=pick(TEN),z=rnd(12),nd=6+rnd(18),before=Math.random()<.5,td=before?nd-1-rnd(4):nd+1+rnd(4),retro=Math.random()<.3,app=retro?!before:before;
+    const A='Applying (building up)',Sp='Separating (fading)';
+    return {g:'',q:`Transiting ${pl} is at ${td}° ${SIGNS[z].n}, moving ${retro?'retrograde (backwards)':'forwards'}. Your natal ${tg.id} is at ${nd}° ${SIGNS[z].n}. Is this conjunction applying or separating?`,ans:app?A:Sp,options:[A,Sp],
+      why:`${pl} is ${before?'behind (before)':'past'} your ${tg.id} and moving ${retro?'backwards':'forwards'}, so it is getting ${app?'closer: applying':'further away: separating'}. Transits are usually felt most strongly while applying.`};}},
+  degrees:{lvl:'Hard',t:'Degree Detective',i:'°',d:'Convert 0–360° zodiac positions into sign and degree, and back again.',gen(){
+    const L=rnd(360),z=SIGNS[Math.floor(L/30)],d=L%30;
+    if(Math.random()<.5)return {g:'',q:`A planet sits at <b>${L}°</b> of the zodiac, counting from 0° Aries. Which sign is it in?`,ans:z.n,options:opts(z.n,SIGNS.map(x=>x.n)),why:`Each sign is 30° wide. ${L} ÷ 30 = ${Math.floor(L/30)} whole signs with ${d}° left over, so it is ${d}° of sign number ${z.i+1}: ${z.n}.`};
+    const wrong=uniq([L+30,L-30,L+60,L-60,L+90,L+120,L-120].map(norm)).filter(x=>x!==L).map(x=>x+'°');
+    return {g:z.g,q:`Where is <b>${d}° ${z.n}</b> in absolute zodiac degrees (0–360°)?`,ans:L+'°',options:opts(L+'°',wrong),why:`${z.n} is sign number ${z.i+1}, so it starts at ${z.i}×30 = ${z.i*30}°. Add ${d}° and you get ${L}°.`};}},
+  aspectpro:{lvl:'Hard',t:'Aspect Master',i:'⚻'+VS,d:'Exact degrees, real orbs, out-of-sign aspects and the trap answer: no aspect at all.',gen(){
+    const p1=pick(TEN),p2=pick(TEN.filter(x=>x!==p1)),a=pick(ASPECTS),l1=rnd(360)+rnd(60)/60;
+    const off=(Math.random()*2-1)*(a.orb+4),l2=norm(l1+(Math.random()<.5?1:-1)*(a.a+off)),d=sep(l1,l2),hit=aspectBetween(l1,l2,x=>x.orb);
+    const ans=hit?hit.asp.n:'No major aspect',f=(p,l)=>`${p.g} ${fmtIn(l)} ${SIGNS[Math.floor(l/30)].g}`;
+    return {g:'',q:`<span class="gl" style="font-size:1.6rem">${f(p1,l1)} &nbsp;·&nbsp; ${f(p2,l2)}</span><br>${p1.id} at ${fmtIn(l1)} ${SIGNS[Math.floor(l1/30)].n}, ${p2.id} at ${fmtIn(l2)} ${SIGNS[Math.floor(l2/30)].n}. Which aspect, if any?`,
+      ans,options:opts(ans,[...ASPECTS.map(x=>x.n),'No major aspect'],5),
+      why:`They are ${d.toFixed(1)}° apart. ${hit?`That is within orb of a ${hit.asp.n.toLowerCase()} (${hit.asp.a}°, allowed orb ±${hit.asp.orb}°), off by ${fmtOrb(hit.orb)}.`:'That is not within orb of any aspect. The orbs used here: conjunction and opposition ±8°, square and trine ±7°, sextile ±5°, quincunx ±2.5°.'}${hit&&signDist(l1,l2)!==hit.asp.a/30?' Careful: the signs alone suggest something else. This is an out-of-sign aspect, so always check the degrees.':''}`};}},
+  rulersmine:{lvl:'Hard',t:'House Rulers',i:'♄'+VS,d:'Follow the chain in your own chart: which planet rules each house, and where it sits.',gen(){
+    const n=rnd(12)+1,z=SIGNS[Math.floor(natal.cusps[n-1]/30)],r=natal.byId[z.rulers[0]];
+    if(Math.random()<.5)return {g:z.g,q:`Your ${ord(n)} house (${HOUSES[n-1].short}) begins in ${z.n}. Which planet rules your ${ord(n)} house?`,ans:r.id,options:opts(r.id,TEN.map(x=>x.id)),why:`${z.n} is ruled by ${r.id}, so ${r.id} rules your ${ord(n)} house. To read ${HOUSES[n-1].short}, look at ${r.id}'s sign, house and aspects.`};
+    return {g:r.g,q:`${r.id} rules your ${ord(n)} house (${HOUSES[n-1].short}). Which house is ${r.id} in?`,ans:ord(r.house)+' house',options:opts(ord(r.house)+' house',HOUSES.map(x=>ord(x.n)+' house')),why:`${r.id} sits in your ${ord(r.house)} house, so ${HOUSES[n-1].short} ${r.house===n?'is strong and self-contained':'is linked with '+HOUSES[r.house-1].short} in your life. Astrologers write this as "ruler of ${n} in ${r.house}".`};}},
+  combos:{lvl:'Hard',t:'Read the Combo',i:'☿'+VS,d:'Put planet, sign and house together into a meaning, like a real astrologer.',gen(){
+    const p=pick(TEN),others=shuffle(TEN.filter(x=>x!==p));
+    if(Math.random()<.5){const H=pick(HOUSES),oh=shuffle(HOUSES.filter(x=>x!==H));const ph=(pp,hh)=>`${firstWord(pp.key)} in ${hh.short}`;
+      const ans=ph(p,H);return {g:p.g,q:`What does ${p.id} in the ${ord(H.n)} house mostly describe?`,ans,options:opts(ans,[ph(p,oh[0]),ph(others[0],H),ph(others[1],oh[1]),ph(p,oh[2])]),why:`${p.id} is about ${p.key}. The ${ord(H.n)} house is ${H.key}. Planet = what, house = where.`};}
+    const z=pick(SIGNS),oz=shuffle(SIGNS.filter(x=>x!==z));const ps=(pp,zz)=>`${firstWord(pp.key)}, expressed in ${aWay(zz.key.split(',')[0])} way`;
+    const ans=ps(p,z);return {g:p.g,q:`Which phrase best fits ${p.id} in ${z.n} <span class="gl">${z.g}</span>?`,ans,options:opts(ans,[ps(p,oz[0]),ps(others[0],z),ps(p,oz[1]),ps(others[1],oz[2])]),why:`${p.id} is about ${p.key}. ${z.n} is ${z.key}. Planet = what, sign = how.`};}},
+  exam:{lvl:'Expert',t:'Master Exam',i:'✦',d:'15 mixed questions from every game, 20 seconds each. Run out of time and it counts as wrong.',total:15,timer:20,gen(){
+    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements']),q=GAMES[k].gen();q.from=GAMES[k].t;return q;}}
 };
-let game=null;
+let game=null,qTimer=null;
+const LEVELS=['Beginner','Intermediate','Hard','Expert'];
+const total=()=>GAMES[game.k].total||10;
 function renderGames(){
   const best=store.get('tf.best',{});
-  $('#games').innerHTML=Object.entries(GAMES).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${g.t}</h3><p>${g.d}${k==='mine'&&profile.example?' (uses the example chart until you add yours)':''}</p><span class="best">${best[k]!=null?'Best: '+best[k]+' / 10':'Not played yet'}</span></button>`).join('');
+  $('#games').innerHTML=LEVELS.map(l=>`<h3 class="lvl">${l}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${g.t}</h3><p>${g.d}</p><span class="best">${best[k]!=null?'Best: '+best[k]+' / '+(g.total||10):'Not played yet'}</span></button>`).join('')}</div>`).join('');
 }
-function startGame(k){game={k,i:0,score:0,res:[]};nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;}
-function nextQ(){if(game.i>=10)return endGame();game.q=GAMES[game.k].gen();game.picked=null;renderQ();}
+function startGame(k){game={k,i:0,score:0,res:[],streak:0,bestStreak:0};nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;window.scrollTo(0,0);}
+function stopTimer(){if(qTimer){clearInterval(qTimer);qTimer=null;}}
+function nextQ(){stopTimer();if(game.i>=total())return endGame();game.q=GAMES[game.k].gen();game.picked=null;
+  const T=GAMES[game.k].timer;
+  if(T){game.left=T;qTimer=setInterval(()=>{game.left--;const el=$('#q-timer');if(el)el.textContent=game.left+'s';
+    if(game.left<=0){stopTimer();answerQ(-1);}},1000);}
+  renderQ();}
+function answerQ(idx){if(game.picked!=null)return;stopTimer();game.picked=idx;const ok=idx>=0&&game.q.options[idx]===game.q.ans;
+  game.res[game.i]=ok;if(ok){game.score++;game.streak++;game.bestStreak=Math.max(game.bestStreak,game.streak);}else game.streak=0;
+  navigator.vibrate&&navigator.vibrate(ok?12:[30,50,30]);renderQ();}
 function renderQ(){
-  const q=game.q,G=GAMES[game.k];
-  const dots=Array.from({length:10},(_,i)=>`<i class="${game.res[i]===true?'ok':game.res[i]===false?'no':i===game.i?'cur':''}"></i>`).join('');
-  let h=`<div class="qhead"><div><div class="eyebrow">${G.t}</div><div class="mono muted" style="font-size:.85rem">Question ${game.i+1} of 10 · score ${game.score}</div></div><div class="dots">${dots}</div></div>
+  const q=game.q,G=GAMES[game.k],N=total();
+  const dots=Array.from({length:N},(_,i)=>`<i class="${game.res[i]===true?'ok':game.res[i]===false?'no':i===game.i?'cur':''}"></i>`).join('');
+  let h=`<div class="qhead"><div><div class="eyebrow">${G.t}${q.from?' · '+q.from:''}</div><div class="mono muted" style="font-size:.85rem">Question ${game.i+1} of ${N} · score ${game.score}${game.streak>1?' · streak '+game.streak:''}${G.timer&&game.picked==null?` · <b id="q-timer" style="color:var(--pink)">${game.left}s</b>`:''}</div></div><div class="dots">${dots}</div></div>
   <div class="qprompt">${q.g?`<span class="qg">${q.g==='AC'?'<span class="mono" style="font-size:.6em">AC</span>':q.g}</span>`:''}<div class="qt">${q.q}</div></div>
   <div class="qopts">${q.options.map((o,i)=>{let c='';if(game.picked!=null){if(o===q.ans)c=' right';else if(i===game.picked)c=' wrong';}
     return `<button type="button" class="qopt${c}" data-opt="${i}"${game.picked!=null?' disabled':''}>${esc(o[0].toUpperCase()+o.slice(1))}</button>`;}).join('')}</div>`;
-  if(game.picked!=null){const ok=q.options[game.picked]===q.ans;
-    h+=`<div class="qfb${ok?'':' no'}"><b>${ok?'Correct.':'Not quite. It’s '+esc(q.ans)+'.'}</b> ${q.why}</div>
-    <div class="form-actions"><button class="btn pri" type="button" id="q-next">${game.i>=9?'See score':'Next question'}</button><button class="btn" type="button" id="q-quit">Back to games</button></div>`;}
+  if(game.picked!=null){const ok=game.picked>=0&&q.options[game.picked]===q.ans;
+    h+=`<div class="qfb${ok?'':' no'}"><b>${ok?'Correct.':game.picked<0?'Time’s up. It’s '+esc(q.ans)+'.':'Not quite. It’s '+esc(q.ans)+'.'}</b> ${q.why}</div>
+    <div class="form-actions"><button class="btn pri" type="button" id="q-next">${game.i>=N-1?'See score':'Next question'}</button><button class="btn" type="button" id="q-quit">Back to games</button></div>`;}
   else h+=`<div class="form-actions"><button class="btn" type="button" id="q-quit">Back to games</button></div>`;
   $('#quiz').innerHTML=h;
 }
 function endGame(){
-  const best=store.get('tf.best',{});const prev=best[game.k];if(prev==null||game.score>prev){best[game.k]=game.score;store.set('tf.best',best);}
-  const msg=game.score>=9?'Superb. You know this by heart.':game.score>=6?'Good work. One more round will lock it in.':'A good start. Every round teaches the pattern.';
-  $('#quiz').innerHTML=`<div class="score"><div class="eyebrow">${GAMES[game.k].t}</div><div class="n">${game.score}<span style="font-size:.4em;color:var(--ink-soft)"> / 10</span></div><p class="it" style="font-size:1.2rem">${msg}</p>
+  stopTimer();const N=total(),best=store.get('tf.best',{}),prev=best[game.k];if(prev==null||game.score>prev){best[game.k]=game.score;store.set('tf.best',best);}
+  const pct=game.score/N,msg=pct>=.9?'Superb. You know this by heart.':pct>=.6?'Good work. One more round will lock it in.':'A good start. Every round teaches the pattern.';
+  $('#quiz').innerHTML=`<div class="score"><div class="eyebrow">${GAMES[game.k].t}</div><div class="n">${game.score}<span style="font-size:.4em;color:var(--ink-soft)"> / ${N}</span></div><p class="it" style="font-size:1.2rem">${msg}</p>
+  <p class="mono muted">Longest streak: ${game.bestStreak}${prev!=null&&game.score>prev?' · new best!':''}</p>
   <div class="form-actions" style="justify-content:center"><button class="btn pri" type="button" id="q-again">Play again</button><button class="btn" type="button" id="q-quit">Back to games</button></div></div>`;
 }
 $('#quiz').addEventListener('click',e=>{
   const o=e.target.closest('[data-opt]');
-  if(o&&game.picked==null){game.picked=+o.dataset.opt;const ok=game.q.options[game.picked]===game.q.ans;game.res[game.i]=ok;if(ok)game.score++;navigator.vibrate&&navigator.vibrate(ok?12:[30,50,30]);renderQ();return;}
+  if(o&&game.picked==null){answerQ(+o.dataset.opt);return;}
   if(e.target.closest('#q-next')){game.i++;nextQ();}
   else if(e.target.closest('#q-again'))startGame(game.k);
-  else if(e.target.closest('#q-quit')){$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();}
+  else if(e.target.closest('#q-quit')){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();}
 });
 $('#games').addEventListener('click',e=>{const c=e.target.closest('[data-game]');if(c)startGame(c.dataset.game);});
 
@@ -1145,6 +1448,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('clic
 function showTab(t){closeSheet();curTab=t;window.scrollTo(0,0);document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
   document.querySelectorAll('[data-panel]').forEach(s=>s.hidden=s.dataset.panel!==t);
   if(t!=='transits')stopPlay();
+  if(t!=='learn'&&typeof stopTimer==='function'){stopTimer();}
   if(t==='transits')renderTransits();if(t==='learn')renderGames();if(t==='me')fillForm();store.set('tf.tab',t);}
 
 /* ---------- form ---------- */
@@ -1152,7 +1456,32 @@ const fc=$('#f-city');
 fc.innerHTML=CITIES.map(c=>`<option>${c[0]}</option>`).join('')+'<option value="">Other (enter coordinates)</option>';
 fc.addEventListener('change',()=>{const c=CITIES.find(x=>x[0]===fc.value);if(c){$('#f-lat').value=c[1];$('#f-lon').value=c[2];$('#f-tz').value=c[3];}});
 $('#f-unknown').addEventListener('change',e=>{$('#f-time').disabled=e.target.checked;});
-function fillForm(){const f=profile.example?{...EXAMPLE,name:''}:profile;
+function renderChartList(){
+  $('#chart-list').innerHTML=charts.map((c,i)=>`<div class="citem${i===active?' on':''}">
+    <button type="button" class="cmain" data-open="${i}"><span class="it">${esc(c.name||'Chart')}</span><span class="mono muted">${fmtShort(new Date(c.date+'T12:00:00'))} · ${c.unknown?'time unknown':esc(c.time)} · ${esc(c.city||(c.lat+', '+c.lon))}</span></button>
+    ${i===active?'<span class="badge">viewing</span>':''}
+    <button class="btn sm" type="button" data-edit="${i}">Edit</button>
+    ${charts.length>1?`<button class="btn sm${delArm===i?' danger':''}" type="button" data-del="${i}">${delArm===i?'Tap again to delete':'Delete'}</button>`:''}</div>`).join('');
+  const opt=charts.map((c,i)=>`<option value="${i}"${i===active?' selected':''}>${esc(c.name||'Chart '+(i+1))}</option>`).join('');
+  document.querySelectorAll('.chart-switch').forEach(x=>x.innerHTML=opt);
+  document.querySelectorAll('[data-switch]').forEach(x=>x.hidden=charts.length<2);
+}
+function openChart(i){active=i;profile=charts[i];saveCharts();selN=null;selT=null;tl=null;cal=null;delArm=-1;boot();}
+document.addEventListener('change',e=>{if(e.target.classList&&e.target.classList.contains('chart-switch')){openChart(+e.target.value);}});
+$('#tab-me').addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]'),ed=e.target.closest('[data-edit]'),dl=e.target.closest('[data-del]');
+  if(o){openChart(+o.dataset.open);showTab('chart');return;}
+  if(ed){const i=+ed.dataset.edit;delArm=-1;fillForm(charts[i],i);renderChartList();$('#form-panel').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  if(dl){const i=+dl.dataset.del;
+    if(delArm!==i){delArm=i;renderChartList();return;}
+    charts.splice(i,1);delArm=-1;
+    if(active>=charts.length)active=charts.length-1;else if(i<active)active--;
+    openChart(active);fillForm();return;}
+  if(e.target.closest('#add-chart')){delArm=-1;renderChartList();fillForm({name:'',date:'',time:'',unknown:false,city:'Athens',lat:37.98,lon:23.73,tz:'Europe/Athens',sys:'placidus'},-1);
+    $('#form-panel').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('#f-name').focus(),300);}
+});
+function fillForm(f,idx){if(idx===undefined){idx=active;f=profile;}
+  editing=idx;$('#form-title').textContent=idx===-1?'New chart':'Edit: '+(f.name||'chart');$('#f-submit').textContent=idx===-1?'Add chart':'Save changes';
   $('#f-name').value=f.name||'';$('#f-date').value=f.date;$('#f-time').value=f.time||'';$('#f-unknown').checked=!!f.unknown;$('#f-time').disabled=!!f.unknown;
   fc.value=CITIES.some(c=>c[0]===f.city)?f.city:'';$('#f-lat').value=f.lat;$('#f-lon').value=f.lon;$('#f-tz').value=f.tz;$('#f-sys').value=f.sys;$('#f-err').textContent='';}
 function openForm(){showTab('me');}
@@ -1160,14 +1489,15 @@ $('#edit-btn').addEventListener('click',openForm);
 $('#banner-edit').addEventListener('click',openForm);
 $('#f-cancel').addEventListener('click',()=>{fillForm();showTab('chart');});
 $('#bform').addEventListener('submit',e=>{e.preventDefault();
-  const np={name:$('#f-name').value.trim()||'My chart',date:$('#f-date').value,time:$('#f-time').value||'12:00',unknown:$('#f-unknown').checked,
+  const np={name:$('#f-name').value.trim()||(editing===-1?'Chart '+(charts.length+1):'My chart'),date:$('#f-date').value,time:$('#f-time').value||'12:00',unknown:$('#f-unknown').checked,
     city:fc.value,lat:parseFloat($('#f-lat').value),lon:parseFloat($('#f-lon').value),tz:$('#f-tz').value.trim(),sys:$('#f-sys').value,example:false};
   if(!np.date)return $('#f-err').textContent='Add a birth date.';
   if(!np.unknown&&!$('#f-time').value)return $('#f-err').textContent='Add a birth time, or tick “Time unknown”.';
   if(isNaN(np.lat)||isNaN(np.lon))return $('#f-err').textContent='Latitude and longitude must be numbers.';
   try{tzOffsetMin(np.tz,new Date());}catch(err){return $('#f-err').textContent='Time zone not recognised. Use a name like Europe/Athens, or UTC+2.';}
   if(np.unknown)np.time='12:00';
-  profile=np;store.set('tf.profile',profile);selN=null;selT=null;tl=null;cal=null;boot();showTab('chart');
+  if(editing===-1){charts.push(np);active=charts.length-1;}else{charts[editing]=np;active=editing;}
+  profile=charts[active];saveCharts();selN=null;selT=null;tl=null;cal=null;boot();showTab('chart');
 });
 
 /* ---------- install & offline ---------- */

@@ -18,6 +18,11 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 
 ## Features so far
 - Birth Chart tab: a clickable wheel with placements, signs, houses and aspects.
-- Transits tab: a calendar (tap any day, past or future), a biwheel and transits read against the WHOLE chart (houses, rulerships, dispositors, natal aspects). Also shows active life areas and a 12-month timeline of slow transits. This whole-chart reading is her key requirement.
-- Learn tab: six quiz games. She will describe more game ideas later.
-- Me tab: birth details and install help.
+- Transits tab (opens first):
+  - "Today's Tides": star ratings for Love, Work, Money, Energy, Mind, Home, Friends and Inner world, with practical advice, a "why" built from transits, and a "learn" line. Also a daily visit streak. She likes this as the hook that keeps her coming back.
+  - A calendar (tap any day, past or future) and a biwheel.
+  - Transits read against the WHOLE chart (houses, rulerships, dispositors, natal aspects), grouped into long-term (Jupiter to Pluto and the Node), short-term (Sun to Mars) and Moon, with in-orb dates and exact dates. This whole-chart reading is her key requirement.
+  - Active life areas and a 12-month timeline of slow transits.
+- Explanations everywhere: house, sign and planet write-ups, plus the "How to read your chart" and "What is a transit?" guides. She is relearning, so keep everything explained.
+- Learn tab: 12 games across Beginner, Intermediate, Hard and Expert levels (Master Exam: 15 timed questions). She wants them challenging.
+- Me tab: multiple saved charts (add, edit, switch, delete) stored in localStorage `tf.charts` and `tf.active`, plus install help.
