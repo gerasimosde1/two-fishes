@@ -17,7 +17,7 @@ function detectLang(){const s=store.get('tf.lang',null);if(s&&LANGS[s])return s;
 let LANG=detectLang(),L=LANGS[LANG];
 const u=k=>L.ui[k]!=null?L.ui[k]:EN.ui[k]!=null?EN.ui[k]:k;
 const F=new Proxy({},{get:(_,k)=>(L.f[k]||EN.f[k])});
-const sN=i=>L.signs[i].n, sIn=i=>L.signs[i].inS, sKey=i=>L.signs[i].key;
+const pm=(s,id)=>L.signPMFor?L.signPMFor(s,id):L.signs[s],sN=i=>L.signs[i].n, sIn=i=>L.signs[i].inS, sKey=i=>L.signs[i].key;
 const pN=id=>L.planets[id].n, pKey=id=>L.planets[id].key, pWhat=id=>L.planets[id].what;
 const nm=p=>pN(p.id);
 const hl=n=>L.hl(n), hShort=n=>L.houses[n-1].short, hKey=n=>L.houses[n-1].key;
@@ -276,7 +276,7 @@ function natalPointHTML(id,showTransits){
   <h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3>
   <div class="pos">${posStr(p)} · ${isAngle?F.cuspOf(hh):hl(p.house)}</div>`;
   h+=`<h4>${S.n} <span class="gl">${z.g}</span></h4><p>${S.body}</p>
-  <dl class="kv"><dt>${u('atBest')}</dt><dd>${S.plus}</dd><dt>${u('watchFor')}</dt><dd>${S.minus}</dd><dt>${u('type')}</dt><dd>${L.el[z.el].n}, ${L.mod[z.mod].n}</dd></dl>`;
+  <dl class="kv"><dt>${u('atBest')}</dt><dd>${pm(p.sign,id).plus}</dd><dt>${u('watchFor')}</dt><dd>${pm(p.sign,id).minus}</dd><dt>${u('type')}</dt><dd>${L.el[z.el].n}, ${L.mod[z.mod].n}</dd></dl>`;
   h+=`<h4>${F.houseHeading(hh,isAngle)}</h4><p>${F.deepIn(id,hh)}</p>`;
   if(rules.length&&!isAngle)h+=`<h4>${u('housesItRules')}</h4><p>${F.rulesPara(id,rules,p.house)}</p>`;
   if(p.retro)h+=`<p class="note">${F.retro(id)}</p>`;
@@ -885,7 +885,7 @@ function tourPlanet(id){
   const p=natal.byId[id];if(!p)return '';
   const T=TT(),S=L.signs[p.sign],hh=homeHouse(p),dg=dignityOf(id,p.sign),rules=housesRuledBy(natal,id),ar=aspRows(id);
   return `<div class="tcard"><div class="tcard-h">${gMini(hh,id)}<div><h4><span class="exl" data-ex="planet:${id}">${glyph(p)} ${nm(p)} ${sIn(p.sign)}</span></h4><div class="pos">${posStr(p)} · ${hl(hh)}${p.retro?' ℞':''}</div><p class="tpot">${T.pot[id]}</p></div></div>
-  <dl class="kv"><dt>${u('atBest')}</dt><dd>${S.plus}</dd><dt>${u('watchFor')}</dt><dd>${S.minus}</dd></dl>
+  <dl class="kv"><dt>${u('atBest')}</dt><dd>${pm(p.sign,id).plus}</dd><dt>${u('watchFor')}</dt><dd>${pm(p.sign,id).minus}</dd></dl>
   <p>${F.deepIn(id,hh)}</p>${rules.length&&id!=='Node'&&id!=='Chiron'?`<p>${F.rulesPara(id,rules,p.house)}</p>`:''}${dg?`<p class="explain">${u(dg)}</p>`:''}${p.retro?`<p class="note">${F.retro(id)}</p>`:''}
   ${ar?`<h5>${u('tourAspectsOf')}</h5>${ar}`:''}<p class="tact"><b>${u('tourAsk')}</b> <i>${T.ask[id]}</i></p></div>`;
 }
