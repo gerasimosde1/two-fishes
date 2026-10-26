@@ -402,6 +402,7 @@ function renderNatal(){
     d=k==='natal'?natalPointHTML(v):k==='sign'?signHTML(+v,natal):k==='house'?houseHTML(+v,natal):k==='na'?natalAspectHTML(+v):'';}
   if(profile.unknown)d+=`<p class="note">${u('timeUnknownNote')}</p>`;
   $('#detail-natal').innerHTML=d;
+  renderTour();
 }
 /* ---------- tap-to-explain: every dotted item opens a plain explanation in the sheet ---------- */
 const EX={};let exN=0;
@@ -787,6 +788,62 @@ $('#quiz').addEventListener('click',e=>{
   else if(e.target.closest('#q-quit')){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();}
 });
 $('#games').addEventListener('click',e=>{const c=e.target.closest('[data-game]');if(c)startGame(c.dataset.game);});
+
+/* ---------- guided tour: Your cosmic potential ---------- */
+const TT=()=>L.tour||EN.tour,TOUR_N=10;
+let tourI=Math.min(TOUR_N-1,Math.max(0,+store.get('tf.tour',0)||0)),tourOpen=false;
+function tourPlanet(id){
+  const p=natal.byId[id];if(!p)return '';
+  const T=TT(),S=L.signs[p.sign],hh=homeHouse(p),dg=dignityOf(id,p.sign);
+  return `<div class="tcard"><h4><span class="exl" data-ex="planet:${id}">${glyph(p)} ${nm(p)} ${sIn(p.sign)} · ${hl(hh)}</span>${p.retro?' ℞':''}</h4>
+  <p class="tpot">${T.pot[id]}</p>
+  <dl class="kv"><dt>${u('atBest')}</dt><dd>${S.plus}</dd><dt>${u('watchFor')}</dt><dd>${S.minus}</dd></dl>
+  <p>${F.deepIn(id,hh)}</p>${dg?`<p class="explain">${u(dg)}</p>`:''}${p.retro?`<p class="note">${F.retro(id)}</p>`:''}
+  <p class="tact"><b>${u('tourAsk')}</b> <i>${T.ask[id]}</i></p></div>`;
+}
+function tourBody(i){
+  const T=TT(),P=ids=>ids.map(tourPlanet).join(''),ps=TEN.map(t=>natal.byId[t.id]).filter(Boolean);
+  const pp=natal.aspects.filter(a=>!['ASC','MC'].includes(a.p1.id)&&!['ASC','MC'].includes(a.p2.id)).sort((a,b)=>a.orb-b.orb);
+  const aspCard=a=>`<div class="explain tapcard ${a.asp.cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>natalAspectHTML(natal.aspects.indexOf(a)))}"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.aspMeaning(a.p1.id,a.p2.id,a.asp.cls)}<br><span class="muted">${F.aspectLife(homeHouse(a.p1),homeHouse(a.p2),a.p1.id,a.p2.id,a.asp.cls)}</span></div>`;
+  if(i===0){
+    const cnt=(k,vals)=>Object.fromEntries(vals.map(v=>[v,ps.filter(p=>SIGNS[p.sign][k]===v).length]));
+    const ec=cnt('el',['fire','earth','air','water']),mc=cnt('mod',['cardinal','fixed','mutable']),top=o=>Object.keys(o).sort((a,b)=>o[b]-o[a]),lack=top(ec)[3];
+    return `<div class="tcard"><p>${F.tourBalance(top(ec)[0],top(mc)[0])}</p><p class="mono muted">${Object.entries(ec).map(([k,v])=>`${cap(L.el[k].n)} ${v}`).join(' · ')}<br>${Object.entries(mc).map(([k,v])=>`${cap(L.mod[k].n)} ${v}`).join(' · ')}</p>${ec[lack]<=1?`<p>${F.tourLack(lack)}</p>`:''}</div>${profile.unknown?`<p class="note">${u('tourTime')}</p>`:''}`;
+  }
+  if(i===1)return P(['Sun','Moon','ASC']);
+  if(i===2){const r=SIGNS[natal.byId.ASC.sign].rulers[0],rp=natal.byId[r];return rp?`<p>${F.chartRuler(r,rp.sign,rp.house)}</p>`+tourPlanet(r):'';}
+  if(i===3)return P(['Mercury','Venus','Mars']);
+  if(i===4)return P(['Jupiter','Saturn']);
+  if(i===5)return P(['Uranus','Neptune','Pluto']);
+  if(i===6){const n=natal.byId.Node;return (n?P(['Node'])+`<p>${F.tourNorth(n.sign,n.house)}</p><p>${F.tourSouth((n.sign+6)%12,(n.house+5)%12+1)}</p>`:'')+P(['Chiron']);}
+  if(i===7){
+    const hc=Array(13).fill(0),who=Array.from({length:13},()=>[]);ps.forEach(p=>{hc[p.house]++;who[p.house].push(p.id);});
+    const mx=Math.max(...hc),crowd=[1,2,3,4,5,6,7,8,9,10,11,12].filter(h=>hc[h]>=Math.max(2,Math.min(3,mx))),empty=[1,2,3,4,5,6,7,8,9,10,11,12].filter(h=>!hc[h]);
+    return `<h4>${u('tourStel')}</h4>${crowd.map(h=>`<div class="tcard"><p><span class="exl" data-ex="house:${h}">${F.tourCrowd(h,who[h])}</span></p><p>${L.hdeep[h-1]}</p></div>`).join('')}${empty.length?`<h4>${u('tourEmpty')}</h4><p>${F.tourEmptyH(empty)}</p>`:''}`;
+  }
+  if(i===8)return pp.slice(0,5).map(aspCard).join('');
+  const g=pp.filter(a=>a.asp.cls==='soft'&&a.orb<=5).slice(0,2),d=pp.filter(a=>a.asp.cls==='hard'&&a.orb<=5).slice(0,2),sun=natal.byId.Sun,sat=natal.byId.Saturn,nd=natal.byId.Node;
+  return `<h4>${u('tourGifts')}</h4>${g.length?g.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourGift(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoGifts')}</p>`}
+  <h4>${u('tourEdges')}</h4>${d.length?d.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourEdge(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoEdges')}</p>`}
+  <h4>${u('tourQs')}</h4><div class="tcard"><p>${F.tourQ(u('tourSun'),sun.house,T.houseAsk[sun.house-1])}</p>${sat?`<p>${F.tourQ(u('tourSat'),sat.house,T.houseAsk[sat.house-1])}</p>`:''}${nd?`<p>${F.tourQ(u('tourNode'),nd.house,T.houseAsk[nd.house-1])}</p>`:''}</div>`;
+}
+function renderTour(){
+  const el=$('#tour');if(!el||!natal)return;
+  if(!tourOpen){el.innerHTML=`<div class="eyebrow">${u('tourTitle')}</div><p>${u('tourPromo')}</p><button class="btn pri" type="button" data-tour="open">${tourI>0?u('tourResume'):u('tourStart')}</button>`;return;}
+  const T=TT(),c=T.ch[tourI],last=tourI>=TOUR_N-1;
+  el.innerHTML=`<div class="thead"><div class="eyebrow">${u('tourTitle')} · ${F.tourStep(tourI+1,TOUR_N)}</div><button class="btn sm" type="button" data-tour="close">${u('tourClose')}</button></div>
+  <div class="tdots">${T.ch.map((x,k)=>`<button type="button" data-tour="go:${k}" class="${k===tourI?'cur':k<tourI?'ok':''}" aria-label="${esc(x.t)}"></button>`).join('')}</div>
+  <h3>${c.t}</h3><p class="note">${c.s}</p><p>${c.i}</p>${tourBody(tourI)}
+  <div class="form-actions"><button class="btn" type="button" data-tour="back"${tourI?'':' disabled'}>${u('tourBack')}</button><button class="btn pri" type="button" data-tour="next">${last?u('tourDone'):u('tourNext')}</button></div>
+  <p class="note">${u('tourPotNote')}</p>`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-tour]');if(!b||b.disabled)return;const v=b.dataset.tour;
+  if(v==='open')tourOpen=true;else if(v==='close')tourOpen=false;
+  else if(v==='next'){if(tourI<TOUR_N-1)tourI++;else{tourOpen=false;tourI=0;}}
+  else if(v==='back')tourI=Math.max(0,tourI-1);else if(v.startsWith('go:'))tourI=+v.slice(3);
+  store.set('tf.tour',tourI);renderTour();$('#tour').scrollIntoView({block:'start'});
+});
 
 /* ---------- interactions ---------- */
 const isMobile=()=>window.matchMedia('(max-width:879px)').matches;

@@ -274,6 +274,13 @@ footer{margin-top:36px;padding-top:12px;border-top:4px double var(--ink-line);fo
 @media (prefers-reduced-motion:no-preference){.qopt,.btn,.hcell,.chip{transition:border-color .15s,color .15s,background .15s}}
 
 .detail h4,#sheet-body h4{font-family:var(--f-display);font-weight:400;font-size:1.02rem;letter-spacing:.05em;color:var(--pink);margin:16px 0 4px}
+.tour{margin-bottom:14px;scroll-margin-top:76px}
+.tour .thead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tdots{display:flex;gap:6px;margin:10px 0 4px}
+.tdots button{flex:1;height:8px;padding:0;border:0;border-radius:4px;background:var(--ink-line);cursor:pointer}
+.tdots button.ok{background:var(--teal)}.tdots button.cur{background:var(--pink)}
+.tcard{border-top:1px solid var(--line);padding-top:8px;margin-top:12px}
+.tpot{font-style:italic}.tact{margin:8px 0 0}
 .explain{background:var(--paper);border-left:3px solid var(--rose);padding:9px 12px;margin:10px 0;font-size:.96rem;border-radius:0 4px 4px 0}
 .guide{margin-bottom:14px}
 .today-strip .guide.tmore{margin:8px 0 0}.today-strip .guide.tmore summary{font-size:1rem}.today-strip .eyebrow{margin-bottom:4px}
@@ -479,6 +486,7 @@ body.sheet-open{overflow:hidden}
     <section id="tab-chart" data-panel="chart">
       <div class="switch-row" data-switch hidden><label><span data-i18n="viewing"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
       <div class="big3" id="big3"></div>
+      <div class="panel tour" id="tour"></div>
       <div style="margin:0 0 14px"><button class="btn sm" id="share-big3" type="button" data-i18n="shareBtn"></button></div>
       <details class="panel guide" id="guide-chart"><summary data-i18n="guideChart"></summary><div id="guide-chart-body"></div></details>
       <div class="split">

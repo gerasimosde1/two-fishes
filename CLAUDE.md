@@ -36,6 +36,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
   - Active life areas and a 12-month timeline of slow transits.
 - Explanations everywhere: house, sign and planet write-ups, plus the "How to read your chart" and "What is a transit?" guides. She is relearning, so keep everything explained.
 - Learn tab: 16 games across Beginner, Intermediate, Hard and Expert levels (Master Exam: 15 timed questions). She wants them challenging.
+- Your cosmic potential (Chart tab, `#tour`): a 10-step guided tour of her chart (glance, core trio, chart ruler, mind/love/drive, Jupiter and Saturn, outer planets, nodes and Chiron, house emphasis, tightest aspects, gifts/edges/questions). Code: `tourPlanet`, `tourBody`, `renderTour` in app.js; wording in `L.tour`, `L.ui.tour*` and `L.f.tour*` of `i18n/en.js` only for now (el/it fall back to English; translate when the owner says). Progress is kept in localStorage `tf.tour`. Remove by deleting those plus `#tour` and the `.tour/.tdots/.tcard` CSS.
 - Me tab: multiple saved charts (add, edit, switch, delete) stored in localStorage `tf.charts` and `tf.active`, plus install help.
 
 ## Optional features (each one can be removed on its own)

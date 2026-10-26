@@ -336,5 +336,88 @@ L.q={
  comboSignQ:(p,z,g)=>`Which phrase best fits ${L.planets[p].n} in ${L.signs[z].n} <span class="gl">${g}</span>?`,
  comboSignWhy:(p,z)=>`${L.planets[p].n} is about ${L.planets[p].key}. ${L.signs[z].n} is ${L.signs[z].key}. Planet = what, sign = how.`
 };
+/* ---------- guided tour: "Your cosmic potential" ---------- */
+L.tour={
+ ch:[
+  {t:'Your chart at a glance',s:'The big shape before the details',i:'Before we zoom in on single planets, look at the overall balance of the chart. Which element, which style of action and which houses carry the weight tells you what kind of life this chart is built for.'},
+  {t:'The core trio',s:'Sun, Moon and Rising',i:'These three are the foundation. The Sun is what you are growing into, the Moon is what you need in order to feel safe, and the Rising sign is the door other people (and new situations) meet first. Potential lives in the gaps between them: the Sun reaches, the Moon asks for comfort, the Rising sign decides how you step out.'},
+  {t:'Your chart ruler',s:'The planet that steers the whole chart',i:'The planet ruling your Rising sign works like the captain. Its sign and house show where your life tends to be steered from, and every transit or progression to it is felt personally.'},
+  {t:'Mind, love and drive',s:'Mercury, Venus and Mars',i:'These are your personal tools: how you think and talk, what and how you love, and how you go after what you want. They move fast, so they describe your style more than your destiny.'},
+  {t:'Growth and the long work',s:'Jupiter and Saturn',i:'Jupiter shows where you grow by saying yes, Saturn where you grow by committing and enduring. Together they map your opportunities and your mastery.'},
+  {t:'The slow forces',s:'Uranus, Neptune and Pluto',i:'These move for years in one sign, so their sign is shared with everyone your age. What is personal is the house: the area of life where your generation\'s big themes actually land for you.'},
+  {t:'Direction and healing',s:'The North Node and Chiron',i:'The North Node points toward unfamiliar growth, the South Node toward what is already easy. Chiron marks a tender spot that, once understood, often becomes the thing you are best at helping others with.'},
+  {t:'Where life concentrates',s:'Houses with weight, and houses at rest',i:'Planets crowd some houses and leave others empty. Crowded houses are the stage of your life; empty ones are not a problem, they simply run through their ruler instead.'},
+  {t:'Your inner conversations',s:'The tightest aspects in your chart',i:'The closest aspects are the loudest dialogues between your parts. Smooth ones are talents you may take for granted; tense ones are where the effort and the growth are.'},
+  {t:'Putting it together',s:'Gifts, growth edges and three questions',i:'Here is the short version: where you are naturally supported, where you are asked to stretch, and three questions worth sitting with. Potential is not prediction. It is what you are equipped to do if you choose to.'}],
+ pot:{
+  Sun:'Your potential is to live from this sign on purpose: to become the person whose life actually reflects what you care about, not the one who is easiest for others.',
+  Moon:'Your potential is emotional self-knowledge: learning exactly what soothes you and what drains you, and then arranging your life around it without apology.',
+  ASC:'Your potential is a recognisable presence: once you stop managing the first impression, this style of arriving becomes your signature.',
+  Mercury:'Your potential is a distinctive voice: a way of understanding and explaining things that is yours and that others can learn from.',
+  Venus:'Your potential is in what you value: knowing what you are really attracted to, and building relationships and a life that match it rather than what looks good.',
+  Mars:'Your potential is clean, committed action: knowing what you want and going for it directly, including saying a clear no.',
+  Jupiter:'Your potential is trust and generosity: this is where saying yes to a bigger version of life tends to pay off, if you keep your promises realistic.',
+  Saturn:'Your potential is mastery through patience: this is where early difficulty, if worked through honestly, becomes real authority and lasting skill.',
+  Uranus:'Your potential is originality: this is where you are allowed to break the pattern, and where being the odd one out becomes a gift.',
+  Neptune:'Your potential is imagination and compassion: this is where you can sense what others miss, as long as you stay grounded enough to act on it.',
+  Pluto:'Your potential is regeneration: this is where you can face what is buried, and come out with real personal power instead of control.',
+  Node:'Your potential is a chosen direction: the more you practise the unfamiliar qualities here, the more your life starts to feel like your own.',
+  Chiron:'Your potential is wounded-healer wisdom: the tender spot here, once understood, becomes the place others trust you.'},
+ ask:{
+  Sun:'What would I do this month if nobody were grading it?',
+  Moon:'What did I need as a child that I can give myself now?',
+  ASC:'Which part of my first impression is armour, and which part is truly me?',
+  Mercury:'What do I keep not saying, and what would it cost me to say it kindly?',
+  Venus:'What do I actually enjoy, as opposed to what I think I should enjoy?',
+  Mars:'What am I angry about that is really asking for a boundary?',
+  Jupiter:'Where would I say yes to something larger, if I trusted it?',
+  Saturn:'Which small commitment, kept for a year, would change the most?',
+  Uranus:'Which rule do I follow only because I never questioned it?',
+  Neptune:'What am I idealising, and what is the plain fact underneath?',
+  Pluto:'What am I holding on to that has already ended?',
+  Node:'What is one small, unfamiliar step toward this direction I could take this week?',
+  Chiron:'What hurt could I treat with the kindness I would give a friend?'},
+ elDom:{
+  fire:'You run on enthusiasm, courage and momentum. Your gift is starting things and inspiring others to move; the stretch is patience, listening and finishing.',
+  earth:'You run on what is real, useful and steady. Your gift is turning ideas into something solid; the stretch is flexibility, play and trusting what cannot be measured.',
+  air:'You run on ideas, connection and perspective. Your gift is understanding and linking people and concepts; the stretch is staying with feelings and the body long enough to act.',
+  water:'You run on feeling, intuition and bonds. Your gift is emotional depth and empathy; the stretch is boundaries and not absorbing everyone else\'s weather.'},
+ elLack:{
+  fire:'Fire is thin in your chart, so spontaneity and self-promotion may need a deliberate push. Treat courage as a skill you practise.',
+  earth:'Earth is thin in your chart, so routine, money and the body may need conscious attention. Small habits are your friend.',
+  air:'Air is thin in your chart, so stepping back and naming things in words may take effort. Talking it out or writing helps.',
+  water:'Water is thin in your chart, so feelings may be easier to analyse than to feel. Make room for quiet and for being moved.'},
+ modDom:{
+  cardinal:'Mostly cardinal: you are built to initiate and lead. Beginnings come easily; watch for restlessness once the novelty fades.',
+  fixed:'Mostly fixed: you are built to sustain and deepen. Loyalty and stamina are strengths; watch for stubbornness when change is actually needed.',
+  mutable:'Mostly mutable: you are built to adapt and translate. Flexibility is your strength; watch for scattering and for never quite choosing.'},
+ houseAsk:[
+  'How do I want to show up in my own life?',
+  'What do I need in order to feel secure, and what is that actually worth to me?',
+  'What do I want to learn, say or write next?',
+  'What does home need to be for me to rest?',
+  'What do I do purely for joy?',
+  'Which routine would make my days kinder to my body?',
+  'What do I want from a partner, and what do I offer?',
+  'What am I ready to share more deeply, or release?',
+  'What do I believe now that I did not believe five years ago?',
+  'What do I want to be known for?',
+  'Who are my people, and what future am I building with them?',
+  'What do I need to let go of, or to rest from?']
+};
+Object.assign(L.ui,{tourTitle:'Your cosmic potential',tourPromo:'A guided walk through your whole chart, one step at a time: what you are built for, where you grow and what to try.',tourStart:'Begin the tour',tourResume:'Continue the tour',tourNext:'Next',tourBack:'Back',tourDone:'Finish',tourClose:'Close tour',tourAsk:'Ask yourself:',tourGifts:'Where you are supported',tourEdges:'Where you are asked to stretch',tourQs:'Three questions to sit with',tourSun:'Your purpose',tourSat:'Your long work',tourNode:'Your direction',tourSouth:'The South Node (what is easy)',tourStel:'Crowded houses',tourEmpty:'Quiet houses',tourPotNote:'Potential is not prediction: this is what the chart equips you for, not what will happen.',tourNoGifts:'No very tight smooth aspects, so your support comes more from effort than from ease.',tourNoEdges:'No very tight tense aspects, which means fewer internal arguments.',tourTime:'Houses depend on your exact birth time, so treat the house readings as approximate.'});
+Object.assign(L.f,{
+ tourStep:(i,n)=>`Step ${i} of ${n}`,
+ tourBalance:(el,mod)=>`<b>Dominant element: ${L.el[el].n}.</b> ${L.tour.elDom[el]}<br><br><b>Dominant style: ${L.mod[mod].n}.</b> ${L.tour.modDom[mod]}`,
+ tourLack:el=>`<b>Least represented: ${L.el[el].n}.</b> ${L.tour.elLack[el]}`,
+ tourCrowd:(h,ids)=>`${cap(yourH(h))} (${hs(h)}) holds ${list(ids.map(x=>L.planets[x].n))}: a main stage of your life.`,
+ tourEmptyH:(hs2)=>`No planets in ${list(hs2.map(h=>L.hl(h)+' ('+hs(h)+')'))}. Not a gap: those areas are run through their ruling planets, and they tend to be quieter, less effortful parts of life.`,
+ tourSouth:(s,h)=>`The South Node is in ${L.signs[s].n} in ${yourH(h)}: what comes easily and may feel like a comfortable habit. Draw on it, but do not hide in it.`,
+ tourNorth:(s,h)=>`The North Node is in ${L.signs[s].n} in ${yourH(h)}: growth comes from approaching matters of ${hs(h)} ${L.signs[s].how}.`,
+ tourAspect:(a,b,asp,orb)=>`${L.planets[a].n} ${L.aspects[asp].v} ${L.planets[b].n} (orb ${orb})`,
+ tourGift:(a,b)=>`${cap(yourP(a))} and ${yourP(b)} cooperate easily: treat this as a talent, and use it deliberately instead of assuming everyone has it.`,
+ tourEdge:(a,b)=>`${cap(yourP(a))} and ${yourP(b)} pull in different directions: this is where effort, humour and patience pay off the most.`,
+ tourQ:(who,h,q)=>`<b>${who}, ${yourH(h)}:</b> ${q}`
+});
 (window.TF_LANGS=window.TF_LANGS||{}).en=L;
 })();
