@@ -32,6 +32,19 @@ const fmtDay=d=>d.toLocaleDateString(L.locale,{weekday:'long',day:'numeric',mont
 
 // logo rays
 (function(){let h='';for(let i=0;i<16;i++){const a=i*22.5,l=i%2?16:20;h+=`<path d="M-2.2 -12 L0 -${l} L2.2 -12Z" transform="rotate(${a})"/>`;}document.getElementById('rays').innerHTML=h;})();
+// Symbol fonts sit glyphs off-centre (low, or to one side), so glyphs inside round seals get padding that centres their measured ink box.
+const SEALS='.b3 .gl,.detail h3 .gl,.gcard .gi,.qprompt .qg,.pot .pi,.me-card .gl,.tri .gl';
+const glyphCtx=document.createElement('canvas').getContext('2d');
+function centerGlyphs(all){
+  document.querySelectorAll(SEALS).forEach(el=>{
+    const t=el.textContent.trim();if(!t||t.length>3||(!all&&el.dataset.gc===t))return;
+    const cs=getComputedStyle(el);glyphCtx.font=`${cs.fontWeight} 100px ${cs.fontFamily}`;glyphCtx.textBaseline='alphabetic';
+    const m=glyphCtx.measureText(t);if(!m.actualBoundingBoxAscent&&!m.actualBoundingBoxDescent)return;
+    const dx=m.width/2-(m.actualBoundingBoxRight-m.actualBoundingBoxLeft)/2,dy=(m.fontBoundingBoxDescent-m.fontBoundingBoxAscent)/2-(m.actualBoundingBoxDescent-m.actualBoundingBoxAscent)/2;
+    const e=v=>`${Math.max(0,v/50).toFixed(3)}em`;el.style.padding=`${e(dy)} ${e(-dx)} ${e(-dy)} ${e(dx)}`;el.dataset.gc=t;});
+}
+let glyphRaf=0;new MutationObserver(()=>{if(!glyphRaf)glyphRaf=requestAnimationFrame(()=>{glyphRaf=0;centerGlyphs(false);});}).observe(document.body,{childList:true,subtree:true,characterData:true});
+if(document.fonts)document.fonts.ready.then(()=>centerGlyphs(true));
 
 /* ---------- structural data ---------- */
 const SIGNS=[['♈','fire','cardinal',['Mars']],['♉','earth','fixed',['Venus']],['♊','air','mutable',['Mercury']],['♋','water','cardinal',['Moon']],
