@@ -1,4 +1,4 @@
-// Two Fishes: chart maths, rendering and interaction. All wording comes from i18n/<lang>.js.
+// Astro Pisces: chart maths, rendering and interaction. All wording comes from i18n/<lang>.js.
 (function(){
 'use strict';
 const VS='︎';
@@ -30,8 +30,6 @@ const sents=t=>String(t).match(/[^.!?]+[.!?]+["”’)]*(\s+|$)/g)||[String(t)];
 const firstS=(t,n=1)=>sents(t).slice(0,n).join('').trim();
 const fmtDay=d=>d.toLocaleDateString(L.locale,{weekday:'long',day:'numeric',month:'long'});
 
-// logo rays
-(function(){let h='';for(let i=0;i<16;i++){const a=i*22.5,l=i%2?16:20;h+=`<path d="M-2.2 -12 L0 -${l} L2.2 -12Z" transform="rotate(${a})"/>`;}document.getElementById('rays').innerHTML=h;})();
 // Symbol fonts sit glyphs off-centre (low, or to one side), so glyphs inside round seals get padding that centres their measured ink box.
 const SEALS='.b3 .gl,.detail h3 .gl,.gcard .gi,.qprompt .qg,.pot .pi,.me-card .gl,.tri .gl';
 const glyphCtx=document.createElement('canvas').getContext('2d');
@@ -1253,7 +1251,7 @@ function pickTransit(p,fromSheet){
   selT=(!fromSheet&&!isMobile()&&selT===p.dataset.pick&&!p.classList.contains('aitem'))?null:p.dataset.pick;
   renderTransits();if(isMobile()||fromSheet)openSheet($('#detail-transit').innerHTML);}
 
-/* ---------- little delights: a sparkle where you tap, and a sun that winks back ---------- */
+/* ---------- little delights: a sparkle where you tap, and a fish that leaps when you tap the logo ---------- */
 const calm=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 document.addEventListener('pointerup',e=>{
   if(calm()||!e.target.closest||!e.target.closest('[data-ex],[data-pick],.tapcard,[data-tour="open"]'))return;
@@ -1311,7 +1309,7 @@ function openFav(id){const f=favs().find(x=>x.id===id);if(!f)return;const fresh=
 /* backup: everything the app keeps (tf.* in localStorage) as one file, and back again */
 function saveBackup(){
   const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tf.'))data[k]=localStorage.getItem(k);}
-  const name=`two-fishes-backup-${isoDate(new Date())}.json`;
+  const name=`astro-pisces-backup-${isoDate(new Date())}.json`;
   shareFile(new File([JSON.stringify({app:'two-fishes',v:1,saved:new Date().toISOString(),data})],name,{type:'application/json'}),name).then(()=>{$('#backup-msg').textContent=u('backupSaved');});
 }
 function loadBackup(f){
@@ -1605,7 +1603,7 @@ async function shareBig3(){
   const g=x.createLinearGradient(0,0,0,1350);g.addColorStop(0,'#0e1c36');g.addColorStop(.6,'#17436a');g.addColorStop(1,'#1d6b78');x.fillStyle=g;x.fillRect(0,0,1080,1350);
   const r=x.createRadialGradient(900,160,10,900,160,520);r.addColorStop(0,'rgba(244,143,177,.45)');r.addColorStop(1,'rgba(244,143,177,0)');x.fillStyle=r;x.fillRect(0,0,1080,1350);
   const F1='"Cormorant Garamond", "Noto Serif Display", Georgia, serif',F2='"Cormorant Garamond", "Noto Serif Display", Georgia, serif',F3='"Alegreya Sans", sans-serif';
-  x.textAlign='center';x.fillStyle='#fff';x.font=`600 104px ${F1}`;x.fillText('Two Fishes',540,160);
+  x.textAlign='center';x.fillStyle='#fff';x.font='120px "Pinyon Script", Georgia, serif';x.fillText('Astro Pisces',540,160);
   x.fillStyle='#f48fb1';x.font=`italic 600 48px ${F2}`;x.fillText(profile.name||u('matchBig3'),540,230);
   x.fillStyle='rgba(255,255,255,.7)';x.font=`34px ${F3}`;x.fillText(natal.date.toLocaleDateString(L.locale,{day:'numeric',month:'long',year:'numeric'}),540,285);
   [['Sun','sunSign'],['Moon','moonSign'],['ASC','risingSign']].forEach(([id,lab],i)=>{const p=natal.byId[id],y=470+i*280;
@@ -1616,7 +1614,7 @@ async function shareBig3(){
     x.fillStyle='#9fd6df';x.font=`34px ${F3}`;x.fillText(fmtIn(p.lon),380,y+95);x.textAlign='center';});
   x.fillStyle='rgba(255,255,255,.55)';x.font=`30px ${F3}`;x.fillText('gerasimosde1.github.io/two-fishes',540,1290);
   const blob=await new Promise(res=>c.toBlob(res,'image/png'));if(!blob)return;
-  await shareFile(new File([blob],'two-fishes-big-three.png',{type:'image/png'}),'two-fishes-big-three.png');
+  await shareFile(new File([blob],'astro-pisces-big-three.png',{type:'image/png'}),'astro-pisces-big-three.png');
 }
 $('#share-big3').addEventListener('click',shareBig3);
 async function shareMatch(){
@@ -1635,9 +1633,9 @@ async function shareMatch(){
   sc.dims.forEach((d,i)=>{const y=820+i*74;x.textAlign='left';x.fillStyle='rgba(255,255,255,.85)';x.font=`36px ${F3}`;x.fillText(S.dims[d.k].n[lens],150,y);
     x.fillStyle='rgba(255,255,255,.14)';x.fillRect(470,y-22,380,18);const bg=x.createLinearGradient(470,0,850,0);bg.addColorStop(0,'#6ee0d8');bg.addColorStop(1,'#ff8fb8');x.fillStyle=bg;x.fillRect(470,y-22,380*d.pct/100,18);
     x.textAlign='right';x.fillStyle='#fff';x.fillText(d.pct+'%',940,y);});
-  x.textAlign='center';x.fillStyle='rgba(255,255,255,.6)';x.font=`30px ${F3}`;x.fillText('Two Fishes · gerasimosde1.github.io/two-fishes',540,1295);
+  x.textAlign='center';x.fillStyle='rgba(255,255,255,.6)';x.font=`30px ${F3}`;x.fillText('Astro Pisces · gerasimosde1.github.io/two-fishes',540,1295);
   const blob=await new Promise(res=>c.toBlob(res,'image/png'));if(!blob)return;
-  await shareFile(new File([blob],'two-fishes-match.png',{type:'image/png'}),'two-fishes-match.png');
+  await shareFile(new File([blob],'astro-pisces-match.png',{type:'image/png'}),'astro-pisces-match.png');
 }
 function buildICS(){
   const pad=n=>String(n).padStart(2,'0'),dd=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`,esc2=t=>String(t).replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
@@ -1653,9 +1651,9 @@ function buildICS(){
     if(prev!=null){for(const [target,idx] of [[0,0],[180,4]]){const f0=((prev-target+540)%360)-180,f1=((e-target+540)%360)-180;
       if(f0<0&&f1>=0&&Math.abs(f1-f0)<60){const ml=eclLon('Moon',d),h=houseOf(ml,natal.cusps);add(`mn-${idx}-${dd(d)}`,d,F.icsMoon(L.moonPhases[idx],sN(Math.floor(ml/30))),`${hl(h)} (${hShort(h)}). ${L.moonAdvice[idx]}`);}}}
     prev=e;}
-  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Two Fishes//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:Two Fishes',...ev,'END:VCALENDAR'].join('\r\n');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Astro Pisces//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:Astro Pisces',...ev,'END:VCALENDAR'].join('\r\n');
 }
-$('#ics-btn').addEventListener('click',()=>shareFile(new File([buildICS()],'two-fishes.ics',{type:'text/calendar'}),'two-fishes.ics'));
+$('#ics-btn').addEventListener('click',()=>shareFile(new File([buildICS()],'astro-pisces.ics',{type:'text/calendar'}),'astro-pisces.ics'));
 let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
 function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);setWhere();}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}

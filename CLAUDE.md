@@ -1,9 +1,9 @@
-# Two Fishes
+# Astro Pisces
 
-Astrology web app built for the owner's girlfriend, who describes the features she wants. She is relearning astrology after about 10 years, so explanations should be plain and beginner friendly.
+Astrology web app (called Two Fishes until Oct 2026; the repo, URL, backup id `two-fishes` and calendar UIDs keep the old name so old backups and calendar imports still work) built for the owner's girlfriend, who describes the features she wants. She is relearning astrology after about 10 years, so explanations should be plain and beginner friendly.
 
 ## How it ships
-- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), `i18n/en-deep.js` (English-only deep readings, loaded after en.js; other languages fall back to it), `i18n/en-match.js` (English-only compatibility readings for Match, `L.syn`), plus `manifest.webmanifest`, `sw.js`, `icons/`, `lib/astronomy.browser.min.js` (Astronomy Engine 2.1.19, bundled) and `fonts/` (`fonts.css` + woff2 subsets latin, latin-ext, greek, symbols, downloaded from Google Fonts). Nothing loads from a CDN any more.
+- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), `i18n/en-deep.js` (English-only deep readings, loaded after en.js; other languages fall back to it), `i18n/en-match.js` (English-only compatibility readings for Match, `L.syn`), plus `manifest.webmanifest`, `sw.js`, `icons/`, `lib/astronomy.browser.min.js` (Astronomy Engine 2.1.19, bundled) and `fonts/` (`fonts.css` + woff2 subsets latin, latin-ext, greek, symbols, downloaded from Google Fonts; Pinyon Script latin only, for the wordmark). Nothing loads from a CDN any more.
 - Languages: English, Greek, Italian (the owner said these three for now). No user-visible text belongs in app.js or index.html: static labels use `data-i18n` keys (`L.ui`), sentences are template functions in `L.f` / `L.q`. When adding text, add the key to all three packs. Greek and Italian templates handle articles and cases (e.g. Greek `art`, `acc`, `your`, `yourS`, sign `inS`/`gen`), so build sentences inside the pack, not by concatenating in app.js.
 - GitHub Pages serves `main` at https://gerasimosde1.github.io/two-fishes/. Her phone QR code opens that URL, so pushing to `main` updates her app within a minute or two.
 - It is an installable PWA. After changing cached files, bump `VERSION` in `sw.js` so phones pick up the new version.
@@ -15,7 +15,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 
 ## Design she asked for
 - Every shade of blue (turquoise to baby blue) and pink, with elegant vintage-looking type. Since Oct 2026 restyle: Cormorant Garamond for titles (`--f-display`/`--f-italic`; Greek uses Noto Serif Display), Alegreya for reading (`--f-body`), Alegreya Sans for small labels and numbers (`--f-label`, `--f-mono`). Rounded cards with a turquoise-to-rose gradient edge (`--edge`), pill buttons with `--grad`, glyphs in engraved seals (fine ring + dotted inner ring, centred by `centerGlyphs` in app.js), a soft aurora + stars behind the page (`body::before`), floating glass tab dock on phones. Radii are `--r-lg/md/sm`, shadows `--shadow`/`--shadow-lift`.
-- Logo: two Pisces fishes around a sun. Colours are CSS tokens on `:root`, with light and dark themes.
+- Name and logo: "Astro Pisces" wordmark in Pinyon Script (`--f-script`, `.mast h1`), logo is a pink crescent Moon with a turquoise fish leaping out of its hollow and three twinkling stars, in a seal ring. App icons in `icons/` are the same art on night blue (rendered from SVG with `qlmanage` + `sips`). Colours are CSS tokens on `:root`, with light and dark themes.
 
 ## Tap to explain
 - She wants to be able to tap anything and see what it means for HER chart. Any item that shows a planet, sign, house, aspect, phase or date range must carry a `data-ex` attribute (`planet:ID`, `sign:N`, `house:N`, or `fn:<key>` from `exReg(() => html)`), styled with `.exl` (dotted underline) or `.tapcard`; a click opens the sheet with a plain explanation tied to her own placements. Reuse `natalPointHTML`, `signHTML`, `houseHTML`, `natalAspectHTML`, `transitStoryHTML`, `exPlacement` and friends. Add the wording to all three i18n packs.
@@ -66,7 +66,7 @@ Added in one batch; the owner's girlfriend may not want all of them. Each is its
 | Share card and calendar file | a0c937a | `shareBig3`, `buildICS`, `shareFile`, `#share-big3` and `#ics-btn` in index.html, ui `shareBtn icsBtn icsNote`, `F.icsStart icsEnd icsMoon` |
 | Offline start | (sw.js) | the `lib/` and `fonts/` entries in the `SHELL` list of `sw.js` (the files themselves are needed either way) |
 
-Small delights: a sparkle and tiny vibration on every tap of an explainable item, tour graphics animate in (bars grow, aspect lines draw, petals and radar bloom), the sheet content fades in, and tapping the logo makes the sun wink and shows a joke from `L.ui.logoQuips`. All motion respects `prefers-reduced-motion`.
+Small delights: a sparkle and tiny vibration on every tap of an explainable item, tour graphics animate in (bars grow, aspect lines draw, petals and radar bloom), the sheet content fades in, and tapping the logo makes the fish leap and shows a joke from `L.ui.logoQuips`. All motion respects `prefers-reduced-motion`.
 
 Finding your way (she got lost easily): the phone's back button/gesture steps back through explanation sheets, the tour, a quiz and tab switches (`navPush`, `popstate` handler, `dismissSheet`, `leaveTour`, `leaveQuiz` in app.js; history states carry `{tab, sheet:depth, tour, quiz}`). Explanations opened from inside the sheet stack (`sheetStack`) with a Back button (ui `back`). Each tab keeps its scroll position, tapping the current tab scrolls to top, and the mobile header shows "Tab · section" (`setWhere`, `#mast-page`). Closing a sheet keeps the page where it was (`keepScroll`). Pull-to-refresh is off (`overscroll-behavior:none` on html), and a sheet can be pulled down from the top of its text to close. On phones, tapping a planet row on the Planets tab opens its reading right there.
 

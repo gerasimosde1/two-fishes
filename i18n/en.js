@@ -147,7 +147,7 @@ L.ui={
  prevYear:'Previous year',prevMonth:'Previous month',nextMonth:'Next month',nextYear:'Next year',today:'Today',todayLow:'today',
  moonSignLeg:'Moon’s sign',flowing:'flowing',challenging:'challenging',conjOrSign:'conjunction or sign change',transitsFor:'Transits for',
  whatTransit:'What is a transit?',
- whatTransitHtml:'<p>The planets keep moving after you are born. A <b>transit</b> happens when a planet in today’s sky makes an aspect (an angle) to a planet or point in your birth chart. That wakes up the part of you, and the area of life, that natal planet stands for.</p><ul class="ctx"><li><span>Long-term transits: the chapters</span>Jupiter, Saturn, Uranus, Neptune and Pluto stay on one point for months, so they bring the big themes of a year.</li><li><span>Short-term transits: the days</span>The Sun, Mercury, Venus and Mars pass in days or weeks, bringing moods, conversations and events. The Moon changes sign every two to three days and colours your mood.</li><li><span>Applying and separating</span>Applying means the transit is still building towards exact. Separating means it has peaked and is fading.</li><li><span>The whole chart</span>Two Fishes also shows which of your houses the transiting planet is moving through, which houses the touched planet rules, and which other planets it is tied to, so you see the full story.</li></ul>',
+ whatTransitHtml:'<p>The planets keep moving after you are born. A <b>transit</b> happens when a planet in today’s sky makes an aspect (an angle) to a planet or point in your birth chart. That wakes up the part of you, and the area of life, that natal planet stands for.</p><ul class="ctx"><li><span>Long-term transits: the chapters</span>Jupiter, Saturn, Uranus, Neptune and Pluto stay on one point for months, so they bring the big themes of a year.</li><li><span>Short-term transits: the days</span>The Sun, Mercury, Venus and Mars pass in days or weeks, bringing moods, conversations and events. The Moon changes sign every two to three days and colours your mood.</li><li><span>Applying and separating</span>Applying means the transit is still building towards exact. Separating means it has peaked and is fading.</li><li><span>The whole chart</span>Astro Pisces also shows which of your houses the transiting planet is moving through, which houses the touched planet rules, and which other planets it is tied to, so you see the full story.</li></ul>',
  skyOn:'Sky on',m1:'−1 month',w1:'−1 week',d1:'−1 day',p1d:'+1 day',p1w:'+1 week',p1m:'+1 month',play:'Play ▸',pause:'Pause ❚❚',jumpDate:'Jump to date',moveTime:'Move through time',
  ago2:'2 years ago',ahead2:'2 years ahead',swipeHint:'Swipe the wheel left or right to move a day',outerRing:'outer ring: sky on this date',innerRing:'inner: your birth chart',
  activeTransits:'Active transits to your whole chart',activeNote:'Every planet, the Ascendant, the Midheaven and the North Node, with the houses each one touches.',
@@ -185,12 +185,12 @@ L.ui={
  msgHigh:'Superb. You know this by heart.',msgMid:'Good work. One more round will lock it in.',msgLow:'A good start. Every round teaches the pattern.',playAgain:'Play again',
  otherCity:'Other (enter coordinates)',viewingBadge:'viewing',edit:'Edit',delConfirm:'Tap again to delete',del:'Delete',newChart:'New chart',editPrefix:'Edit: ',addChartBtn:'Add chart',save:'Save changes',
  errDate:'Add a birth date.',errTime:'Add a birth time, or tick “Time unknown”.',errLatLon:'Latitude and longitude must be numbers.',errTz:'Time zone not recognised. Use a name like Europe/Athens, or UTC+2.',
- installHtml:'<b>Put Two Fishes on your home screen.</b> It opens full screen like any other app and works offline.',
- installIos:'<b>Put Two Fishes on your home screen.</b> In Safari tap the Share button, then <b>Add to Home Screen</b>. It opens full screen and works offline.',
- installOther:'<b>Put Two Fishes on your home screen.</b> Open your browser menu and choose <b>Add to Home screen</b> or <b>Install app</b>.',
+ installHtml:'<b>Put Astro Pisces on your home screen.</b> It opens full screen like any other app and works offline.',
+ installIos:'<b>Put Astro Pisces on your home screen.</b> In Safari tap the Share button, then <b>Add to Home Screen</b>. It opens full screen and works offline.',
+ installOther:'<b>Put Astro Pisces on your home screen.</b> Open your browser menu and choose <b>Add to Home screen</b> or <b>Install app</b>.',
  libFailTitle:'The star tables didn’t load',libFail:'The astronomy library could not be reached. Check your connection and reload the page.',
  myChart:'My chart',chart:'Chart',
- logoQuips:["Two fishes, one sun, zero sense of direction. Very Pisces.", "The sun says hi. It has been up since about 4.6 billion years ago.", "Mercury is not retrograde right now. Probably. Check the Planets tab before blaming it.", "Fun fact: the fishes are tied together by a cord, so neither can swim off without the other.", "I am a logo, not an oracle. Tap a planet for the real stuff.", "Pisces season lasts a month. Pisces feelings last considerably longer.", "Drink some water. That one isn't astrology, it's just good advice.", "The stars incline, they do not compel. That line is 800 years old and still true.", "You tapped the sun. Bold. Very fire-sign of you.", "Somewhere a Virgo is reading this and correcting the grammar."]
+ logoQuips:["One fish, one moon, zero sense of direction. Very Pisces.", "Pisces is meant to be two fishes. The other one went out for snacks.", "Mercury is not retrograde right now. Probably. Check the Planets tab before blaming it.", "The Moon borrows all its light from the Sun and still gets all the poems. Iconic.", "I am a logo, not an oracle. Tap a planet for the real stuff.", "Pisces season lasts a month. Pisces feelings last considerably longer.", "Drink some water. That one isn't astrology, it's just good advice.", "The stars incline, they do not compel. That line is 800 years old and still true.", "You tapped the fish. It is pretending the jump was its own idea.", "Somewhere a Virgo is reading this and correcting the grammar."]
 };
 
 L.f={
@@ -203,7 +203,7 @@ L.f={
  synComp:{Mercury:s=>`You talk and decide together ${L.signs[s].how}.`,Venus:s=>`Together you love ${L.signs[s].how}.`,Mars:s=>`As a team you act ${L.signs[s].how}.`,ASC:s=>`Others see the two of you as ${L.signs[s].key}.`},
  synLand:(A,B,id,h)=>`${cap(A.p)} ${L.planets[id].n} → ${B.p} ${L.hl(h)}`,
  synLandH:(A,B)=>`${cap(A.p)} planets in ${B.p} houses`,
- synShare:(pair,pct,arch)=>`${pair}: ${pct}% · “${arch}” ✧ Two Fishes`,
+ synShare:(pair,pct,arch)=>`${pair}: ${pct}% · “${arch}” ✧ Astro Pisces`,
  icsStart:n=>`Start of ${n} retrograde`,icsEnd:n=>`End of ${n} retrograde`,icsMoon:(k,s)=>`${k}: ${s}`,
  mistakesCta:n=>`Practise my mistakes (${n})`,practiceStreak:n=>`${n}-day practice streak`,
  aspMeaning:(a,b,c)=>`${cap(L.planets[a].what)} and ${L.planets[b].what} ${c==='soft'?'support each other easily':c==='hard'?'pull in different directions, so you grow by balancing them':'work together as one force'}.`,
@@ -635,7 +635,7 @@ Object.assign(L.ui,{
  yearLordNow:'Where your Lord of the Year is now',yearWakes:'Also waking up this year',yearRetro:'Its retrogrades this year',yearMore:'How the year is counted',
  yearHow:'This is annual profection, an old technique: each birthday moves your year one house on, starting from the 1st house at birth, so every twelve years you are back where you began. The planet that rules that house’s sign is the Lord of the Year: its condition in your chart and its movements in the sky colour the whole year.',
  backupTitle:'Backup',backupNote:'Your charts, saved readings, notes and streaks live only on this phone. Save a backup file now and then (to Files, iCloud or an email to yourself), and you can bring everything back on a new phone.',
- backupSave:'Save a backup',backupLoad:'Restore from a backup',backupSaved:'Backup ready. Keep it somewhere safe.',backupBad:'That file does not look like a Two Fishes backup.',
+ backupSave:'Save a backup',backupLoad:'Restore from a backup',backupSaved:'Backup ready. Keep it somewhere safe.',backupBad:'That file does not look like a Astro Pisces backup.',
  backupConfirm:'Restore this backup? It replaces your charts, saved readings and notes on this phone with the ones in the file.'
 });
 Object.assign(L.f,{
