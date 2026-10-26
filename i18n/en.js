@@ -336,22 +336,24 @@ L.q={
  comboSignQ:(p,z,g)=>`Which phrase best fits ${L.planets[p].n} in ${L.signs[z].n} <span class="gl">${g}</span>?`,
  comboSignWhy:(p,z)=>`${L.planets[p].n} is about ${L.planets[p].key}. ${L.signs[z].n} is ${L.signs[z].key}. Planet = what, sign = how.`
 };
-/* ---------- guided tour: "Your cosmic potential" ---------- */
+/* ---------- guided tour: "Your cosmic potential" (full-screen, swipeable) ---------- */
 L.tour={
  ch:[
-  {t:'Your chart at a glance',s:'The big shape before the details',i:'Before we zoom in on single planets, look at the overall balance of the chart. Which element, which style of action and which houses carry the weight tells you what kind of life this chart is built for.'},
-  {t:'The core trio',s:'Sun, Moon and Rising',i:'These three are the foundation. The Sun is what you are growing into, the Moon is what you need in order to feel safe, and the Rising sign is the door other people (and new situations) meet first. Potential lives in the gaps between them: the Sun reaches, the Moon asks for comfort, the Rising sign decides how you step out.'},
-  {t:'Your chart ruler',s:'The planet that steers the whole chart',i:'The planet ruling your Rising sign works like the captain. Its sign and house show where your life tends to be steered from, and every transit or progression to it is felt personally.'},
-  {t:'Mind, love and drive',s:'Mercury, Venus and Mars',i:'These are your personal tools: how you think and talk, what and how you love, and how you go after what you want. They move fast, so they describe your style more than your destiny.'},
-  {t:'Growth and the long work',s:'Jupiter and Saturn',i:'Jupiter shows where you grow by saying yes, Saturn where you grow by committing and enduring. Together they map your opportunities and your mastery.'},
-  {t:'The slow forces',s:'Uranus, Neptune and Pluto',i:'These move for years in one sign, so their sign is shared with everyone your age. What is personal is the house: the area of life where your generation\'s big themes actually land for you.'},
-  {t:'Direction and healing',s:'The North Node and Chiron',i:'The North Node points toward unfamiliar growth, the South Node toward what is already easy. Chiron marks a tender spot that, once understood, often becomes the thing you are best at helping others with.'},
-  {t:'Where life concentrates',s:'Houses with weight, and houses at rest',i:'Planets crowd some houses and leave others empty. Crowded houses are the stage of your life; empty ones are not a problem, they simply run through their ruler instead.'},
-  {t:'Your inner conversations',s:'The tightest aspects in your chart',i:'The closest aspects are the loudest dialogues between your parts. Smooth ones are talents you may take for granted; tense ones are where the effort and the growth are.'},
-  {t:'Putting it together',s:'Gifts, growth edges and three questions',i:'Here is the short version: where you are naturally supported, where you are asked to stretch, and three questions worth sitting with. Potential is not prediction. It is what you are equipped to do if you choose to.'}],
+  {t:'Your cosmic potential',s:'A guided walk through your whole chart',i:''},
+  {t:'The shape of your chart',s:'Where the weight sits',i:'Before single planets, look at the overall shape. Where the planets cluster, which element and style carry them, and which half of the sky they favour, tell you what kind of life this chart is built for.'},
+  {t:'Who runs your chart',s:'The loudest voices',i:'Not every planet speaks at the same volume. Position on an angle, strength in its own sign, rulership of your Rising sign and a web of aspects all raise the volume. These are the planets you will keep meeting.'},
+  {t:'Sun, Moon and Rising',s:'The core trio and the Moon you were born under',i:'The Sun is what you are growing into, the Moon is what you need in order to feel safe, and the Rising sign is the door others meet first. Potential lives in the gaps between them.'},
+  {t:'How the energy flows',s:'Your chart ruler, receptions and rulership chains',i:'Every sign has a ruling planet, so planets hand their themes to each other like a relay. Following the relay shows who actually steers the chart and which planets quietly help one another.'},
+  {t:'Mind, love and drive',s:'Mercury, Venus and Mars',i:'Your personal tools: how you think and talk, what and how you love, and how you go after what you want. They move fast, so they describe your style more than your destiny.'},
+  {t:'Growth and the long work',s:'Jupiter and Saturn',i:'Jupiter shows where you grow by saying yes. Saturn shows where you grow by committing and enduring. Together they map your opportunities and your mastery.'},
+  {t:'The slow forces',s:'Uranus, Neptune and Pluto',i:'These stay in one sign for years, so the sign is shared with everyone your age. What is personal is the house: the area of life where your generation\'s big themes land for you.'},
+  {t:'Direction and healing',s:'The Nodes and Chiron',i:'The North Node points toward unfamiliar growth, the South Node toward what is already easy. Chiron marks a tender spot that, once understood, often becomes the thing you help others with best.'},
+  {t:'Your inner conversations',s:'Aspects and patterns',i:'Aspects are conversations between the parts of you. The tightest ones are loudest. Sometimes several aspects lock into a shape, a pattern, which works like a personality trait of the whole chart.'},
+  {t:'Your life-area map',s:'Where your potential is concentrated',i:'Adding up the weight of every planet by the area of life it sits in gives a rough map. High points are where life keeps asking for your attention; low points are quieter and less effortful, not empty.'},
+  {t:'Putting it together',s:'Gifts, growth edges and questions',i:'The short version: where you are supported, where you are asked to stretch, and questions worth sitting with. Potential is not prediction. It is what you are equipped to do if you choose to.'}],
  pot:{
   Sun:'Your potential is to live from this sign on purpose: to become the person whose life actually reflects what you care about, not the one who is easiest for others.',
-  Moon:'Your potential is emotional self-knowledge: learning exactly what soothes you and what drains you, and then arranging your life around it without apology.',
+  Moon:'Your potential is emotional self-knowledge: learning exactly what soothes you and what drains you, then arranging your life around it without apology.',
   ASC:'Your potential is a recognisable presence: once you stop managing the first impression, this style of arriving becomes your signature.',
   Mercury:'Your potential is a distinctive voice: a way of understanding and explaining things that is yours and that others can learn from.',
   Venus:'Your potential is in what you value: knowing what you are really attracted to, and building relationships and a life that match it rather than what looks good.',
@@ -360,7 +362,7 @@ L.tour={
   Saturn:'Your potential is mastery through patience: this is where early difficulty, if worked through honestly, becomes real authority and lasting skill.',
   Uranus:'Your potential is originality: this is where you are allowed to break the pattern, and where being the odd one out becomes a gift.',
   Neptune:'Your potential is imagination and compassion: this is where you can sense what others miss, as long as you stay grounded enough to act on it.',
-  Pluto:'Your potential is regeneration: this is where you can face what is buried, and come out with real personal power instead of control.',
+  Pluto:'Your potential is regeneration: this is where you can face what is buried and come out with real personal power instead of control.',
   Node:'Your potential is a chosen direction: the more you practise the unfamiliar qualities here, the more your life starts to feel like your own.',
   Chiron:'Your potential is wounded-healer wisdom: the tender spot here, once understood, becomes the place others trust you.'},
  ask:{
@@ -391,6 +393,37 @@ L.tour={
   cardinal:'Mostly cardinal: you are built to initiate and lead. Beginnings come easily; watch for restlessness once the novelty fades.',
   fixed:'Mostly fixed: you are built to sustain and deepen. Loyalty and stamina are strengths; watch for stubbornness when change is actually needed.',
   mutable:'Mostly mutable: you are built to adapt and translate. Flexibility is your strength; watch for scattering and for never quite choosing.'},
+ hemi:{
+  upper:'Most of your planets sit above the horizon (houses 7 to 12), so life leans toward other people, the public and the wider world. You learn who you are through contact.',
+  lower:'Most of your planets sit below the horizon (houses 1 to 6), so life leans toward the personal and private: body, home, routines and the inner world. You build from the inside out.',
+  east:'Your planets lean east (houses 10 to 3): you are self-starting, set the pace and make your own luck.',
+  west:'Your planets lean west (houses 4 to 9): you are responsive, and grow through other people, timing and circumstances.',
+  even:'Your planets are spread evenly, so you can move between inner and outer, leading and responding, without a strong default.'},
+ phase:[
+  {n:'New',d:'Seed. You were born at a new beginning: you are here to start things that did not exist before. Instinct leads and clarity comes later, so trust the first move and refine as you go.'},
+  {n:'Crescent',d:'Struggle to emerge. You push against old family or cultural patterns to establish your own. Determination under pressure is your signature, and it gets easier once you stop asking permission.'},
+  {n:'First quarter',d:'Crisis in action. You grow by making decisions and building something concrete, and you are restless until you do. Friction is not a sign you are wrong, it is how this phase moves.'},
+  {n:'Gibbous',d:'Refiner. You analyse, adjust and improve, and you are rarely fully satisfied, which makes you excellent at fine-tuning. The lesson is to let good enough be good.'},
+  {n:'Full',d:'Fulfilment and awareness. Sun and Moon face each other, so you see both sides of things and relate through other people, with a pull between head and heart. Integration is the work.'},
+  {n:'Disseminating',d:'Sharer. You digest experience and pass it on: a natural teacher, storyteller or translator. You feel most alive when what you learned helps someone else.'},
+  {n:'Last quarter',d:'Reorientation. You question inherited beliefs and rebuild your own. Periods of letting go of a worldview are part of your pattern, and so is the freedom afterwards.'},
+  {n:'Balsamic',d:'Releaser. An old-soul feel: you close cycles and prepare the ground for what comes next. You are intuitive and drawn to the future, and you need real rest.'}],
+ why:{angular:'sits on an angle of your chart',ruler:'rules your Rising sign',home:'is in a sign it rules',exalt:'is exalted',wired:'is tied to many other points by aspect',lum:'is one of the two lights',stel:'is part of a stellium'},
+ pat:{
+  grandTrine:{n:'Grand trine',d:'Three planets in a triangle of easy flow. Talent that works without effort, which can also mean comfort without growth. The gift is to point it at something on purpose.'},
+  tsq:{n:'T-square',d:'Two planets in opposition, both squared by a third. A pressure cooker with a drive: the focal planet is where the tension finally gets released through action, so it is often the most active part of the chart.'},
+  grandCross:{n:'Grand cross',d:'Four planets locked in squares and oppositions. Tension in four directions, which makes for tough, resourceful people who learn to hold competing demands without dropping any.'},
+  yod:{n:'Yod',d:'Two planets in sextile, both awkwardly angled to a third. It often feels like a special task: the focal planet keeps requiring adjustment, and life tends to turn around it.'},
+  stellium:{n:'Stellium',d:'Three or more planets in one sign. Intense focus on that sign\'s way of doing things, which is a strength, with a risk of blind spots elsewhere.'}},
+ dom:[
+  {n:'Self and presence',s:'Self',d:'How you show up, your body and your independence.'},
+  {n:'Security and roots',s:'Roots',d:'Money, possessions, home and family.'},
+  {n:'Mind and meaning',s:'Mind',d:'Learning, communication, beliefs and travel.'},
+  {n:'Joy and creativity',s:'Joy',d:'Romance, play and creative self-expression.'},
+  {n:'Work and calling',s:'Work',d:'Daily work, health habits, career and reputation.'},
+  {n:'Partnership',s:'Partners',d:'Close one-to-one bonds.'},
+  {n:'Depth and inner life',s:'Depth',d:'Intimacy, shared resources, the unconscious and healing.'},
+  {n:'Community and future',s:'Circle',d:'Friends, groups and hopes.'}],
  houseAsk:[
   'How do I want to show up in my own life?',
   'What do I need in order to feel secure, and what is that actually worth to me?',
@@ -405,19 +438,31 @@ L.tour={
   'Who are my people, and what future am I building with them?',
   'What do I need to let go of, or to rest from?']
 };
-Object.assign(L.ui,{tourTitle:'Your cosmic potential',tourPromo:'A guided walk through your whole chart, one step at a time: what you are built for, where you grow and what to try.',tourStart:'Begin the tour',tourResume:'Continue the tour',tourNext:'Next',tourBack:'Back',tourDone:'Finish',tourClose:'Close tour',tourAsk:'Ask yourself:',tourGifts:'Where you are supported',tourEdges:'Where you are asked to stretch',tourQs:'Three questions to sit with',tourSun:'Your purpose',tourSat:'Your long work',tourNode:'Your direction',tourSouth:'The South Node (what is easy)',tourStel:'Crowded houses',tourEmpty:'Quiet houses',tourPotNote:'Potential is not prediction: this is what the chart equips you for, not what will happen.',tourNoGifts:'No very tight smooth aspects, so your support comes more from effort than from ease.',tourNoEdges:'No very tight tense aspects, which means fewer internal arguments.',tourTime:'Houses depend on your exact birth time, so treat the house readings as approximate.'});
+Object.assign(L.ui,{tourTitle:'Your cosmic potential',tourPromo:'A full-screen guided journey through your whole chart, with pictures and swipes: where your weight sits, who runs your chart, your hidden patterns and a map of your potential.',tourStart:'Open the journey',tourResume:'Continue the journey',tourNext:'Next',tourBack:'Back',tourDone:'Finish',tourClose:'Close',tourSwipe:'Swipe or tap Next',tourAsk:'Ask yourself:',tourGifts:'Where you are supported',tourEdges:'Where you are asked to stretch',tourQs:'Questions to sit with',tourSun:'Your purpose',tourSat:'Your long work',tourNode:'Your direction',tourMoon:'Your needs',tourStel:'Crowded houses',tourEmpty:'Quiet houses',tourPotNote:'Potential is not prediction: this is what the chart equips you for, not what will happen. For entertainment and learning.',tourNoGifts:'No very tight smooth aspects, so your support comes more from effort than from ease.',tourNoEdges:'No very tight tense aspects, which means fewer internal arguments.',tourTime:'Houses depend on your exact birth time, so treat the house readings as approximate.',tourHouseMap:'Planets in your houses',tourElements:'Elements',tourModes:'Styles',tourHalves:'Which half of the sky',tourVolume:'Chart volume',tourPhase:'Your lunar phase at birth',tourReceptions:'Planets that swap places',tourNoRecept:'No planets are swapping places by sign, so each works more on its own terms.',tourChain:'The relay',tourWeb:'Your aspect web',tourWebNote:'Planets sit where they are on your wheel. Teal lines flow, pink lines push.',tourPatterns:'Patterns in your chart',tourNoPatterns:'No classic aspect patterns, so your chart works through single conversations rather than one big shape.',tourTight:'Tightest conversations',tourMap:'Life-area map',tourStrong:'Strongest areas',tourQuiet:'Quieter areas',tourAspectsOf:'Its closest aspects',tourSummary:'Your chart in one paragraph',tourTry:'Try this week'});
 Object.assign(L.f,{
- tourStep:(i,n)=>`Step ${i} of ${n}`,
+ tourStep:(i,n)=>`${i} of ${n}`,
+ tourCover:(n,m)=>`${n}`,
  tourBalance:(el,mod)=>`<b>Dominant element: ${L.el[el].n}.</b> ${L.tour.elDom[el]}<br><br><b>Dominant style: ${L.mod[mod].n}.</b> ${L.tour.modDom[mod]}`,
  tourLack:el=>`<b>Least represented: ${L.el[el].n}.</b> ${L.tour.elLack[el]}`,
  tourCrowd:(h,ids)=>`${cap(yourH(h))} (${hs(h)}) holds ${list(ids.map(x=>L.planets[x].n))}: a main stage of your life.`,
- tourEmptyH:(hs2)=>`No planets in ${list(hs2.map(h=>L.hl(h)+' ('+hs(h)+')'))}. Not a gap: those areas are run through their ruling planets, and they tend to be quieter, less effortful parts of life.`,
+ tourEmptyH:hs2=>`No planets in ${list(hs2.map(h=>L.hl(h)+' ('+hs(h)+')'))}. Not a gap: those areas are run through their ruling planets, and they tend to be quieter, less effortful parts of life.`,
  tourSouth:(s,h)=>`The South Node is in ${L.signs[s].n} in ${yourH(h)}: what comes easily and may feel like a comfortable habit. Draw on it, but do not hide in it.`,
  tourNorth:(s,h)=>`The North Node is in ${L.signs[s].n} in ${yourH(h)}: growth comes from approaching matters of ${hs(h)} ${L.signs[s].how}.`,
  tourAspect:(a,b,asp,orb)=>`${L.planets[a].n} ${L.aspects[asp].v} ${L.planets[b].n} (orb ${orb})`,
  tourGift:(a,b)=>`${cap(yourP(a))} and ${yourP(b)} cooperate easily: treat this as a talent, and use it deliberately instead of assuming everyone has it.`,
  tourEdge:(a,b)=>`${cap(yourP(a))} and ${yourP(b)} pull in different directions: this is where effort, humour and patience pay off the most.`,
- tourQ:(who,h,q)=>`<b>${who}, ${yourH(h)}:</b> ${q}`
+ tourQ:(who,h,q)=>`<b>${who}, ${yourH(h)}:</b> ${q}`,
+ tourWhy:(id,rs)=>`${L.planets[id].n} ${list(rs.map(r=>L.tour.why[r]))}.`,
+ tourPhaseLine:(k,deg)=>`<b>${L.tour.phase[k].n} Moon</b> (${Math.round(deg)}° between your Sun and Moon). ${L.tour.phase[k].d}`,
+ tourRecept:(a,as,b,bs)=>`${L.planets[a].n} is in ${L.signs[as].n}, ruled by ${L.planets[b].n}, and ${L.planets[b].n} is in ${L.signs[bs].n}, ruled by ${L.planets[a].n}. They have swapped places, so they back each other up like friends who lend each other a house.`,
+ tourFinal:r=>`Following the rulers around the chart, everything ends up with ${L.planets[r].n}, which sits in a sign it rules. That makes ${L.planets[r].n} the final dispositor: the quiet boss of the chart, so whatever strengthens it strengthens you.`,
+ tourNoFinal:()=>`The rulers do not all lead to one planet, so your chart has several centres of gravity rather than a single boss. That is a more collaborative, sometimes more conflicted, arrangement.`,
+ tourChainLine:(a,sa,r,rs,rh)=>`${L.planets[a].n} in ${L.signs[sa].n} hands over to ${L.planets[r].n} in ${L.signs[rs].n} (${hs(rh)}).`,
+ tourPattern:(type,ids,apex)=>`<b>${L.tour.pat[type].n}: ${list(ids.map(x=>L.planets[x].n))}.</b> ${L.tour.pat[type].d}${apex?` Focal planet: ${L.planets[apex].n}.`:''}`,
+ tourStellium:(s,ids)=>`<b>${L.tour.pat.stellium.n} in ${L.signs[s].n}: ${list(ids.map(x=>L.planets[x].n))}.</b> ${L.tour.pat.stellium.d}`,
+ tourDomStrong:a=>`Your potential gathers most around ${list(a)}.`,
+ tourDomQuiet:a=>`Quieter, and so less effortful: ${list(a)}.`,
+ tourSummaryP:(ss,sh,ms,mh,rs,sath,ns,nh)=>`Your Sun in ${L.signs[ss].n} wants to shine through ${hs(sh)}. Your Moon in ${L.signs[ms].n} feels safest ${L.signs[ms].how}, around ${hs(mh)}. You meet the world ${L.signs[rs].how}. Your long work, Saturn, is in ${hs(sath)}, and your direction of growth, the North Node, leads toward ${hs(nh)} ${L.signs[ns].how}.`
 });
 (window.TF_LANGS=window.TF_LANGS||{}).en=L;
 })();

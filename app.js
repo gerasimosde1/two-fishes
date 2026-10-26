@@ -789,60 +789,180 @@ $('#quiz').addEventListener('click',e=>{
 });
 $('#games').addEventListener('click',e=>{const c=e.target.closest('[data-game]');if(c)startGame(c.dataset.game);});
 
-/* ---------- guided tour: Your cosmic potential ---------- */
-const TT=()=>L.tour||EN.tour,TOUR_N=10;
-let tourI=Math.min(TOUR_N-1,Math.max(0,+store.get('tf.tour',0)||0)),tourOpen=false;
+/* ---------- guided tour: Your cosmic potential (full-screen window, swipeable slides) ---------- */
+const TT=()=>L.tour||EN.tour;
+let tourI=Math.max(0,+store.get('tf.tour',0)||0),tourOpen=false;
+const TIDS=()=>TEN.map(t=>t.id).filter(id=>natal.byId[id]);
+const ANGULAR=[1,4,7,10],DOM_H=[[1],[2,4],[3,9],[5],[6,10],[7],[8,12],[11]];
+const sec=(cx,cy,ri,ro,a0,a1)=>{const p=(r,a)=>[cx+r*Math.cos(rad(a)),cy-r*Math.sin(rad(a))].map(v=>+v.toFixed(2));
+  return `M${p(ro,a0)}A${ro} ${ro} 0 0 0 ${p(ro,a1)}L${p(ri,a1)}A${ri} ${ri} 0 0 1 ${p(ri,a0)}Z`;};
+const gpt=(cx,cy,r,a)=>[+(cx+r*Math.cos(rad(a))).toFixed(2),+(cy-r*Math.sin(rad(a))).toFixed(2)];
+const elOf=id=>SIGNS[natal.byId[id].sign].el;
+const bars=(rows)=>`<div class="gbars">${rows.map(r=>`<div class="gbar"><span>${r.l}</span><i style="width:${Math.max(3,r.v/(r.max||1)*100)}%;background:var(--${r.c})"></i><b>${r.n}</b></div>`).join('')}</div>`;
+function gRose(){
+  const ids=TIDS(),who=Array.from({length:13},()=>[]);ids.forEach(id=>who[natal.byId[id].house].push(id));
+  let s=`<svg viewBox="-12 -12 264 264" class="gfx" role="img" aria-label="${esc(u('tourHouseMap'))}"><circle cx="120" cy="120" r="104" class="g-ring"/><circle cx="120" cy="120" r="60" class="g-ring dim"/><circle cx="120" cy="120" r="16" class="g-ring dim"/>`;
+  for(let h=1;h<=12;h++){const a0=180+(h-1)*30,n=who[h].length,m=a0+15,[lx,ly]=gpt(120,120,114,m);
+    if(n)s+=`<path d="${sec(120,120,16,16+Math.min(n,5)*17,a0+2,a0+28)}" class="g-petal"/>`;
+    s+=`<path d="${sec(120,120,16,104,a0,a0+30)}" class="g-sec"/><text x="${lx}" y="${ly}" class="g-num" text-anchor="middle" dominant-baseline="central">${h}</text>`;
+    who[h].forEach((id,k)=>{const [x,y]=gpt(120,120,32+k*17,m);s+=`<text x="${x}" y="${y}" class="g-gl" style="fill:var(--${elOf(id)})" text-anchor="middle" dominant-baseline="central">${natal.byId[id].g}</text>`;});}
+  return s+'</svg>';
+}
+function gMini(h,id){
+  const p=natal.byId[id],m=180+(h-.5)*30,[x,y]=gpt(60,60,36,m),[lx,ly]=gpt(60,60,50,m);
+  let s=`<svg viewBox="0 0 120 120" class="gfx mini" aria-hidden="true"><circle cx="60" cy="60" r="54" class="g-ring"/>`;
+  for(let k=1;k<=12;k++)s+=`<path d="${sec(60,60,10,54,180+(k-1)*30,180+k*30)}" class="g-sec${k===h?' on':''}"/>`;
+  return s+`<text x="${x}" y="${y}" class="g-gl big" style="fill:var(--${elOf(id)})" text-anchor="middle" dominant-baseline="central">${p.g}</text><text x="${lx}" y="${ly}" class="g-num on" text-anchor="middle" dominant-baseline="central">${h}</text></svg>`;
+}
+function gWeb(){
+  const ids=TIDS(),asc=natal.ang.asc,pos=ids.map(id=>({id,a:180+natal.byId[id].lon-asc}));
+  const lab=pos.map(p=>({id:p.id,a:norm(p.a)})).sort((x,y)=>x.a-y.a);
+  for(let pass=0;pass<4;pass++)for(let i=1;i<lab.length;i++)if(lab[i].a-lab[i-1].a<11)lab[i].a=lab[i-1].a+11;
+  const la=Object.fromEntries(lab.map(l=>[l.id,l.a]));
+  let s=`<svg viewBox="-20 -20 280 280" class="gfx web" role="img" aria-label="${esc(u('tourWeb'))}"><circle cx="120" cy="120" r="100" class="g-ring"/>`;
+  for(let h=0;h<12;h++){const [x1,y1]=gpt(120,120,96,180+natal.cusps[h]-asc),[x2,y2]=gpt(120,120,100,180+natal.cusps[h]-asc);s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="g-ring"/>`;}
+  natal.aspects.forEach(a=>{if(a.asp.id==='conj'||!ids.includes(a.p1.id)||!ids.includes(a.p2.id))return;
+    const [x1,y1]=gpt(120,120,92,180+a.p1.lon-asc),[x2,y2]=gpt(120,120,92,180+a.p2.lon-asc);
+    s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="g-asp ${a.asp.cls}" style="stroke-width:${(.7+Math.max(0,1-a.orb/8)*2.2).toFixed(2)}"/>`;});
+  pos.forEach(p=>{const [x,y]=gpt(120,120,92,p.a),[tx,ty]=gpt(120,120,112,la[p.id]);
+    s+=`<circle cx="${x}" cy="${y}" r="3" style="fill:var(--${elOf(p.id)})"/><text x="${tx}" y="${ty}" class="g-gl" style="fill:var(--${elOf(p.id)})" text-anchor="middle" dominant-baseline="central">${natal.byId[p.id].g}</text>`;});
+  return s+'</svg>';
+}
+function gRadar(sc){
+  const N=sc.length,T=TT().dom;let s=`<svg viewBox="-150 -140 300 280" class="gfx radar" role="img" aria-label="${esc(u('tourMap'))}">`;
+  [.33,.66,1].forEach(f=>{s+=`<polygon points="${sc.map((_,i)=>gpt(0,0,100*f,90-i*360/N).join(',')).join(' ')}" class="g-ring dim" style="fill:none"/>`;});
+  sc.forEach((v,i)=>{const [x,y]=gpt(0,0,100,90-i*360/N),[lx,ly]=gpt(0,0,120,90-i*360/N);s+=`<line x1="0" y1="0" x2="${x}" y2="${y}" class="g-ring dim"/><text x="${lx}" y="${ly}" class="g-num on" text-anchor="middle" dominant-baseline="central">${T[i].s}</text>`;});
+  return s+`<polygon points="${sc.map((v,i)=>gpt(0,0,12+88*v,90-i*360/N).join(',')).join(' ')}" class="g-area"/>${sc.map((v,i)=>{const [x,y]=gpt(0,0,12+88*v,90-i*360/N);return `<circle cx="${x}" cy="${y}" r="3.5" class="g-dot"/>`;}).join('')}</svg>`;
+}
+/* analysis */
+function tourVolume(){
+  const ids=TIDS(),W={conj:1.2,opp:1.2,sq:1.2,tri:.8,sext:.8,qx:.4},asc=SIGNS[natal.byId.ASC.sign].rulers[0],stel=new Set();
+  SIGNS.forEach(z=>{const g=ids.filter(id=>natal.byId[id].sign===z.i);if(g.length>=3)g.forEach(id=>stel.add(id));});
+  return ids.map(id=>{const p=natal.byId[id],why=[];let sc=0,n=0;
+    if(ANGULAR.includes(p.house)){sc+=3;why.push('angular');}else if([2,5,8,11].includes(p.house))sc+=1.5;else sc+=.5;
+    if(id===asc){sc+=2.5;why.push('ruler');}
+    const dg=dignityOf(id,p.sign);if(dg==='digHome'){sc+=2;why.push('home');}else if(dg==='digExalt'){sc+=1.5;why.push('exalt');}
+    if(id==='Sun'||id==='Moon'){sc+=1;why.push('lum');}
+    if(stel.has(id)){sc+=1;why.push('stel');}
+    natal.aspects.forEach(a=>{if(a.p1.id===id||a.p2.id===id){sc+=(W[a.asp.id]||.4)*Math.max(.25,1-a.orb/8);n++;}});
+    if(n>=4)why.push('wired');
+    return {id,sc,why};}).sort((a,b)=>b.sc-a.sc);
+}
+function tourPatterns(){
+  const ids=TIDS(),ab={},out=[];natal.aspects.forEach(a=>{ab[a.p1.id+'|'+a.p2.id]=ab[a.p2.id+'|'+a.p1.id]=a.asp.id;});
+  const A=(x,y)=>ab[x+'|'+y];
+  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)for(let k=j+1;k<ids.length;k++){
+    const t=[ids[i],ids[j],ids[k]];
+    if(A(t[0],t[1])==='tri'&&A(t[1],t[2])==='tri'&&A(t[0],t[2])==='tri')out.push({type:'grandTrine',ids:t});
+    for(let r=0;r<3;r++){const a=t[r],b=t[(r+1)%3],c=t[(r+2)%3];
+      if(A(a,b)==='opp'&&A(a,c)==='sq'&&A(b,c)==='sq')out.push({type:'tsq',ids:[a,b,c],apex:c});
+      if(A(a,b)==='sext'&&A(a,c)==='qx'&&A(b,c)==='qx')out.push({type:'yod',ids:[a,b,c],apex:c});}}
+  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)for(let k=j+1;k<ids.length;k++)for(let l=k+1;l<ids.length;l++){
+    const q=[ids[i],ids[j],ids[k],ids[l]];
+    for(const o of [[0,1,2,3],[0,2,1,3],[0,3,1,2]]){const [a,b,c,d]=o.map(x=>q[x]);
+      if(A(a,b)==='opp'&&A(c,d)==='opp'&&A(a,c)==='sq'&&A(a,d)==='sq'&&A(b,c)==='sq'&&A(b,d)==='sq')out.push({type:'grandCross',ids:q});}}
+  SIGNS.forEach(z=>{const g=ids.filter(id=>natal.byId[id].sign===z.i);if(g.length>=3)out.push({type:'stellium',sign:z.i,ids:g});});
+  return out.slice(0,4);
+}
+function tourFlow(){
+  const ids=TIDS(),rul=id=>SIGNS[natal.byId[id].sign].rulers,rec=[];
+  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const a=ids[i],b=ids[j];if(a!==b&&rul(a).includes(b)&&rul(b).includes(a))rec.push([a,b]);}
+  const home=ids.filter(id=>rul(id).includes(id)),end=id=>{const seen=[];let c=id;while(!seen.includes(c)){seen.push(c);const r=SIGNS[natal.byId[c].sign].rulers.find(x=>natal.byId[x])||c;c=r;}return c;};
+  const ends=new Set(ids.map(end)),fin=ends.size===1&&home.length===1&&home[0]===[...ends][0]?home[0]:null;
+  return {rec,fin};
+}
+function tourDomains(){
+  const W={Sun:3,Moon:3,Mercury:2,Venus:2,Mars:2,Jupiter:1.5,Saturn:1.5,Uranus:1,Neptune:1,Pluto:1,Node:1},rulerId=SIGNS[natal.byId.ASC.sign].rulers[0];
+  const sc=DOM_H.map(hs2=>TIDS().concat(natal.byId.Node?['Node']:[]).reduce((s,id)=>hs2.includes(natal.byId[id].house)?s+(W[id]||1)+(id===rulerId?1.5:0):s,0)),mx=Math.max(...sc,1);
+  return sc.map(v=>v/mx);
+}
+/* slides */
+function aspRows(id){
+  return natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id).sort((a,b)=>a.orb-b.orb).slice(0,3).map(a=>{const o=a.p1.id===id?a.p2:a.p1;
+    return `<div class="trow tapcard ${a.asp.cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>natalAspectHTML(natal.aspects.indexOf(a)))}"><span class="gl">${a.asp.g}</span> ${aN(a.asp.id)} ${glyph(o)} ${nm(o)} <span class="mono muted">${fmtOrb(a.orb)}</span></div>`;}).join('');
+}
 function tourPlanet(id){
   const p=natal.byId[id];if(!p)return '';
-  const T=TT(),S=L.signs[p.sign],hh=homeHouse(p),dg=dignityOf(id,p.sign);
-  return `<div class="tcard"><h4><span class="exl" data-ex="planet:${id}">${glyph(p)} ${nm(p)} ${sIn(p.sign)} · ${hl(hh)}</span>${p.retro?' ℞':''}</h4>
-  <p class="tpot">${T.pot[id]}</p>
+  const T=TT(),S=L.signs[p.sign],hh=homeHouse(p),dg=dignityOf(id,p.sign),rules=housesRuledBy(natal,id),ar=aspRows(id);
+  return `<div class="tcard"><div class="tcard-h">${gMini(hh,id)}<div><h4><span class="exl" data-ex="planet:${id}">${glyph(p)} ${nm(p)} ${sIn(p.sign)}</span></h4><div class="pos">${posStr(p)} · ${hl(hh)}${p.retro?' ℞':''}</div><p class="tpot">${T.pot[id]}</p></div></div>
   <dl class="kv"><dt>${u('atBest')}</dt><dd>${S.plus}</dd><dt>${u('watchFor')}</dt><dd>${S.minus}</dd></dl>
-  <p>${F.deepIn(id,hh)}</p>${dg?`<p class="explain">${u(dg)}</p>`:''}${p.retro?`<p class="note">${F.retro(id)}</p>`:''}
-  <p class="tact"><b>${u('tourAsk')}</b> <i>${T.ask[id]}</i></p></div>`;
+  <p>${F.deepIn(id,hh)}</p>${rules.length&&id!=='Node'&&id!=='Chiron'?`<p>${F.rulesPara(id,rules,p.house)}</p>`:''}${dg?`<p class="explain">${u(dg)}</p>`:''}${p.retro?`<p class="note">${F.retro(id)}</p>`:''}
+  ${ar?`<h5>${u('tourAspectsOf')}</h5>${ar}`:''}<p class="tact"><b>${u('tourAsk')}</b> <i>${T.ask[id]}</i></p></div>`;
 }
-function tourBody(i){
-  const T=TT(),P=ids=>ids.map(tourPlanet).join(''),ps=TEN.map(t=>natal.byId[t.id]).filter(Boolean);
-  const pp=natal.aspects.filter(a=>!['ASC','MC'].includes(a.p1.id)&&!['ASC','MC'].includes(a.p2.id)).sort((a,b)=>a.orb-b.orb);
+function tourSlide(i){
+  const T=TT(),P=ids=>ids.map(tourPlanet).join(''),ids=TIDS(),pp=natal.aspects.filter(a=>ids.includes(a.p1.id)&&ids.includes(a.p2.id)).sort((a,b)=>a.orb-b.orb);
   const aspCard=a=>`<div class="explain tapcard ${a.asp.cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>natalAspectHTML(natal.aspects.indexOf(a)))}"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.aspMeaning(a.p1.id,a.p2.id,a.asp.cls)}<br><span class="muted">${F.aspectLife(homeHouse(a.p1),homeHouse(a.p2),a.p1.id,a.p2.id,a.asp.cls)}</span></div>`;
-  if(i===0){
-    const cnt=(k,vals)=>Object.fromEntries(vals.map(v=>[v,ps.filter(p=>SIGNS[p.sign][k]===v).length]));
-    const ec=cnt('el',['fire','earth','air','water']),mc=cnt('mod',['cardinal','fixed','mutable']),top=o=>Object.keys(o).sort((a,b)=>o[b]-o[a]),lack=top(ec)[3];
-    return `<div class="tcard"><p>${F.tourBalance(top(ec)[0],top(mc)[0])}</p><p class="mono muted">${Object.entries(ec).map(([k,v])=>`${cap(L.el[k].n)} ${v}`).join(' · ')}<br>${Object.entries(mc).map(([k,v])=>`${cap(L.mod[k].n)} ${v}`).join(' · ')}</p>${ec[lack]<=1?`<p>${F.tourLack(lack)}</p>`:''}</div>${profile.unknown?`<p class="note">${u('tourTime')}</p>`:''}`;
-  }
-  if(i===1)return P(['Sun','Moon','ASC']);
-  if(i===2){const r=SIGNS[natal.byId.ASC.sign].rulers[0],rp=natal.byId[r];return rp?`<p>${F.chartRuler(r,rp.sign,rp.house)}</p>`+tourPlanet(r):'';}
-  if(i===3)return P(['Mercury','Venus','Mars']);
-  if(i===4)return P(['Jupiter','Saturn']);
-  if(i===5)return P(['Uranus','Neptune','Pluto']);
-  if(i===6){const n=natal.byId.Node;return (n?P(['Node'])+`<p>${F.tourNorth(n.sign,n.house)}</p><p>${F.tourSouth((n.sign+6)%12,(n.house+5)%12+1)}</p>`:'')+P(['Chiron']);}
-  if(i===7){
-    const hc=Array(13).fill(0),who=Array.from({length:13},()=>[]);ps.forEach(p=>{hc[p.house]++;who[p.house].push(p.id);});
+  if(i===0){const S=natal.byId.Sun,M=natal.byId.Moon,A=natal.byId.ASC;
+    return `<div class="tcover"><div class="eyebrow">${u('tourTitle')}</div><h2>${esc(chartName(profile,active))}</h2><p class="note">${$('#who-meta').textContent}</p>
+    <div class="trio">${[[S,u('sunSign')],[M,u('moonSign')],[A,u('risingSign')]].map(([p,l])=>`<div class="tri"><span class="ring"><span class="gl">${SIGNS[p.sign].g}</span></span><small>${l}</small><b>${sN(p.sign)}</b></div>`).join('')}</div>
+    <p class="tswipe">${u('tourSwipe')} →</p></div>`;}
+  if(i===1){
+    const cnt=(k,vals)=>vals.map(v=>({v,n:ids.filter(id=>SIGNS[natal.byId[id].sign][k]===v).length})),ec=cnt('el',['fire','earth','air','water']),mc=cnt('mod',['cardinal','fixed','mutable']);
+    const top=a=>[...a].sort((x,y)=>y.n-x.n)[0].v,lack=[...ec].sort((x,y)=>x.n-y.n)[0],hc=Array(13).fill(0),who=Array.from({length:13},()=>[]);ids.forEach(id=>{const h=natal.byId[id].house;hc[h]++;who[h].push(id);});
+    const sum=(hs2)=>hs2.reduce((s,h)=>s+hc[h],0),up=sum([7,8,9,10,11,12]),lo=sum([1,2,3,4,5,6]),ea=sum([10,11,12,1,2,3]),we=sum([4,5,6,7,8,9]);
+    const hv=(a,b,ka,kb)=>Math.abs(a-b)>=2?(a>b?ka:kb):null,ver=hv(up,lo,'upper','lower'),hor=hv(ea,we,'east','west');
     const mx=Math.max(...hc),crowd=[1,2,3,4,5,6,7,8,9,10,11,12].filter(h=>hc[h]>=Math.max(2,Math.min(3,mx))),empty=[1,2,3,4,5,6,7,8,9,10,11,12].filter(h=>!hc[h]);
-    return `<h4>${u('tourStel')}</h4>${crowd.map(h=>`<div class="tcard"><p><span class="exl" data-ex="house:${h}">${F.tourCrowd(h,who[h])}</span></p><p>${L.hdeep[h-1]}</p></div>`).join('')}${empty.length?`<h4>${u('tourEmpty')}</h4><p>${F.tourEmptyH(empty)}</p>`:''}`;
-  }
-  if(i===8)return pp.slice(0,5).map(aspCard).join('');
-  const g=pp.filter(a=>a.asp.cls==='soft'&&a.orb<=5).slice(0,2),d=pp.filter(a=>a.asp.cls==='hard'&&a.orb<=5).slice(0,2),sun=natal.byId.Sun,sat=natal.byId.Saturn,nd=natal.byId.Node;
-  return `<h4>${u('tourGifts')}</h4>${g.length?g.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourGift(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoGifts')}</p>`}
+    return `${gRose()}<p class="note tcap">${u('tourHouseMap')}</p>
+    <h4>${u('tourElements')}</h4>${bars(ec.map(e=>({l:cap(L.el[e.v].n),v:e.n,max:6,n:e.n,c:e.v})))}<p>${F.tourBalance(top(ec),top(mc))}</p>
+    <h4>${u('tourModes')}</h4>${bars(mc.map(e=>({l:cap(L.mod[e.v].n),v:e.n,max:6,n:e.n,c:'teal'})))}
+    ${lack.n<=1?`<p>${F.tourLack(lack.v)}</p>`:''}
+    <h4>${u('tourHalves')}</h4>${bars([{l:'7–12',v:up,max:10,n:up,c:'sky'},{l:'1–6',v:lo,max:10,n:lo,c:'turq'},{l:'10–3',v:ea,max:10,n:ea,c:'rose'},{l:'4–9',v:we,max:10,n:we,c:'pink'}])}<p>${T.hemi[ver||'even']} ${hor?T.hemi[hor]:''}</p>
+    <h4>${u('tourStel')}</h4>${crowd.map(h=>`<div class="tcard"><p><span class="exl" data-ex="house:${h}">${F.tourCrowd(h,who[h])}</span></p><p>${L.hdeep[h-1]}</p></div>`).join('')}${empty.length?`<h4>${u('tourEmpty')}</h4><p>${F.tourEmptyH(empty)}</p>`:''}${profile.unknown?`<p class="note">${u('tourTime')}</p>`:''}`;}
+  if(i===2){const v=tourVolume(),mx=v[0].sc;
+    return `<h4>${u('tourVolume')}</h4>${bars(v.map(x=>({l:`${glyphTxt(natal.byId[x.id])} ${pN(x.id)}`,v:x.sc,max:mx,n:x.sc.toFixed(1),c:'pink'})))}
+    ${v.slice(0,3).map(x=>`<div class="tcard"><p><span class="exl" data-ex="planet:${x.id}">${F.tourWhy(x.id,x.why.slice(0,3))}</span></p><p>${L.pmode[x.id]}</p></div>`).join('')}`;}
+  if(i===3){const S=natal.byId.Sun,M=natal.byId.Moon,deg=norm(M.lon-S.lon),k=Math.floor(deg/45)%8;
+    return `<div class="tphase"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><div><h4>${u('tourPhase')}</h4><p>${F.tourPhaseLine(k,deg)}</p></div></div>${P(['Sun','Moon','ASC'])}`;}
+  if(i===4){const fl=tourFlow(),r=SIGNS[natal.byId.ASC.sign].rulers[0],rp=natal.byId[r];
+    return `${rp?`<h4>${u('chartRuler')}</h4><p>${F.chartRuler(r,rp.sign,rp.house)}</p>${tourPlanet(r)}`:''}
+    <h4>${u('tourChain')}</h4><p>${fl.fin?F.tourFinal(fl.fin):F.tourNoFinal()}</p>
+    <ul class="ctx">${ids.map(id=>{const p=natal.byId[id],rr=SIGNS[p.sign].rulers.find(x=>natal.byId[x]&&x!==id);return rr?`<li><span>${nm(p)}</span>${F.tourChainLine(id,p.sign,rr,natal.byId[rr].sign,natal.byId[rr].house)}</li>`:'';}).join('')}</ul>
+    <h4>${u('tourReceptions')}</h4>${fl.rec.length?fl.rec.map(([a,b])=>`<p>${F.tourRecept(a,natal.byId[a].sign,b,natal.byId[b].sign)}</p>`).join(''):`<p class="note">${u('tourNoRecept')}</p>`}`;}
+  if(i===5)return P(['Mercury','Venus','Mars']);
+  if(i===6)return P(['Jupiter','Saturn']);
+  if(i===7)return P(['Uranus','Neptune','Pluto']);
+  if(i===8){const n=natal.byId.Node;return (n?P(['Node'])+`<p>${F.tourNorth(n.sign,n.house)}</p><p>${F.tourSouth((n.sign+6)%12,(n.house+5)%12+1)}</p>`:'')+P(['Chiron']);}
+  if(i===9){const pt=tourPatterns();
+    return `${gWeb()}<p class="note tcap">${u('tourWebNote')}</p><h4>${u('tourPatterns')}</h4>${pt.length?pt.map(x=>`<div class="tcard"><p>${x.type==='stellium'?F.tourStellium(x.sign,x.ids):F.tourPattern(x.type,x.ids,x.apex)}</p></div>`).join(''):`<p class="note">${u('tourNoPatterns')}</p>`}
+    <h4>${u('tourTight')}</h4>${pp.slice(0,5).map(aspCard).join('')}`;}
+  if(i===10){const sc=tourDomains(),ord=sc.map((v,k)=>k).sort((a,b)=>sc[b]-sc[a]),D=T.dom,strong=ord.slice(0,2),quiet=ord.filter(k=>sc[k]<=.2).slice(0,3);
+    return `${gRadar(sc)}${strong.map(k=>`<div class="tcard"><b>${D[k].n}.</b> ${D[k].d}</div>`).join('')}<p>${F.tourDomStrong(strong.map(k=>D[k].n.toLowerCase()))}</p>${quiet.length?`<p>${F.tourDomQuiet(quiet.map(k=>D[k].n.toLowerCase()))}</p>`:''}`;}
+  const g=pp.filter(a=>a.asp.cls==='soft'&&a.orb<=5).slice(0,2),d=pp.filter(a=>a.asp.cls==='hard'&&a.orb<=5).slice(0,2),S=natal.byId.Sun,Mo=natal.byId.Moon,sat=natal.byId.Saturn,nd=natal.byId.Node,A=natal.byId.ASC;
+  return `<h4>${u('tourSummary')}</h4><div class="explain"><p>${F.tourSummaryP(S.sign,S.house,Mo.sign,Mo.house,A.sign,sat?sat.house:1,nd?nd.sign:S.sign,nd?nd.house:1)}</p></div>
+  <h4>${u('tourGifts')}</h4>${g.length?g.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourGift(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoGifts')}</p>`}
   <h4>${u('tourEdges')}</h4>${d.length?d.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourEdge(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoEdges')}</p>`}
-  <h4>${u('tourQs')}</h4><div class="tcard"><p>${F.tourQ(u('tourSun'),sun.house,T.houseAsk[sun.house-1])}</p>${sat?`<p>${F.tourQ(u('tourSat'),sat.house,T.houseAsk[sat.house-1])}</p>`:''}${nd?`<p>${F.tourQ(u('tourNode'),nd.house,T.houseAsk[nd.house-1])}</p>`:''}</div>`;
+  <h4>${u('tourQs')}</h4><div class="tcard"><p>${F.tourQ(u('tourSun'),S.house,T.houseAsk[S.house-1])}</p><p>${F.tourQ(u('tourMoon'),Mo.house,T.houseAsk[Mo.house-1])}</p>${sat?`<p>${F.tourQ(u('tourSat'),sat.house,T.houseAsk[sat.house-1])}</p>`:''}${nd?`<p>${F.tourQ(u('tourNode'),nd.house,T.houseAsk[nd.house-1])}</p>`:''}</div>
+  <p class="note">${u('tourPotNote')}</p>`;
 }
 function renderTour(){
   const el=$('#tour');if(!el||!natal)return;
-  if(!tourOpen){el.innerHTML=`<div class="eyebrow">${u('tourTitle')}</div><p>${u('tourPromo')}</p><button class="btn pri" type="button" data-tour="open">${tourI>0?u('tourResume'):u('tourStart')}</button>`;return;}
-  const T=TT(),c=T.ch[tourI],last=tourI>=TOUR_N-1;
-  el.innerHTML=`<div class="thead"><div class="eyebrow">${u('tourTitle')} · ${F.tourStep(tourI+1,TOUR_N)}</div><button class="btn sm" type="button" data-tour="close">${u('tourClose')}</button></div>
-  <div class="tdots">${T.ch.map((x,k)=>`<button type="button" data-tour="go:${k}" class="${k===tourI?'cur':k<tourI?'ok':''}" aria-label="${esc(x.t)}"></button>`).join('')}</div>
-  <h3>${c.t}</h3><p class="note">${c.s}</p><p>${c.i}</p>${tourBody(tourI)}
-  <div class="form-actions"><button class="btn" type="button" data-tour="back"${tourI?'':' disabled'}>${u('tourBack')}</button><button class="btn pri" type="button" data-tour="next">${last?u('tourDone'):u('tourNext')}</button></div>
-  <p class="note">${u('tourPotNote')}</p>`;
+  el.innerHTML=`<div class="eyebrow">${u('tourTitle')}</div><p>${u('tourPromo')}</p><button class="btn pri" type="button" data-tour="open">${tourI>0?u('tourResume'):u('tourStart')}</button>`;
 }
+function setTourI(i){
+  const T=TT();tourI=i;store.set('tf.tour',i);
+  document.querySelectorAll('#tour-dots button').forEach((b,k)=>b.className=k===i?'cur':k<i?'ok':'');
+  document.querySelectorAll('.tslide').forEach((s,k)=>s.classList.toggle('on',k===i));
+  $('#tour-title').textContent=i?T.ch[i].t:u('tourTitle');$('#tour-sub').textContent=i?T.ch[i].s:'';
+  $('#tour-back').disabled=i===0;$('#tour-next').textContent=i>=T.ch.length-1?u('tourDone'):u('tourNext');
+}
+function goTour(i,smooth){const tr=$('#tour-track');tr.scrollTo({left:i*tr.clientWidth,behavior:smooth?'smooth':'auto'});setTourI(i);}
+function openTour(){
+  const T=TT(),n=T.ch.length,tr=$('#tour-track');tourI=Math.min(tourI,n-1);tourOpen=true;
+  tr.innerHTML=T.ch.map((c,k)=>`<section class="tslide" data-k="${k}"><div class="tin">${k&&c.i?`<p class="tintro">${c.i}</p>`:''}${tourSlide(k)}</div></section>`).join('');
+  $('#tour-dots').innerHTML=T.ch.map((c,k)=>`<button type="button" data-tour="go:${k}" aria-label="${esc(c.t)}"></button>`).join('');
+  $('#tour-x').setAttribute('aria-label',u('tourClose'));$('#tour-back').textContent=u('tourBack');
+  $('#tour-win').hidden=false;document.body.classList.add('tour-open');goTour(tourI,false);
+}
+function closeTour(){tourOpen=false;$('#tour-win').hidden=true;document.body.classList.remove('tour-open');if(tourI>=TT().ch.length-1){tourI=0;store.set('tf.tour',0);}renderTour();}
+{let tm=null;$('#tour-track').addEventListener('scroll',()=>{clearTimeout(tm);tm=setTimeout(()=>{const tr=$('#tour-track'),i=Math.round(tr.scrollLeft/(tr.clientWidth||1));if(i!==tourI&&tourOpen)setTourI(i);},90);},{passive:true});}
+window.addEventListener('resize',()=>{if(tourOpen)goTour(tourI,false);});
+document.addEventListener('keydown',e=>{if(!tourOpen||$('#sheet').classList.contains('open'))return;
+  if(e.key==='ArrowRight'&&tourI<TT().ch.length-1)goTour(tourI+1,true);else if(e.key==='ArrowLeft'&&tourI>0)goTour(tourI-1,true);else if(e.key==='Escape')closeTour();});
 document.addEventListener('click',e=>{
-  const b=e.target.closest&&e.target.closest('[data-tour]');if(!b||b.disabled)return;const v=b.dataset.tour;
-  if(v==='open')tourOpen=true;else if(v==='close')tourOpen=false;
-  else if(v==='next'){if(tourI<TOUR_N-1)tourI++;else{tourOpen=false;tourI=0;}}
-  else if(v==='back')tourI=Math.max(0,tourI-1);else if(v.startsWith('go:'))tourI=+v.slice(3);
-  store.set('tf.tour',tourI);renderTour();$('#tour').scrollIntoView({block:'start'});
+  const b=e.target.closest&&e.target.closest('[data-tour]');if(!b||b.disabled)return;const v=b.dataset.tour,n=TT().ch.length;
+  if(v==='open')openTour();else if(v==='close')closeTour();
+  else if(v==='next'){if(tourI<n-1)goTour(tourI+1,true);else closeTour();}
+  else if(v==='back'&&tourI>0)goTour(tourI-1,true);else if(v.startsWith('go:'))goTour(+v.slice(3),true);
 });
 
 /* ---------- interactions ---------- */
