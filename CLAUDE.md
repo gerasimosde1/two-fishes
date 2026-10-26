@@ -14,7 +14,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 - Planet positions come from Astronomy Engine 2.1.19 (jsDelivr). The Ascendant, MC and Placidus houses are computed in-file; the mean node uses the standard formula.
 
 ## Design she asked for
-- Every shade of blue (turquoise to baby blue) and pink, with vintage-looking type (IM Fell English, EB Garamond, Courier Prime).
+- Every shade of blue (turquoise to baby blue) and pink, with elegant vintage-looking type. Since Oct 2026 restyle: Cormorant Garamond for titles (`--f-display`/`--f-italic`; Greek uses Noto Serif Display), Alegreya for reading (`--f-body`), Alegreya Sans for small labels and numbers (`--f-label`, `--f-mono`). Rounded cards with a turquoise-to-rose gradient edge (`--edge`), pill buttons with `--grad`, glyphs in round medallions, a soft aurora + stars behind the page (`body::before`), floating glass tab dock on phones. Radii are `--r-lg/md/sm`, shadows `--shadow`/`--shadow-lift`.
 - Logo: two Pisces fishes around a sun. Colours are CSS tokens on `:root`, with light and dark themes.
 
 ## Tap to explain
