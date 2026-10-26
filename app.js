@@ -209,6 +209,7 @@ function spread(items,minSep){
     if(!moved)break;}
   return Object.fromEntries(arr.map(x=>[x.id,x.d]));
 }
+const wheelSeen=[0,0];
 function wheelSVG(chart,tr,sel){
   const asc=chart.ang.asc,T=!!tr;
   const G=T?{zo:288,zi:242,pl:213,lab:189,hb:150,ac:126,to:352,tp:314,tlab:338,box:360}
@@ -218,7 +219,8 @@ function wheelSVG(chart,tr,sel){
   const TX=(r,l,c,txt,extra='')=>{const a=P(r,l);return `<text x="${a[0]}" y="${a[1]}" class="${c}" text-anchor="middle" dominant-baseline="central" ${extra}>${txt}</text>`;};
   const sector=(ri,ro,a0,a1)=>{const p1=P(ro,a0),p2=P(ro,a1),p3=P(ri,a1),p4=P(ri,a0);
     return `M${p1}A${ro} ${ro} 0 0 0 ${p2}L${p3}A${ri} ${ri} 0 0 1 ${p4}Z`;};
-  let s=`<svg viewBox="${-G.box} ${-G.box} ${G.box*2} ${G.box*2}" class="wheel" role="img" aria-label="${esc(T?u('ariaBiwheel'):u('ariaWheel'))}">`;
+  const intro=!wheelSeen[+T];wheelSeen[+T]=1;
+  let s=`<svg viewBox="${-G.box} ${-G.box} ${G.box*2} ${G.box*2}" class="wheel${intro?' intro':''}" role="img" aria-label="${esc(T?u('ariaBiwheel'):u('ariaWheel'))}">`;
   if(T)s+=`<circle r="${G.to}" class="w-tband"/>`;
   s+=`<circle r="${G.zo}" class="w-zbg"/>`;
   SIGNS.forEach((z,i)=>{s+=`<g class="w-sign el-${z.el}${sel==='sign:'+i?' sel':''}" data-pick="sign:${i}"><title>${sN(i)}</title><path d="${sector(G.zi,G.zo,i*30,i*30+30)}"/>${TX((G.zi+G.zo)/2,i*30+15,'',z.g)}</g>`;});
@@ -226,7 +228,8 @@ function wheelSVG(chart,tr,sel){
   s+=`<circle r="${G.zi}" class="ring"/><circle r="${G.hb}" class="ring"/><circle r="${G.ac}" class="ring dot"/>`;
   chart.cusps.forEach((c,i)=>{const ang=i%3===0;s+=Ln(G.ac,c,G.zi,c,'cusp'+(ang?' ang':''));
     const mid=c+norm(chart.cusps[(i+1)%12]-c)/2;
-    s+=TX((G.ac+G.hb)/2,mid,'hnum'+(sel==='house:'+(i+1)?' sel':''),i+1,`data-pick="house:${i+1}"`);});
+    const hc=P((G.ac+G.hb)/2,mid);
+    s+=`<g class="hbtn${sel==='house:'+(i+1)?' sel':''}" data-pick="house:${i+1}"><title>${esc(F.houseTitle(i+1))}</title><circle cx="${hc[0]}" cy="${hc[1]}" r="${T?10:11.5}"/>`+TX((G.ac+G.hb)/2,mid,'hnum',i+1)+`</g>`;});
   [['AC',chart.ang.asc],['MC',chart.ang.mc],['DC',norm(chart.ang.asc+180)],['IC',norm(chart.ang.mc+180)]].forEach(([t,l])=>{s+=TX(G.zi-12,l+4,'angl',t);});
   if(!T){chart.aspects.forEach(a=>{if(a.asp.cls==='neu')return;
       const inv=sel&&sel.startsWith('natal:')?(sel==='natal:'+a.p1.id||sel==='natal:'+a.p2.id):null;
@@ -238,7 +241,7 @@ function wheelSVG(chart,tr,sel){
   np.forEach(p=>{const d=dn[p.id];
     s+=`<g class="w-pl${sel==='natal:'+p.id?' sel':''}" data-pick="natal:${p.id}"><title>${nm(p)} ${posStr(p)}</title>`+
       Ln(G.zi,p.lon,G.zi-6,p.lon,'tk')+Ln(G.zi-6,p.lon,G.pl+13,d,'lead')+
-      `<circle cx="${P(G.pl,d)[0]}" cy="${P(G.pl,d)[1]}" r="14" class="hit"/>`+TX(G.pl,d,'g',p.g)+TX(G.lab,d,'deg',Math.floor(p.lon%30)+'°'+(p.retro?'℞':''))+`</g>`;});
+      `<circle cx="${P(G.pl,d)[0]}" cy="${P(G.pl,d)[1]}" r="15" class="hit"/>`+TX(G.pl,d,'g',p.g)+TX(G.lab,d,'deg',Math.floor(p.lon%30)+'°'+(p.retro?'℞':''))+`</g>`;});
   if(T){const dt=spread(tr.pts,8.5);
     tr.pts.forEach(p=>{const d=dt[p.id];
       s+=`<g class="w-pl tr${sel==='transit:'+p.id?' sel':''}" data-pick="transit:${p.id}"><title>${nm(p)} ${posStr(p)}</title>`+

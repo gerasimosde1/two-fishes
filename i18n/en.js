@@ -140,7 +140,7 @@ L.ui={
  tabChart:'Chart',tabTransits:'Transits',tabLearn:'Learn',tabMe:'Me',tabPlanets:"Planets",planetsTitle:"Planets in signs",planetsNote:"Every planet in your chart, lined up with the sign it sits in. Tap one to read more on the Chart tab.",retroTitle:"Retrograde ℞",retroNatalH:"In your birth chart",retroNowH:"In the sky right now",retroNone:"None of your planets were retrograde at birth.",retroNoneNow:"No planets are retrograde today.",retroGuide:"<p>A planet is <b>retrograde</b> (℞) when, seen from Earth, it seems to move backwards through the sky. It is an illusion, like a train passing a slower train, but astrologers read it as that planet's energy turning inward: slower, more reflective, and about reviewing rather than starting.</p><ul class=\"ctx\"><li><span>Retrograde in your birth chart</span>That planet works in a more personal, inward way. It is not bad. It often means a gift you develop in your own time.</li><li><span>Retrograde now, in the sky</span>A time to review, redo and reconsider that planet's themes. The house it moves through shows which area of your life feels it.</li><li><span>Direct again</span>When the planet turns direct (moves forward), what was stuck starts to flow.</li></ul>",
  exampleBanner:'<b>This is an example chart.</b> Enter your own birth date, time and place to see your real sky.',enterBirth:'Enter my birth details',
  viewing:'Viewing',chooseChart:'Choose a chart',guideChart:'How to read your chart',legSoft:'trine / sextile',legHard:'square / opposition',legQx:'quincunx',
- tapAny:'Tap any planet, sign or house number.',placements:'Placements',aspectsInChart:'Aspects in your chart',
+ tapAny:'Everything on the wheel opens: tap a planet, a sign or a house number.',placements:'Placements',aspectsInChart:'Aspects in your chart',
  tidesNote:"Ratings come from the transits to your birth chart on this day. They show moods and themes, not predictions. Tap a category to see why and learn the astrology behind it.",
  prevYear:'Previous year',prevMonth:'Previous month',nextMonth:'Next month',nextYear:'Next year',today:'Today',todayLow:'today',
  moonSignLeg:'Moon’s sign',flowing:'flowing',challenging:'challenging',conjOrSign:'conjunction or sign change',transitsFor:'Transits for',
@@ -360,23 +360,23 @@ L.tour={
   {t:'Growth and the long work',s:'Jupiter and Saturn',i:'Jupiter is where life says yes too easily, Saturn is where it says not yet. One gives you gifts, the other makes you earn them, and by your forties you usually discover that Saturn\'s gifts were the ones that lasted.'},
   {t:'The slow forces',s:'Uranus, Neptune and Pluto',i:'These stay in one sign for years, so you share their sign with everyone in your school year. What is yours alone is the house: the room in your life where your generation\'s storm actually lands.'},
   {t:'Direction and healing',s:'The Nodes and Chiron',i:'The South Node is the comfortable sofa, the North Node is the door you keep walking past. Chiron is the sore spot that, oddly, becomes the thing people come to you for. None of these are fate. They are more like a recurring dream with a point to make.'},
-  {t:'Your inner conversations',s:'Aspects and patterns',i:'Aspects are conversations between the parts of you, some friendly, some loud, some still arguing about something that happened years ago. The tightest ones are the loudest. Sometimes several lock into a shape, and then the shape becomes a personality trait of its own.'},
-  {t:'Secrets of your chart',s:'Things most horoscopes never mention',i:'Here is the part a sun-sign column can\'t give you. Traditional astrology, the kind practised for two thousand years before magazines, looked at things like whether you were born by day or by night, which planets were burnt by the Sun\'s glare, which ones were living in a foreign sign. These details change the whole reading.'},
+  {t:'Your inner conversations',s:'Aspects and patterns',i:'Aspects are conversations between the parts of you, some friendly, some loud. The tightest ones are the loudest. Sometimes several lock into a shape, and then the shape becomes a personality trait of its own.'},
+  {t:'Finer details',s:'Older techniques, applied to your chart',i:'Traditional astrology looked at things like whether you were born by day or by night, which planets were burnt by the Sun\'s glare, which ones were living in a foreign sign. They add a lot to the reading.'},
   {t:'Your life-area map',s:'Where your potential gathers',i:'Add up the weight of every planet by the area of life it sits in and you get a rough map. High peaks are where life keeps knocking. Low ground is quieter and easier, not empty: plenty of happy people have nothing at all in the 7th house and a perfectly nice marriage.'},
   {t:'Putting it together',s:'Gifts, growing edges and questions',i:'The short version, with the usual small print: a chart shows what you are equipped for, not what will happen. Think of it as the instruments in the band. You still choose the song.'}],
  aside:[
   '',
-  'Squint at the picture first. Details are for later.',
-  'A planet does not have to be "good" to be loud. Some of the loudest are the awkward ones.',
-  'If your three disagree, congratulations: you are a complicated person, which is the only interesting kind.',
-  'The planet everything reports to is worth a cup of tea and a long think.',
-  'Fast planets change sign in weeks, so your friend born a month later may have a completely different love life.',
-  'Saturn is the teacher you hated at fourteen and quote at thirty-five.',
-  'Everyone in your year has the same Pluto sign. Not everyone has it in the same room.',
-  'Growth on the North Node always feels slightly embarrassing at first. That is how you know it is the right direction.',
-  'Small orbs, loud voices. A 0° aspect is basically shouting.',
-  'These are the bits I would tell you over a long dinner, after the second glass.',
-  'An empty house is a quiet room, not a locked one.',
+  'Look at the overall shape first, details later.',
+  'The strongest planet is not always a comfortable one.',
+  'If your Sun, Moon and Rising pull in different directions, that is normal. Most people are mixed.',
+  'The final dispositor is the planet the others lead back to. Read its sign and house closely.',
+  'Fast planets change sign within weeks, so people born a month apart can have very different charts.',
+  'Saturn lessons usually make more sense in hindsight.',
+  'Pluto stays in a sign for years, so its house matters more than its sign.',
+  'The North Node direction often feels awkward at first.',
+  'The tighter the orb, the stronger the aspect.',
+  'Sect, dignity and the Sun\'s glare are old techniques that still add a lot.',
+  'An empty house still matters. Look at the planet that rules it.',
   ''],
  pot:{
   Sun:'The potential: to live from this sign on purpose, so that your life reflects what you care about rather than what is easiest for everyone else.',
@@ -413,11 +413,11 @@ L.tour={
   water:'You run on feeling, intuition and bonds. You read rooms the way other people read menus. Your gift is depth and empathy; the stretch is boundaries, and not taking on everybody else\'s weather as your own.'},
  elLack:{
   fire:'Fire is thin in your chart, so spontaneity and self-promotion may need a deliberate push. Treat courage as a muscle, not a mood.',
-  earth:'Earth is thin in your chart, so routines, money and the body may need conscious attention. Little habits, kept boringly, are your secret weapon.',
+  earth:'Earth is thin in your chart, so routines, money and the body may need conscious attention. Small, boring habits help you more than big plans.',
   air:'Air is thin in your chart, so stepping back and putting things into words can take effort. Talking it through or writing it down helps more than you would expect.',
   water:'Water is thin in your chart, so feelings may be easier to analyse than to feel. Make room for quiet, for music, for being moved.'},
  modDom:{
-  cardinal:'Mostly cardinal: you are built to start and lead. Beginnings come easily; the trick is staying once the novelty has worn off.',
+  cardinal:'Mostly cardinal: you are built to start and lead. Beginnings come easily; staying once the novelty wears off is harder.',
   fixed:'Mostly fixed: you are built to sustain and deepen. Loyalty and stamina are your strengths, and stubbornness is the bill.',
   mutable:'Mostly mutable: you are built to adapt and translate. Flexibility is your gift; the risk is never quite choosing, and calling it being open-minded.'},
  hemi:{
@@ -429,8 +429,8 @@ L.tour={
  phase:[
   {n:'New',d:'Seed. You were born at a beginning, so you are here to start things that did not exist before. Instinct goes first and clarity arrives later; trust the first move and fix it on the way.'},
   {n:'Crescent',d:'Breaking through. You push against old family or cultural patterns to make room for your own. Determination under pressure is your signature, and it gets much easier the day you stop asking permission.'},
-  {n:'First quarter',d:'Crisis in action. You grow by deciding and building, and you are restless until you do. Friction is not proof you are on the wrong road; it is how this phase moves.'},
-  {n:'Gibbous',d:'The refiner. You analyse, adjust and improve, and you are rarely completely satisfied, which makes you brilliant at fine-tuning and slightly hard to please. The lesson is letting good enough be good.'},
+  {n:'First quarter',d:'Crisis in action. You grow by deciding and building, and you are restless until you do. Friction does not mean you are on the wrong road.'},
+  {n:'Gibbous',d:'The refiner. You analyse, adjust and improve, and you are rarely completely satisfied, which makes you brilliant at fine-tuning and slightly hard to please. Sometimes good enough really is good enough.'},
   {n:'Full',d:'Full Moon born: Sun and Moon face each other, so you see both sides of nearly everything, and you often understand yourself through other people. There is a pull between head and heart, and integration is the life work.'},
   {n:'Disseminating',d:'The sharer. You digest experience and pass it on, a natural teacher, storyteller or translator. You feel most alive when something you learned the hard way saves someone else the trouble.'},
   {n:'Last quarter',d:'Reorientation. You question inherited beliefs and build your own. Letting go of a worldview is part of your pattern, and so is the freedom that comes after.'},
@@ -445,11 +445,11 @@ L.tour={
   lum:'The Sun and Moon are the two lights, so they always matter, whatever else is going on.',
   stel:'A crowd of planets in one sign makes that sign a second Sun sign in all but name.'},
  pat:{
-  grandTrine:{n:'Grand trine',d:'Three planets in an easy triangle. Talent that runs without effort, which can also mean comfort without growth. A grand trine is a beautiful car with the handbrake slightly on: the gift is pointing it somewhere on purpose.'},
+  grandTrine:{n:'Grand trine',d:'Three planets in an easy triangle. Talent that runs without effort, which can also mean comfort without growth. It works best when you point it at something on purpose.'},
   tsq:{n:'T-square',d:'Two planets in opposition, both squared by a third. A pressure cooker with a valve: the focal planet is where the tension finally gets released through action, so it is often the busiest part of your life.'},
   grandCross:{n:'Grand cross',d:'Four planets locked in squares and oppositions. Tension in four directions at once, which makes for tough, resourceful people who can juggle demands that would flatten anyone else.'},
   yod:{n:'Yod',d:'Two planets in a friendly sextile, both awkwardly angled to a third. Astrologers call it the finger of fate, which is dramatic. In practice the focal planet keeps needing adjustment, and life has a habit of turning around it.'},
-  stellium:{n:'Stellium',d:'Three or more planets in one sign: a strong focus on that sign\'s way of doing things. A superpower, with a small blind spot attached.'}},
+  stellium:{n:'Stellium',d:'Three or more planets in one sign: a strong focus on that sign\'s way of doing things. A real strength, with a blind spot next to it.'}},
  dom:[
   {n:'Self and presence',s:'Self',d:'How you show up, your body and your independence.'},
   {n:'Security and roots',s:'Roots',d:'Money, possessions, home and family.'},
@@ -473,7 +473,7 @@ L.tour={
   'Who are my people, and what future are we building?',
   'What do I need to let go of, or rest from?']
 };
-Object.assign(L.ui,{tourTitle:'Your cosmic potential',tourPromo:'A slow, full-screen walk through your whole chart: where the weight sits, who is really in charge, the secrets a horoscope column never mentions, and what you are built for. Bring tea.',tourStart:'Open the journey',tourResume:'Continue the journey',tourNext:'Next',tourBack:'Back',tourDone:'Finish',tourClose:'Close',tourSwipe:'Swipe or tap Next',tourAsk:'Ask yourself:',tourGifts:'Where you are supported',tourEdges:'Where you are asked to stretch',tourQs:'Questions to sit with',tourSun:'Your purpose',tourSat:'Your long work',tourNode:'Your direction',tourMoon:'Your needs',tourStel:'Crowded houses',tourEmpty:'Quiet houses',tourPotNote:'Potential is not prediction: this is what the chart equips you for, not what will happen. For entertainment and learning.',tourNoGifts:'No very tight smooth aspects, so your support comes more from effort than from ease.',tourNoEdges:'No very tight tense aspects, which means fewer internal arguments.',tourTime:'Houses depend on your exact birth time, so treat the house readings as approximate.',tourHouseMap:'Planets in your houses',tourElements:'Elements',tourModes:'Styles',tourHalves:'Which half of the sky',tourVolume:'Chart volume',tourPhase:'Your lunar phase at birth',tourReceptions:'Planets that swap places',tourNoRecept:'No planets are swapping places by sign, so each works more on its own terms.',tourChain:'The relay',tourWeb:'Your aspect web',tourWebNote:'Planets sit where they are on your wheel. Teal lines flow, pink lines push.',tourPatterns:'Patterns in your chart',tourNoPatterns:'No classic aspect patterns, so your chart works through single conversations rather than one big shape.',tourTight:'Tightest conversations',tourMap:'Life-area map',tourStrong:'Strongest areas',tourQuiet:'Quieter areas',tourAspectsOf:'Its closest aspects',tourSummary:'Your chart in one paragraph',tourTry:'Try this week'});
+Object.assign(L.ui,{tourTitle:'Your cosmic potential',tourPromo:'A slow, full-screen walk through your whole chart: where the weight sits, which planet leads, some older techniques, and what you are good at.',tourStart:'Open the journey',tourResume:'Continue the journey',tourNext:'Next',tourBack:'Back',tourDone:'Finish',tourClose:'Close',tourSwipe:'Swipe or tap Next',tourAsk:'Ask yourself:',tourGifts:'Where you are supported',tourEdges:'Where you are asked to stretch',tourQs:'Questions to sit with',tourSun:'Your purpose',tourSat:'Your long work',tourNode:'Your direction',tourMoon:'Your needs',tourStel:'Crowded houses',tourEmpty:'Quiet houses',tourPotNote:'Potential is not prediction: this is what the chart equips you for, not what will happen. For entertainment and learning.',tourNoGifts:'No very tight smooth aspects, so your support comes more from effort than from ease.',tourNoEdges:'No very tight tense aspects, which means fewer internal arguments.',tourTime:'Houses depend on your exact birth time, so treat the house readings as approximate.',tourHouseMap:'Planets in your houses',tourElements:'Elements',tourModes:'Styles',tourHalves:'Which half of the sky',tourVolume:'Chart volume',tourPhase:'Your lunar phase at birth',tourReceptions:'Planets that swap places',tourNoRecept:'No planets are swapping places by sign, so each works more on its own terms.',tourChain:'The relay',tourWeb:'Your aspect web',tourWebNote:'Planets sit where they are on your wheel. Teal lines flow, pink lines push.',tourPatterns:'Patterns in your chart',tourNoPatterns:'No classic aspect patterns, so your chart works through single conversations rather than one big shape.',tourTight:'Tightest conversations',tourMap:'Life-area map',tourStrong:'Strongest areas',tourQuiet:'Quieter areas',tourAspectsOf:'Its closest aspects',tourSummary:'Your chart in one paragraph',tourTry:'Try this week'});
 Object.assign(L.f,{
  tourStep:(i,n)=>`${i} of ${n}`,
  tourCover:(n,m)=>`${n}`,

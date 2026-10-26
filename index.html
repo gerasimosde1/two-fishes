@@ -142,8 +142,11 @@ nav.tabs button:hover{color:var(--pink)}
 .cusp{stroke:var(--ink-soft);stroke-width:.7}
 .cusp.ang{stroke:var(--ink);stroke-width:1.7}
 .angl{font-size:11px;fill:var(--pink);font-weight:700}
-.hnum{font-size:13px;fill:var(--ink-soft);cursor:pointer}
-.hnum:hover,.hnum.sel{fill:var(--pink);font-weight:700}
+.hbtn{cursor:pointer}
+.hbtn circle{fill:var(--card);stroke:var(--rose);stroke-width:1.2}
+.hnum{font-size:13px;fill:var(--pink);font-weight:700}
+.hbtn:hover circle,.hbtn.sel circle{fill:var(--pink);stroke:var(--pink)}
+.hbtn:hover .hnum,.hbtn.sel .hnum{fill:var(--card)}
 .w-pl{cursor:pointer}
 .w-pl .g{font-family:var(--f-glyph)!important;font-size:22px;fill:var(--ink)}
 .w-pl.tr .g{fill:var(--pink)}
@@ -151,9 +154,14 @@ nav.tabs button:hover{color:var(--pink)}
 .w-pl .lead{stroke:var(--ink-line);stroke-width:.6}
 .w-pl .tk{stroke:var(--ink);stroke-width:1.4}
 .w-pl.tr .tk{stroke:var(--pink)}
-.w-pl .hit{fill:transparent}
+.w-pl .hit{fill:transparent;stroke:var(--rose);stroke-width:1;stroke-dasharray:2 2.5;opacity:.75}
+.w-pl.sel .hit{stroke-dasharray:none;opacity:1}
 .w-pl:hover .hit,.w-pl.sel .hit{fill:var(--sel-wash)}
 .asp{stroke-width:1.1;fill:none}
+.tap-hint{text-align:center;margin:0 0 8px;font-family:var(--f-display);letter-spacing:.04em;color:var(--pink);font-size:.95rem}
+.tap-hint::before{content:"☞ ";font-family:var(--f-body)}
+@media (prefers-reduced-motion:no-preference){.intro .hbtn circle,.intro .w-pl .hit{animation:tapme 1.6s ease-in-out 2}}
+@keyframes tapme{50%{stroke-width:2.6;stroke:var(--pink)}}
 .asp-soft{stroke:var(--teal)} .asp-hard{stroke:var(--pink)} .asp-odd{stroke:var(--sky-ink);stroke-dasharray:4 3} .asp-neu{stroke:var(--earth)}
 .asp.dim{opacity:.1} .asp.hi{stroke-width:2.4}
 .legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:.85rem;color:var(--ink-soft);margin-top:8px}
@@ -575,9 +583,9 @@ body.sheet-open{overflow:hidden}
       <details class="panel guide" id="guide-chart"><summary data-i18n="guideChart"></summary><div id="guide-chart-body"></div></details>
       <div class="split">
         <div class="panel">
+          <p class="tap-hint" data-i18n="tapAny"></p>
           <div id="wheel-natal"></div>
           <div class="legend"><span><i style="border-color:var(--teal)"></i><span data-i18n="legSoft"></span></span><span><i style="border-color:var(--pink)"></i><span data-i18n="legHard"></span></span><span><i style="border-color:var(--sky-ink);border-top-style:dashed"></i><span data-i18n="legQx"></span></span></div>
-          <p class="note" style="text-align:center;margin:6px 0 0" data-i18n="tapAny"></p>
         </div>
         <div class="stack">
           <div class="panel detail detail-side" id="detail-natal"></div>
