@@ -1,6 +1,37 @@
 // Italiano. Same keys as en.js.
 (function(){
 const L={code:'it',locale:'it-IT',label:'Italiano',short:'IT'};
+/* deeper reading: what it is like when a house is active, and how each planet acts */
+L.hdeep=[
+ "Quando questa casa si attiva cambia il modo in cui ti presenti: corpo, stile, prima impressione e il modo in cui inizi le cose. Nella vita reale si vede in un nuovo look, un cambio di direzione, gli altri che reagiscono a te in modo diverso o il momento in cui smetti di sminuirti.",
+ "Riguarda la sicurezza che costruisci con le tue forze: reddito, tariffe, ciò che possiedi e il valore che pensi di avere. Aspettati domande come «quanto basta?», cambiamenti nel modo in cui il denaro entra ed esce e una nuova classifica tra ciò che apprezzi davvero e ciò che ti hanno insegnato ad apprezzare.",
+ "La mente quotidiana e l'ambiente intorno: conversazioni, scrittura, burocrazia, fratelli e sorelle, vicini, brevi viaggi e ciò che stai imparando. Spesso si manifesta come una casella di posta piena, una conversazione decisiva, un corso o una decisione presa con le informazioni più che con l'istinto.",
+ "Le fondamenta sotto tutto: casa, famiglia, il genitore che ti ha cresciuto e la tua base emotiva privata. Qui l'attività può voler dire un trasloco, dei lavori, eventi familiari o vecchi schemi d'infanzia che riaffiorano, e chiede cosa significhi davvero «sicuro» per te oggi.",
+ "Piacere e rischio alla luce del sole: romanticismo, creatività, gioco, figli e il farsi vedere per ciò che ti diverte. Cerca nuove cotte, progetti fatti per amore e non per denaro, e una prova: ti concedi di divertirti senza giustificarti?",
+ "Il livello della manutenzione: routine, carico di lavoro, abitudini di salute, colleghi, animali domestici e l'essere utili. I problemi qui sono piccoli e cumulativi, ed è qui che diventano evidenti il sovraccarico, un corpo che chiede attenzione o un sistema migliore.",
+ "Tutto si specchia nei rapporti uno a uno: partner, collaboratori stretti, clienti e rivali dichiarati. Oltre a chi attrai, mostra ciò che proietti sugli altri e disconosci in te, e spesso arriva come una tappa di coppia, una trattativa o uno specchio scomodo.",
+ "Ciò che è condiviso e ciò che è nascosto: il denaro degli altri (conti comuni, prestiti, debiti, tasse, eredità), l'intimità sessuale ed emotiva e ciò che rifiuti di guardare. È la casa delle soglie: fiducia messa alla prova, dinamiche di potere, lutto e la morte e rinascita psicologica in cui finisce una vecchia versione di te. Di solito è meno drammatica di come suona, ma non fa mai cose superficiali.",
+ "Il livello del senso: viaggi lontani, studi superiori, insegnamento, pubblicazioni, legge, fede e la visione del mondo con cui ti orienti. Qui ci si chiede se le tue convinzioni calzano ancora la tua vita, e spesso arriva come un viaggio, un corso o l'incontro con una cultura o un maestro molto diversi.",
+ "La tua posizione pubblica: carriera, ambizione, reputazione, autorità e i risultati visibili del tuo impegno. Aspettati visibilità, una promozione o un ripensamento di rotta, e domande su cosa vuoi che si ricordi di te, oltre al genitore o alla figura che ha mostrato cosa sia il successo.",
+ "Le tue persone e il tuo futuro: amicizie, gruppi, reti, pubblico, cause e speranze a lungo termine. Spesso mostra chi appartiene davvero alla tua cerchia, quali sogni sono ancora vivi e dove contribuisci a qualcosa di più grande di te.",
+ "Il dietro le quinte: solitudine, riposo, inconscio, segreti, ospedali e ritiri, e finali che devono chiudersi prima che inizi un nuovo ciclo. Le cose si muovono in silenzio e di solito si capiscono dopo; ciò che eviti riaffiora in sogni, stanchezza o autosabotaggio finché non lo affronti."
+];
+L.pmode={
+ "Sun": "Il Sole mette in luce: ciò che tocca diventa centrale per la tua identità e si nota, e ti chiede di agire con consapevolezza invece che col pilota automatico.",
+ "Moon": "La Luna rende le cose emotive e immediate: umore, bisogni e istinti colorano tutto per un po' e rivelano di cosa hai bisogno per sentirti al sicuro.",
+ "Mercury": "Mercurio porta informazioni e parole: pensiero, accordi, messaggi, decisioni e il bisogno di dare un senso alle cose a voce alta o su carta.",
+ "Venus": "Venere ammorbidisce e attrae: invita al piacere e al contatto e pone domande su cosa apprezzi e cosa accetti.",
+ "Mars": "Marte spinge: porta slancio, calore, urgenza e a volte conflitto, e premia l'azione decisa più dell'eterno rimuginare.",
+ "Jupiter": "Giove amplifica e apre: opportunità, ottimismo e crescita, con il rischio di promettere o prendersi troppo.",
+ "Saturn": "Saturno controlla e ristruttura: chiede cosa è reale, sostenibile e tuo da portare, toglie ciò che non lo è e premia il lavoro paziente.",
+ "Uranus": "Urano sconvolge per liberare: cambiamenti improvvisi, inquietudine e svolte che rompono uno schema che avevi superato.",
+ "Neptune": "Nettuno scioglie i confini: ispirazione, compassione e intuito, ma anche nebbia, idealizzazione ed evitamento, quindi i fatti vanno ricontrollati.",
+ "Pluto": "Plutone scava e trasforma: porta questioni di potere, ossessione e la fine di ciò che ha fatto il suo tempo, a ondate lente e non in un solo evento.",
+ "Node": "Il Nodo porta incontri e scelte dal sapore di destino che indicano la tua direzione di crescita e ti chiedono di uscire dalla vecchia zona di comfort.",
+ "Chiron": "Chirone tocca un punto delicato: una vecchia ferita o insicurezza affiora per essere capita e, col tempo, diventare saggezza da condividere."
+};
+L.f.deepIn=(id,h)=>`${L.pmode[id]||''} ${L.hdeep[h-1]}`.trim();
+
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
 L.hl=n=>`${n}ª casa`;

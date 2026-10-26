@@ -274,12 +274,10 @@ function natalPointHTML(id,showTransits){
   const asps=natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id);
   let h=`<div class="eyebrow">${showTransits?u('natalPoint'):u('yourPlacement')}</div>
   <h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3>
-  <div class="pos">${posStr(p)} · ${isAngle?F.cuspOf(hh):hl(p.house)}</div>
-  <p>${L.planets[id].info}</p>`;
-  if(!isAngle)h+=`<div class="explain">${F.howRead(id,p.sign,p.house)}</div>`;
+  <div class="pos">${posStr(p)} · ${isAngle?F.cuspOf(hh):hl(p.house)}</div>`;
   h+=`<h4>${S.n} <span class="gl">${z.g}</span></h4><p>${S.body}</p>
   <dl class="kv"><dt>${u('atBest')}</dt><dd>${S.plus}</dd><dt>${u('watchFor')}</dt><dd>${S.minus}</dd><dt>${u('type')}</dt><dd>${L.el[z.el].n}, ${L.mod[z.mod].n}</dd></dl>`;
-  h+=`<h4>${F.houseHeading(hh,isAngle)}</h4><p>${L.houses[hh-1].body}</p>`;
+  h+=`<h4>${F.houseHeading(hh,isAngle)}</h4><p>${F.deepIn(id,hh)}</p>`;
   if(rules.length&&!isAngle)h+=`<h4>${u('housesItRules')}</h4><p>${F.rulesPara(id,rules,p.house)}</p>`;
   if(p.retro)h+=`<p class="note">${F.retro(id)}</p>`;
   {const dg=dignityOf(id,p.sign);if(dg)h+=`<p class="explain">${u(dg)}</p>`;}
@@ -303,7 +301,6 @@ function signHTML(i,chart){
   <div class="pos">${L.el[z.el].n} · ${L.mod[z.mod].n} · ${F.ruledBy(z.rulers)}</div>
   <p>${S.body}</p>
   <dl class="kv"><dt>${u('atBest')}</dt><dd>${S.plus}</dd><dt>${u('watchFor')}</dt><dd>${S.minus}</dd></dl>
-  <div class="explain"><b>${cap(L.el[z.el].n)}.</b> ${L.el[z.el].info}<br><b>${cap(L.mod[z.mod].n)}.</b> ${L.mod[z.mod].info}</div>
   <h4>${u('inYourChart')}</h4>
   <dl class="kv"><dt>${u('planetsHere')}</dt><dd>${inSign.length?inSign.map(p=>`<span class="chip" data-pick="natal:${p.id}">${glyph(p)} ${nm(p)}</span>`).join(''):u('noneOfYours')}</dd>
   <dt>${u('houseCusps')}</dt><dd>${cusps.length?F.signCusps(i,cusps):u('intercepted')}</dd>
@@ -313,14 +310,14 @@ function houseHTML(n,chart){
   const H=L.houses[n-1],c=chart.cusps[n-1],si=Math.floor(c/30),z=SIGNS[si],inH=chart.pts.filter(p=>p.house===n&&p.id!=='ASC'&&p.id!=='MC');
   const rulers=z.rulers.map(r=>natal.byId[r]).filter(Boolean),natural=n-1;
   let h=`<div class="eyebrow">${u('house')} · ${L.htype[htype(n)].n}</div><h3>${F.houseTitle(n)}</h3><div class="pos">${F.beginsAt(fmtIn(c),si)}</div>
-  <p>${H.body}</p>
+  <p>${L.hdeep[n-1]}</p>
   <div class="explain"><b>${u('questions')}</b> ${H.q}</div>
   <h4>${F.yourHouseTitle(n)}</h4>
   <p>${F.cuspPara(n,si)}</p>`;
   h+=inH.length?`<p><b>${u('planetsInside')}</b></p><ul class="ctx">${inH.map(p=>`<li><span>${nm(p)} ${sIn(p.sign)}</span>${F.planetInHouse(p.id,n)} <a href="#" class="chip" data-pick="natal:${p.id}" onclick="return false">${glyph(p)} ${u('more')}</a></li>`).join('')}</ul>`
     :`<p>${u('emptyHouse')}</p>`;
   rulers.forEach(r=>{h+=`<p>${F.rulerPara(r.id,r.house,n)} <a href="#" class="chip" data-pick="natal:${r.id}" onclick="return false">${glyph(r)} ${nm(r)}</a></p>`;});
-  h+=`<p class="note">${L.htype[htype(n)].info} ${F.naturalSign(natural)}</p>`;
+  h+=`<p class="note">${F.naturalSign(natural)}</p>`;
   if(transit&&chart===natal&&curTab==='transits'){
     const tin=transit.pts.filter(p=>p.house===n);
     h+=`<h4>${u('passingNow')}</h4>${tin.length?tin.map(p=>`<span class="chip" data-pick="transit:${p.id}"><span class="gl">${p.g}</span> ${nm(p)}</span>`).join(''):`<p class="note">${u('noTransitHere')}</p>`}`;
@@ -332,7 +329,6 @@ function natalAspectHTML(k){
   return `<div class="eyebrow">${u('aspectInChart')}</div><h3>${glyph(a.p1)} <span class="gl">${a.asp.g}</span> ${glyph(a.p2)}</h3>
   <div class="pos">${nm(a.p1)} ${A.v} ${nm(a.p2)} · ${u('orb')} ${fmtOrb(a.orb)}</div>
   <p><b>${A.n}.</b> ${A.key}</p>
-  <div class="explain">${A.angle} ${F.orbExplain(fmtOrb(a.orb))}</div>
   <ul class="ctx"><li class="${a.asp.cls}"><span>${nm(a.p1)} ${sIn(a.p1.sign)} · ${hl(h1)}</span>${pKey(a.p1.id)}</li>
   <li class="${a.asp.cls}"><span>${nm(a.p2)} ${sIn(a.p2.sign)} · ${hl(h2)}</span>${pKey(a.p2.id)}</li></ul>
   <p>${F.aspectLife(h1,h2,a.p1.id,a.p2.id,a.asp.cls)}</p>`;
@@ -362,6 +358,7 @@ function transitStoryHTML(a){
   <div class="pos">${F.transitTitle(t.id,a.asp.id,n.id)} · ${u('orb')} ${fmtOrb(a.orb)} · ${a.applying?u('applyingLong'):u('separatingLong')}</div>
   <p>${F.tr(t.id,n.id)} ${A.key} ${F.lasts(t.id)}</p>
   ${transitWindowHTML(a)}
+  <p class="explain">${F.deepIn(t.id,t.house)}</p>
   <ul class="ctx">
    <li class="${a.asp.cls}"><span>${u('whereHappening')}</span>${F.whereHappening(t.id,t.sign,t.house)}</li>
    <li class="${a.asp.cls}"><span>${u('whatTouches')}</span>${n.id==='ASC'?F.touchAngle(1):n.id==='MC'?F.touchAngle(10):F.touchNatal(n.id,n.house)}</li>`;
@@ -377,6 +374,7 @@ function transitPointHTML(id){
   return `<div class="eyebrow">${F.skyOnDate(fmtShort(tDate))}</div><h3><span class="gl">${t.g}</span> ${F.transiting(id)}</h3>
   <div class="pos">${posStr(t)} · ${F.inYourHouse(t.house)}</div>
   <p>${F.transitPassing(id,t.house,rules)}</p>
+  <p class="explain">${F.deepIn(id,t.house)}</p>
   <h4>${u('aspectsToChart')}</h4>
   ${as.length?`<div class="alist">${as.map(a=>aspectRow(a,'ta:'+a.t.id+'|'+a.n.id+'|'+a.asp.id,`${hl(homeHouse(a.n))} · ${a.applying?u('applying'):u('separating')}`,fmtOrb(a.orb))).join('')}</div>`:`<p class="note">${u('noAspectsToday')}</p>`}`;
 }
@@ -411,12 +409,12 @@ const exReg=fn=>{const k='r'+(++exN);EX[k]=fn;return k;};
 const exS=z=>`<span class="exl" data-ex="sign:${z}">${sN(z)}</span>`,exHs=h=>`<span class="exl" data-ex="house:${h}">${hl(h)}</span>`;
 function exPlacement(chart,id,who){
   const p=chart.byId[id],ang=id==='ASC'||id==='MC',hh=ang?(id==='ASC'?1:10):p.house,S=L.signs[p.sign];
-  return `<div class="eyebrow">${esc(who)}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3><div class="pos">${posStr(p)} · ${hl(hh)}</div><p>${L.planets[id].info}</p>${ang?'':`<div class="explain">${F.howRead(id,p.sign,p.house)}</div>`}<h4>${S.n}</h4><p>${S.body}</p><h4>${F.houseHeading(hh,ang)}</h4><p>${L.houses[hh-1].body}</p>`;
+  return `<div class="eyebrow">${esc(who)}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3><div class="pos">${posStr(p)} · ${hl(hh)}</div><h4>${S.n}</h4><p>${S.body}</p><h4>${F.houseHeading(hh,ang)}</h4><p>${F.deepIn(id,hh)}</p>`;
 }
 function exMatchLink(x,A,B,other){
   const a=x.a,b=x.b,Z=L.aspects[x.asp.id],cls=x.asp.cls,ha=houseOf(a.lon,other.cusps),hb=houseOf(b.lon,natal.cusps);
   return `<div class="eyebrow">${u('exLink')}</div><h3>${esc(A)} ${glyph(a)} ${pN(a.id)} <span class="gl">${x.asp.g}</span> ${glyph(b)} ${pN(b.id)} ${esc(B)}</h3><div class="pos">${Z.n} · ${u('orb')} ${fmtOrb(x.orb)}</div>
-  <p><b>${Z.n}.</b> ${Z.key}</p><div class="explain">${Z.angle}</div>
+  <p><b>${Z.n}.</b> ${Z.key}</p>
   <ul class="ctx"><li class="${cls}"><span>${esc(A)}: ${pN(a.id)} ${sIn(a.sign)} · ${hl(homeHouse(a))}</span>${L.planets[a.id].key}</li><li class="${cls}"><span>${esc(B)}: ${pN(b.id)} ${sIn(b.sign)} · ${hl(homeHouse(b))}</span>${L.planets[b.id].key}</li></ul>
   <p>${F.aspMeaning(a.id,b.id,cls)}</p>
   <h4>${u('exLands')}</h4><p>${esc(A)} ${pN(a.id)} → ${esc(B)}: ${hl(ha)} (${hShort(ha)})<br>${esc(B)} ${pN(b.id)} → ${esc(A)}: ${hl(hb)} (${hShort(hb)})</p>`;
@@ -425,16 +423,16 @@ function exCross(id,x){
   const Z=L.aspects[x.a.id],n=x.n;
   return `<div class="eyebrow">${u('retroHitsH')}</div><h3>${glyph(PDEF[id])} ${pN(id)} ℞ <span class="gl">${x.a.g}</span> ${glyph(n)} ${nm(n)}</h3><div class="pos">${Z.n} · ${fmtIn(n.lon)} ${sN(n.sign)} · ${hl(homeHouse(n))}</div>
   <p><b>${Z.n}.</b> ${Z.key}</p><p>${F.aspMeaning(id,n.id,x.a.cls)}</p><div class="explain">${u('crossWhy')}</div>
-  <ul class="ctx"><li class="${x.a.cls}"><span>${nm(n)} ${sIn(n.sign)} · ${hl(homeHouse(n))}</span>${L.planets[n.id].info}</li></ul>`;
+  <ul class="ctx"><li class="${x.a.cls}"><span>${nm(n)} ${sIn(n.sign)} · ${hl(homeHouse(n))}</span>${F.deepIn(n.id,homeHouse(n))}</li></ul>`;
 }
 function exSky(p,tr){
   const as=tr.aspects.filter(a=>a.t.id===p.id).slice(0,6);
-  return `<div class="eyebrow">${u('skyTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}${p.retro?' ℞':''}</h3><div class="pos">${posStr(p)} · ${hl(p.house)}</div><p>${L.planets[p.id].info}</p><div class="explain">${F.howRead(p.id,p.sign,p.house)}</div>
+  return `<div class="eyebrow">${u('skyTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}${p.retro?' ℞':''}</h3><div class="pos">${posStr(p)} · ${hl(p.house)}</div><p>${F.deepIn(p.id,p.house)}</p>
   <h4>${u('transitsNow')}</h4>${as.length?as.map(a=>`<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>exSkyAsp(a))}">${aN(a.asp.id)} → ${glyph(a.n)} ${nm(a.n)} · ${fmtOrb(a.orb)} · ${a.applying?u('applying'):u('separating')}</span></div>`).join(''):`<p class="note">${u('nothingInOrb')}</p>`}${p.retro&&L.retroInfo[p.id]?`<p class="note">${L.retroInfo[p.id]}</p>`:''}`;
 }
 function exSkyAsp(a){const s=transitStoryHTML(a);return s;}
 function exReturn(id){return `<p>${L.returnInfo[id]}</p>`+natalPointHTML(id);}
-function exProg(x){const p=PDEF[x.id];return `<div class="eyebrow">${u('progTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(x.z)}</h3><div class="pos">${fmtIn(x.l)} · ${hl(x.h)}</div><p>${L.progInfo[x.id]}</p><div class="explain">${F.howRead(x.id,x.z,x.h)}</div><h4>${L.signs[x.z].n}</h4><p>${L.signs[x.z].body}</p><h4>${F.houseHeading(x.h,false)}</h4><p>${L.houses[x.h-1].body}</p>`;}
+function exProg(x){const p=PDEF[x.id];return `<div class="eyebrow">${u('progTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(x.z)}</h3><div class="pos">${fmtIn(x.l)} · ${hl(x.h)}</div><p>${L.progInfo[x.id]}</p><h4>${L.signs[x.z].n}</h4><p>${L.signs[x.z].body}</p><h4>${F.houseHeading(x.h,false)}</h4><p>${F.deepIn(x.id,x.h)}</p>`;}
 document.addEventListener('click',e=>{
   const t=e.target.closest&&e.target.closest('[data-ex]');if(!t)return;
   if(t.closest('summary'))e.preventDefault();
@@ -459,9 +457,9 @@ function renderToday(){
   const mz=Math.floor(moon/30),mh=houseOf(moon,natal.cusps),fc=moonForecast(now);
   const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
   renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
-  const moonSign=`<span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(mz)}</h3><div class="pos">${hl(mh)}</div><p>${L.planets.Moon.info}</p><div class="explain">${F.howRead('Moon',mz,mh)}</div><h4>${L.signs[mz].n}</h4><p>${L.signs[mz].body}</p><h4>${F.houseHeading(mh,false)}</h4><p>${L.houses[mh-1].body}</p>`)}"><span class="gl">☽︎</span> ${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span>`;
+  const moonSign=`<span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(mz)}</h3><div class="pos">${hl(mh)}</div><h4>${L.signs[mz].n}</h4><p>${L.signs[mz].body}</p><h4>${F.houseHeading(mh,false)}</h4><p>${F.deepIn('Moon',mh)}</p>`)}"><span class="gl">☽︎</span> ${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span>`;
   $('#today-strip').innerHTML=`<div class="eyebrow">${u('todayTitle')}</div>
-   <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${L.moonPhases[k]} · ${ill}%</h3><p>${L.moonAdvice[k]}</p><div class="explain">${u('moonWhat')}</div>`)}">${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
+   <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${L.moonPhases[k]} · ${ill}%</h3><p>${L.moonAdvice[k]}</p>`)}">${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
    <div class="tsl">${moonSign}</div>
    <div class="tadv">${L.moonAdvice[k]}</div>
    <details class="guide tmore"><summary>${u('todayMore')}</summary>
@@ -919,7 +917,7 @@ function renderMatch(){
   hits.sort((x,y)=>x.orb-y.orb);const top=hits.slice(0,10),ease=top.filter(x=>x.asp.cls==='soft').length,hard=top.filter(x=>x.asp.cls==='hard').length;
   const kind=x=>x.asp.cls==='soft'?['soft',u('matchEase')]:x.asp.cls==='hard'?['hard',u('matchTension')]:['neu',u('matchFusion')];
   const big3=(c,n)=>['Sun','Moon','ASC'].map(id=>{const p=c.byId[id];return `<span class="exl" data-ex="fn:${exReg(()=>exPlacement(c,id,n))}">${glyph(p)} ${sN(p.sign)}</span>`;}).join(' · ');
-  const lands=(from,fname,to,tname)=>['Sun','Moon','Venus','Mars'].map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps);return `<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('exLands')}</div><h3>${glyph(p)} ${fname} → ${tname}: ${hl(h)}</h3><p>${L.houses[h-1].body}</p><div class="explain">${L.houses[h-1].q}</div>`)}">${glyph(p)} ${fname} → ${tname}: ${hl(h)} (${hShort(h)})</span></div>`;}).join('');
+  const lands=(from,fname,to,tname)=>['Sun','Moon','Venus','Mars'].map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps);return `<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('exLands')}</div><h3>${glyph(p)} ${fname} → ${tname}: ${hl(h)}</h3><p>${F.deepIn(id,h)}</p>`)}">${glyph(p)} ${fname} → ${tname}: ${hl(h)} (${hShort(h)})</span></div>`;}).join('');
   box.innerHTML=`<div class="switch-row"><label>${u('matchWith')} <select id="match-sel">${others.map(([c,i])=>`<option value="${i}"${i===sel?' selected':''}>${esc(c.name||'Chart '+(i+1))}</option>`).join('')}</select></label></div>
    <p class="tadv exl" data-ex="fn:${exReg(()=>`<p>${F.matchHow(ease,hard,top.length)}</p>`)}">${ease>hard+1?u('matchSumEase'):hard>ease+1?u('matchSumSpark'):u('matchSumMix')}</p>
    <ul class="ctx"><li><span>${u('matchBig3')}</span><div class="rt"><b>${esc(A)}</b>: ${big3(natal,A)}</div><div class="rt"><b>${esc(B)}</b>: ${big3(other,B)}</div></li></ul>

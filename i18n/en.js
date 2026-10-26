@@ -247,6 +247,37 @@ L.f={
  notQuite:a=>`Not quite. It’s ${a}.`,
  longestStreak:(n,nb)=>`Longest streak: ${n}${nb?' · new best!':''}`
 };
+/* deeper reading: what it is like when a house is active, and how each planet acts */
+L.hdeep=[
+ "Activity here reshapes how you show up: your body, your style, the first impression you make and how you start things. In real life it looks like a new look, a change of direction, people reacting to you differently, or the moment you stop shrinking yourself.",
+ "This is about earned security: income, what you charge, what you own and what you tell yourself you are worth. Expect questions like 'what is enough?', changes in how money comes and goes, and a re-ranking of what you truly value against what you were taught to value.",
+ "The everyday mind and your surroundings: conversations, writing, paperwork, siblings, neighbours, short trips and what you are learning. It often shows up as a busy inbox, one crucial talk, a course, or a decision made from information rather than instinct.",
+ "The foundation under everything: home, family, the parent who raised you and your private emotional base. Activity here can mean a move, renovations, family events or old childhood patterns resurfacing, and it asks what 'safe' really means to you now.",
+ "Pleasure and risk in the open: romance, creativity, play, children and being seen for what you enjoy. Look for new crushes, projects made for love rather than money, and a test of whether you let yourself have fun without justifying it.",
+ "The maintenance layer: routines, workload, health habits, colleagues, pets and being useful. Problems here are small and cumulative, so this is where overwork, a body asking for attention or a better system becomes obvious.",
+ "Everything mirrored through one-to-one bonds: partners, close collaborators, clients and open rivals. Beyond who you attract, it shows what you project onto others and disown in yourself, so it often arrives as a relationship milestone, a negotiation or an uncomfortable mirror.",
+ "The shared and the hidden: other people's money (joint accounts, loans, debts, taxes, inheritance), sexual and emotional intimacy, and whatever you refuse to look at. It is the house of thresholds: trust tested, power dynamics, grief, and the psychological kind of death and rebirth where an old version of you ends. It is usually less dramatic than it sounds, but it never does shallow.",
+ "The meaning layer: long-distance travel, higher study, teaching, publishing, law, faith and the worldview you steer by. Activity here asks whether your beliefs still fit your life, and it tends to arrive as a trip, a course, or a meeting with a very different culture or teacher.",
+ "Your public standing: career, ambition, reputation, authority and the visible results of your effort. Expect visibility, a promotion or a rethink of direction, and questions about what you want to be known for, plus the parent or figure who modelled success.",
+ "Your people and your future: friendships, groups, networks, audiences, causes and long-term hopes. It often shows who truly belongs in your circle, which dreams are still alive, and where you add to something bigger than yourself.",
+ "The backstage: solitude, rest, the unconscious, secrets, hospitals and retreats, and endings that need to finish before a new cycle can start. Things move quietly here and are often understood only afterwards; what you avoid tends to surface as dreams, fatigue or self-sabotage until you face it."
+];
+L.pmode={
+ "Sun": "The Sun spotlights: whatever it touches becomes central to your sense of self and gets noticed, so you are asked to act on purpose rather than on autopilot.",
+ "Moon": "The Moon makes things emotional and immediate: mood, needs and instincts colour everything for a while and reveal what you need in order to feel secure.",
+ "Mercury": "Mercury brings information and talk: thinking, deals, messages, decisions, and the need to make sense of things out loud or on paper.",
+ "Venus": "Venus smooths and attracts: it softens, invites pleasure and connection, and raises questions about what you value and what you will accept.",
+ "Mars": "Mars pushes: it brings drive, heat, urgency and sometimes conflict, and rewards decisive action over endless deliberating.",
+ "Jupiter": "Jupiter amplifies and opens: opportunity, optimism and growth, with the risk of overpromising or taking on too much.",
+ "Saturn": "Saturn audits and restructures: it asks what is real, sustainable and yours to carry, removes what is not, and rewards patient work.",
+ "Uranus": "Uranus disrupts in order to free: sudden changes, restlessness and breakthroughs that break a pattern you had outgrown.",
+ "Neptune": "Neptune dissolves boundaries: inspiration, compassion and intuition, but also fog, idealisation and avoidance, so double-check the facts.",
+ "Pluto": "Pluto excavates and transforms: it brings power issues, obsession and the end of what has run its course, in slow waves rather than one event.",
+ "Node": "The Node brings fated-feeling meetings and choices that point to your direction of growth, and asks you to step out of the old comfort zone.",
+ "Chiron": "Chiron touches a tender spot: an old wound or insecurity surfaces so it can be understood and, over time, turned into wisdom you can share."
+};
+L.f.deepIn=(id,h)=>`${L.pmode[id]||''} ${L.hdeep[h-1]}`.trim();
+
 const cap=s=>s[0].toUpperCase()+s.slice(1);
 
 L.q={
