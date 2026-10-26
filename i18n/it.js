@@ -152,7 +152,7 @@ L.ui={
  shareBtn:"Condividi i miei tre grandi",icsBtn:"Aggiungi retrogradazioni e lune al calendario",icsNote:"Scarica un file di calendario con le date delle retrogradazioni e delle Lune Nuove e Piene dei prossimi due anni. Aprilo sul telefono per aggiungerle, con un promemoria ogni mattina.",
  myNote:"Il mio appunto per questo giorno",notePh:"Com’è andata la giornata? Scrivilo qui…",noteSaved:"Salvato",
  digHome:"Forte qui: questo pianeta è in un segno che governa, quindi lavora con facilità.",digExalt:"Onorato qui: questo pianeta è in esaltazione in questo segno, come un ospite gradito.",digDet:"Delicato qui: questo pianeta è in esilio, opposto al segno che governa, quindi lavora con fatica.",digFall:"Fragile qui: questo pianeta è in caduta, opposto al segno dove è esaltato, quindi chiede pazienza.",plainWords:"In parole semplici",
- segMatch:"Confronto",matchTitle:"Confronta con un altro tema",matchNote:"Confronta due temi: dove scorrono, dove scintillano e dove ciascuno entra nella vita dell’altro.",matchNone:"Aggiungi un secondo tema nella scheda Profilo per confrontare.",matchBig3:"I tre grandi",matchAsp:"I legami più forti",matchHouses:"Dove cade ciascuno nel tema dell’altro",matchEase:"scorre facile",matchTension:"crea scintille e attrito",matchFusion:"si fonde con forza",matchSumEase:"Per lo più fluido: le cose vengono naturali.",matchSumMix:"Un mix di facilità e scintille.",matchSumSpark:"Molte scintille e attrito: eccitante, ma chiede pazienza.",matchWith:"Confronta con",
+ segMatch:"Confronto",matchTitle:"Confronta con un altro tema",matchNote:"Confronta due temi: dove scorrono, dove scintillano e dove ciascuno entra nella vita dell’altro.",matchBig3:"I tre grandi",matchAsp:"I legami più forti",matchEase:"scorre facile",matchTension:"crea scintille e attrito",matchFusion:"si fonde con forza",matchWith:"Confronta con",
  segCycles:"Cicli",cycTitle:"I tuoi grandi cicli",cycNote:"I pianeti lenti tornano dove si trovavano alla tua nascita. Ogni ritorno apre un nuovo capitolo.",retNext:"Prossimo",retLast:"Ultimo",retNow:"In corso ora",passes:"passaggi",age:"età",progTitle:"Il tuo capitolo interiore (tema progredito)",progNote:"Le progressioni fanno avanzare il tuo tema di un giorno per ogni anno di vita. Mostrano il lento capitolo interiore che vivi, sotto i transiti di ogni giorno.",progUntil:"fino a circa",
  todayTitle:"Oggi nel cielo",
  todayMore:"Altro sul cielo di oggi",foldCal:"Il tuo calendario",foldExplore:"Esplora il cielo",foldAhead:"Guarda avanti",
@@ -215,7 +215,6 @@ L.ui={
 };
 
 L.f={
- matchHow:(e,h,t)=>`Abbiamo confrontato i ${t} legami più stretti tra i due temi: ${e} fluidi (trigoni, sestili), ${h} tesi (quadrati, opposizioni), gli altri si fondono come congiunzioni. Un legame teso non è un male: è dove stanno la scintilla e la crescita.`,
  icsStart:n=>`Inizio retrogradazione: ${n}`,icsEnd:n=>`Fine retrogradazione: ${n}`,icsMoon:(k,s)=>`${k}: ${s}`,
  mistakesCta:n=>`Ripassa i miei errori (${n})`,practiceStreak:n=>`${n} ${n===1?'giorno':'giorni'} di fila`,
  aspMeaning:(a,b,c)=>`${cap(L.planets[a].what)} e ${L.planets[b].what} ${c==='soft'?'si sostengono con facilità':c==='hard'?'tirano in direzioni diverse, quindi cresci trovando equilibrio':'lavorano insieme come un’unica forza'}.`,

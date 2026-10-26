@@ -470,14 +470,6 @@ function exPlacement(chart,id,who){
   const p=chart.byId[id],ang=id==='ASC'||id==='MC',hh=ang?(id==='ASC'?1:10):p.house,S=L.signs[p.sign];
   return `<div class="eyebrow">${esc(who)}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3><div class="pos">${posStr(p)} · ${hl(hh)}</div><h4>${S.n}</h4><p>${S.body}</p><h4>${F.houseHeading(hh,ang)}</h4><p>${F.deepIn(id,hh)}</p>`;
 }
-function exMatchLink(x,A,B,other){
-  const a=x.a,b=x.b,Z=L.aspects[x.asp.id],cls=x.asp.cls,ha=houseOf(a.lon,other.cusps),hb=houseOf(b.lon,natal.cusps);
-  return `<div class="eyebrow">${u('exLink')}</div><h3>${esc(A)} ${glyph(a)} ${pN(a.id)} <span class="gl">${x.asp.g}</span> ${glyph(b)} ${pN(b.id)} ${esc(B)}</h3><div class="pos">${Z.n} · ${u('orb')} ${fmtOrb(x.orb)}</div>
-  <p><b>${Z.n}.</b> ${Z.key}</p>
-  <ul class="ctx"><li class="${cls}"><span>${esc(A)}: ${pN(a.id)} ${sIn(a.sign)} · ${hl(homeHouse(a))}</span>${L.planets[a.id].key}</li><li class="${cls}"><span>${esc(B)}: ${pN(b.id)} ${sIn(b.sign)} · ${hl(homeHouse(b))}</span>${L.planets[b.id].key}</li></ul>
-  <p>${F.aspMeaning(a.id,b.id,cls)}</p>
-  <h4>${u('exLands')}</h4><p>${esc(A)} ${pN(a.id)} → ${esc(B)}: ${hl(ha)} (${hShort(ha)})<br>${esc(B)} ${pN(b.id)} → ${esc(A)}: ${hl(hb)} (${hShort(hb)})</p>`;
-}
 function exCross(id,x){
   const Z=L.aspects[x.a.id],n=x.n;
   return `<div class="eyebrow">${u('retroHitsH')}</div><h3>${glyph(PDEF[id])} ${pN(id)} ℞ <span class="gl">${x.a.g}</span> ${glyph(n)} ${nm(n)}</h3><div class="pos">${Z.n} · ${fmtIn(n.lon)} ${sN(n.sign)} · ${hl(homeHouse(n))}</div>
@@ -1307,25 +1299,156 @@ function renderCycles(){
   $('#progressed').innerHTML=cyc.prog.map(x=>{const p=PDEF[x.id];
     return `<div class="ret-card" data-ex="fn:${exReg(()=>exProg(x))}"><div class="rh">${glyph(p)} ${nm(p)} · ${sIn(x.z)} <span class="mono muted" style="font-size:.85rem">${fmtIn(x.l)}</span></div><div class="rd">${hl(x.h)} (${hShort(x.h)})${x.until?` · ${u('progUntil')} ${fmtShort(x.until)}`:''}</div><p>${L.progInfo[x.id]}</p></div>`;}).join('');
 }
-/* ---------- match (compare two charts) ---------- */
-function renderMatch(){
-  const others=charts.map((c,i)=>[c,i]).filter(([,i])=>i!==active),box=$('#match-body');
-  if(!others.length){box.innerHTML=`<p class="note">${u('matchNone')}</p><button type="button" class="btn sm" data-tab-go="me">${u('tabMe')}</button>`;return;}
-  let sel=+store.get('tf.match',others[0][1]);if(!others.some(([,i])=>i===sel))sel=others[0][1];
-  const oc=charts[sel],other=computeChart(localToUTC(oc.date,oc.time,oc.tz),oc.lat,oc.lon,oc.sys),A=profile.name||'A',B=oc.name||'B';
-  const ids=[...TEN.map(x=>x.id),'ASC','MC'],pa=natal.pts.filter(p=>ids.includes(p.id)),pb=other.pts.filter(p=>ids.includes(p.id));
-  const hits=[];pa.forEach(a=>pb.forEach(b=>{const lum=['Sun','Moon'].includes(a.id)||['Sun','Moon'].includes(b.id),hit=aspectBetween(a.lon,b.lon,x=>Math.min(x.orb,6)+(lum?1:0));if(hit&&hit.asp.id!=='qx')hits.push({a,b,...hit});}));
-  hits.sort((x,y)=>x.orb-y.orb);const top=hits.slice(0,10),ease=top.filter(x=>x.asp.cls==='soft').length,hard=top.filter(x=>x.asp.cls==='hard').length;
-  const kind=x=>x.asp.cls==='soft'?['soft',u('matchEase')]:x.asp.cls==='hard'?['hard',u('matchTension')]:['neu',u('matchFusion')];
-  const big3=(c,n)=>['Sun','Moon','ASC'].map(id=>{const p=c.byId[id];return `<span class="exl" data-ex="fn:${exReg(()=>exPlacement(c,id,n))}">${glyph(p)} ${sN(p.sign)}</span>`;}).join(' · ');
-  const lands=(from,fname,to,tname)=>['Sun','Moon','Venus','Mars'].map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps);return `<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('exLands')}</div><h3>${glyph(p)} ${fname} → ${tname}: ${hl(h)}</h3><p>${F.deepIn(id,h)}</p>`)}">${glyph(p)} ${fname} → ${tname}: ${hl(h)} (${hShort(h)})</span></div>`;}).join('');
-  box.innerHTML=`<div class="switch-row"><label>${u('matchWith')} <select id="match-sel">${others.map(([c,i])=>`<option value="${i}"${i===sel?' selected':''}>${esc(c.name||'Chart '+(i+1))}</option>`).join('')}</select></label></div>
-   <p class="tadv exl" data-ex="fn:${exReg(()=>`<p>${F.matchHow(ease,hard,top.length)}</p>`)}">${ease>hard+1?u('matchSumEase'):hard>ease+1?u('matchSumSpark'):u('matchSumMix')}</p>
-   <ul class="ctx"><li><span>${u('matchBig3')}</span><div class="rt"><b>${esc(A)}</b>: ${big3(natal,A)}</div><div class="rt"><b>${esc(B)}</b>: ${big3(other,B)}</div></li></ul>
-   <h3>${u('matchAsp')}</h3>${top.map(x=>{const [cls,txt]=kind(x);return `<div class="explain tapcard ${cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>exMatchLink(x,A,B,other))}"><b>${esc(A)}</b> ${glyph(x.a)} ${pN(x.a.id)} <span class="gl">${x.asp.g}</span> ${aN(x.asp.id)} ${glyph(x.b)} ${pN(x.b.id)} <b>${esc(B)}</b><br><span class="muted">${txt} · ${fmtOrb(x.orb)}</span></div>`;}).join('')}
-   <h3>${u('matchHouses')}</h3><ul class="ctx"><li>${lands(natal,esc(A),other,esc(B))}</li><li>${lands(other,esc(B),natal,esc(A))}</li></ul>`;
+/* ---------- match: compatibility between two charts (readings in i18n/en-match.js) ---------- */
+const SYN=()=>DP('syn');
+const SYN_IDS=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Node','Chiron','ASC','MC'],SYN_PERS=['Sun','Moon','Mercury','Venus','Mars','ASC','MC'];
+const DIMS=['chem','emo','talk','fun','stay','deep'],LENSES={love:{chem:1.3,emo:1.3,talk:.9,fun:.8,stay:1.1,deep:.9},friends:{chem:.4,emo:1,talk:1.3,fun:1.4,stay:.9,deep:.6},work:{chem:.5,emo:.6,talk:1.4,fun:.8,stay:1.4,deep:.4}};
+const SYN_SIGNS={chem:[['Venus','Mars'],['Mars','Venus']],emo:[['Moon','Moon']],talk:[['Mercury','Mercury']],fun:[['Sun','Sun'],['Venus','Venus']],stay:[['Sun','Moon'],['Moon','Sun']],deep:[]},REL_V=[.4,0,.4,-.25,.6,-.2,.25];
+/* fill {A} {A's} {A|verb|verb} tokens, then capitalise sentence starts */
+const synFill=(t,A,B)=>t.replace(/\{([AB])\|([^|}]*)\|([^}]*)\}/g,(_,k,sg,pl)=>{const w=k==='A'?A:B;return w.s+' '+(w.pl?pl:sg);})
+  .replace(/\{([AB])'s\}/g,(_,k)=>(k==='A'?A:B).p).replace(/\{([AB])\}/g,(_,k)=>(k==='A'?A:B).n).replace(/(^|[.!?]\s+)([a-z])/g,(m,x,c)=>x+c.toUpperCase());
+function synPair(h,A,B){
+  const P=SYN().pair,cls=h.asp.cls;let x=P[h.a.id+'|'+h.b.id],a=A,b=B;
+  if(!x&&P[h.b.id+'|'+h.a.id]){x=P[h.b.id+'|'+h.a.id];a=B;b=A;}
+  if(!x)return {t:null,txt:F.aspMeaning(h.a.id,h.b.id,cls)};
+  return {t:x.t,txt:synFill(h.asp.id==='conj'?x.c:cls==='soft'?x.g:x.x,a,b)};
 }
-document.addEventListener('change',e=>{if(e.target.id==='match-sel'){store.set('tf.match',+e.target.value);renderMatch();}});
+function synHits(ca,cb,ka,kb){
+  const use=(c,k)=>c.pts.filter(p=>SYN_IDS.includes(p.id)&&(k||!['ASC','MC'].includes(p.id))),hits=[];
+  use(ca,ka).forEach(a=>use(cb,kb).forEach(b=>{
+    const js=(a.id==='Jupiter'&&b.id==='Saturn')||(a.id==='Saturn'&&b.id==='Jupiter');
+    if(!SYN_PERS.includes(a.id)&&!SYN_PERS.includes(b.id)&&!js)return;
+    if(['ASC','MC'].includes(a.id)&&['ASC','MC'].includes(b.id)&&a.id!==b.id)return;
+    const lum=['Sun','Moon'].includes(a.id)||['Sun','Moon'].includes(b.id),minor=['Node','Chiron','MC'].includes(a.id)||['Node','Chiron','MC'].includes(b.id);
+    const of=x=>(Math.min(x.orb,6)+(lum?1:0))*(minor?.6:1),hit=aspectBetween(a.lon,b.lon,of);
+    if(hit&&hit.asp.id!=='qx')hits.push({a,b,...hit,max:of(hit.asp)});
+  }));
+  return hits.sort((x,y)=>x.orb/x.max-y.orb/y.max);
+}
+function synDimsOf(a,b){
+  const has=x=>a===x||b===x,one=(x,ys)=>(a===x&&ys.includes(b))||(b===x&&ys.includes(a)),out=[];
+  if(one('Venus',['Mars','Pluto','Uranus','ASC'])||one('Mars',['Mars','Sun','Moon','Pluto','Uranus','ASC']))out.push('chem');
+  if(has('Moon'))out.push('emo');if(has('Mercury'))out.push('talk');
+  if(has('Jupiter')||one('Sun',['Sun','Venus'])||one('Venus',['Venus']))out.push('fun');
+  if(has('Saturn')||one('Sun',['Moon'])||one('Moon',['Moon']))out.push('stay');
+  if(['Pluto','Neptune','Node','Chiron'].some(has))out.push('deep');
+  return out;
+}
+function synVal(k,h){
+  const c=h.asp.cls,ids=[h.a.id,h.b.id],sat=ids.includes('Saturn'),heavy=ids.some(i=>['Uranus','Neptune','Pluto'].includes(i));
+  if(c==='soft')return 1;
+  if(h.asp.id==='conj')return k==='stay'?(sat?1.1:.9):sat?.5:heavy?(k==='chem'||k==='deep'?1:.3):.9;
+  return k==='chem'?.45:k==='deep'?.5:k==='stay'?(sat?-.25:-.4):k==='fun'?-.4:-.7;
+}
+function synScore(ca,cb,hits,lens){
+  const dims=DIMS.map(k=>{let s=0;const why=[];
+    hits.forEach(h=>{if(!synDimsOf(h.a.id,h.b.id).includes(k))return;
+      const v=synVal(k,h)*(1-.6*h.orb/h.max)*(['Sun','Moon','Venus','Mars'].some(i=>i===h.a.id||i===h.b.id)?1.15:1);s+=v;why.push({h,v});});
+    SYN_SIGNS[k].forEach(([x,y])=>{s+=REL_V[signDist(ca.byId[x].lon,cb.byId[y].lon)];});
+    const pct=Math.round(18+76/(1+Math.exp(-(s-.3)*.85)));why.sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
+    return {k,pct,why,tier:pct>=80?3:pct>=64?2:pct>=46?1:0};});
+  const W=LENSES[lens],tot=DIMS.reduce((a,k)=>a+W[k],0);
+  return {dims,overall:Math.round(dims.reduce((a,d)=>a+d.pct*W[d.k],0)/tot)};
+}
+const midLon=(a,b)=>{const d=norm(b-a);return norm(d>180?a+(d-360)/2:a+d/2);};
+const synComposite=(ca,cb,k)=>['Sun','Moon','Mercury','Venus','Mars',...(k?['ASC']:[])].map(id=>{const lon=midLon(ca.byId[id].lon,cb.byId[id].lon);return {...PDEF[id],lon,sign:Math.floor(lon/30)};});
+function synDays(comp,n){
+  const t0=startOfDayNoon(new Date()),targets=comp.filter(c=>F.synComp[c.id]||['Sun','Moon'].includes(c.id)).filter(c=>c.id!=='Mercury');
+  return Array.from({length:n},(_,i)=>{const d=new Date(t0.getTime()+i*DAY);let s=0;const why=[];
+    TEN.forEach(({id})=>{const l=eclLon(id,d);targets.forEach(c=>{const mo=id==='Moon'?3:0,hit=aspectBetween(l,c.lon,a=>mo||a.t);if(!hit||hit.asp.id==='qx')return;
+      const v=aspectValence({t:{id},asp:hit.asp})*(1-.7*hit.orb/(mo||hit.asp.t))*(id==='Moon'?.6:LONG_IDS.includes(id)?1.2:1)*(['Venus','Moon'].includes(c.id)?1.2:1);s+=v;why.push({t:id,c:c.id,asp:hit.asp,v});});});
+    why.sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));return {d,s,why};});
+}
+const synDayHTML=x=>`<div class="eyebrow">${u('matchDays')}</div><h3>${fmtDay(x.d)}</h3>${x.why.length?x.why.slice(0,5).map(w=>`<div class="explain${w.v<0?' hardx':''}">${F.synDayLine(w.t,w.asp.id,w.c,SYN().tr[w.t][w.v<0?1:0])}</div>`).join(''):`<p>${u('matchDayNone')}</p>`}<p class="note">${u('honestNote')}</p>`;
+function synLinkCard(h,A,B){const sp=synPair(h,A,B),cls=h.asp.cls==='hard'?'hard':h.asp.cls==='soft'?'soft':'neu';
+  return `<div class="m-link tapcard ${cls}" data-ex="fn:${exReg(()=>exMatchLink(h,A,B))}"><div class="m-lh"><span>${esc(cap(A.p))} ${glyph(h.a)} ${pN(h.a.id)}</span><span class="m-asp gl">${h.asp.g}</span><span>${esc(B.p)} ${glyph(h.b)} ${pN(h.b.id)}</span></div>${sp.t?`<div class="m-topic">${esc(sp.t)} · ${fmtOrb(h.orb)}</div>`:''}<p>${firstS(sp.txt)}</p></div>`;}
+let syn=null;
+function exMatchLink(h,A,B){
+  const sp=synPair(h,A,B),cls=h.asp.cls,row=(w,p)=>`<li class="${cls}"><span>${esc(cap(w.p))} ${pN(p.id)} ${sIn(p.sign)}</span>${pKey(p.id)} · ${sKey(p.sign)}</li>`;
+  const land=[];if(syn&&syn.kb&&!['ASC','MC'].includes(h.a.id))land.push(F.synLand(A,B,h.a.id,houseOf(h.a.lon,syn.cb.cusps)));if(syn&&syn.ka&&!['ASC','MC'].includes(h.b.id))land.push(F.synLand(B,A,h.b.id,houseOf(h.b.lon,syn.ca.cusps)));
+  return `<div class="eyebrow">${u('exLink')}${sp.t?' · '+esc(sp.t):''}</div><h3>${glyph(h.a)} ${pN(h.a.id)} <span class="gl">${h.asp.g}</span> ${glyph(h.b)} ${pN(h.b.id)}</h3><div class="pos">${aN(h.asp.id)} · ${u('orb')} ${fmtOrb(h.orb)}</div>
+  <p class="deep-lead">${sp.txt}</p><ul class="ctx">${row(A,h.a)}${row(B,h.b)}</ul>${land.length?`<h4>${u('exLands')}</h4><p>${land.map(esc).join('<br>')}</p>`:''}`;
+}
+function synDimHTML(d,A,B,lens){const D=SYN().dims[d.k];
+  return `<div class="eyebrow">${u('matchDims')}</div><h3><span class="gl">${D.g}</span> ${D.n[lens]} · ${d.pct}%</h3><p class="deep-lead">${D.tiers[d.tier]}</p><p class="note">${D.d}</p><h4>${u('matchLinks')}</h4>${d.why.slice(0,5).map(w=>synLinkCard(w.h,A,B)).join('')||`<p class="note">${u('matchNoLinks')}</p>`}`;}
+function synSignRows(ca,cb,A,B,both){const S=SYN();
+  return [['Sun','Sun','Sun'],['Moon','Moon','Moon'],['Mercury','Mercury','Mercury'],['Venus','Mars','VM'],['Mars','Venus','VM'],...(both?[['ASC','ASC','ASC']]:[])].map(([x,y,t])=>{
+    const p=ca.byId[x],q=cb.byId[y],r=signDist(p.lon,q.lon),txt=S.rel[r].replace('{x}',S.relTopic[t]).replace(/\{s1\}/g,sN(p.sign)).replace(/\{s2\}/g,sN(q.sign));
+    return `<div class="m-sign r${r}"><div class="m-pair"><span class="m-shell exl" data-ex="fn:${exReg(()=>exPlacement(ca,x,cap(A.n)))}"><span class="gl">${SIGNS[p.sign].g}</span><small>${esc(cap(A.p))} ${pN(x)}</small></span><span class="m-tie">${'≈'}</span><span class="m-shell exl" data-ex="fn:${exReg(()=>exPlacement(cb,y,cap(B.n)))}"><span class="gl">${SIGNS[q.sign].g}</span><small>${esc(cap(B.p))} ${pN(y)}</small></span></div><p>${txt}</p></div>`;}).join('');}
+function synLands(from,to,A,B){const S=SYN();
+  return Object.keys(S.over).map(id=>{const p=from.byId[id],h=houseOf(p.lon,to.cusps),H=S.overH[h-1],txt=synFill(S.over[id].replace('{area}',H.a)+' '+H.f,A,B);
+    return `<div class="m-land tapcard" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('matchLands')}</div><h3>${glyph(p)} ${esc(F.synLand(A,B,id,h))}</h3><div class="pos">${hShort(h)}</div><p class="deep-lead">${txt}</p><p>${L.pmode[id]||''}</p>`)}"><span class="gl">${p.g}</span><span><b>${hl(h)}</b> · ${esc(H.a)}<br><span class="muted">${firstS(txt)}</span></span></div>`;}).join('');}
+const ring=(pct)=>{const r=52,c=2*Math.PI*r;return `<svg class="m-ring" viewBox="0 0 132 132" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--turq)"/><stop offset=".5" stop-color="var(--lilac)"/><stop offset="1" stop-color="var(--pink)"/></linearGradient></defs><circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--line)" stroke-width="9"/><circle class="m-arc" cx="66" cy="66" r="${r}" fill="none" stroke="url(#mg)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(c*pct/100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 66 66)"/><circle cx="66" cy="66" r="40" fill="none" stroke="var(--ink-line)" stroke-width=".7" stroke-dasharray="1 3"/><text x="66" y="72" text-anchor="middle" class="m-pct">${pct}%</text></svg>`;};
+function quickForm(q){q=q||{};
+  return `<form class="m-quick" id="mq-form" autocomplete="off"><h3>${u('matchQuickTitle')}</h3><p class="note">${u('matchQuickNote')}</p><div class="form">
+  <label><span>${u('fName')}</span><input id="mq-name" type="text" maxlength="40" value="${esc(q.name||'')}"></label>
+  <label><span>${u('fDate')}</span><input id="mq-date" type="date" value="${esc(q.date||'')}"></label>
+  <label><span>${u('fTime')}</span><input id="mq-time" type="time" value="${q.unknown?'':esc(q.time||'')}"${q.unknown?' disabled':''}></label>
+  <label class="chk"><input id="mq-unk" type="checkbox"${q.unknown?' checked':''}> <span>${u('fUnknown')}</span></label>
+  <label><span>${u('fPlace')}</span><select id="mq-city">${CITIES.map(c=>`<option${c[0]===(q.city||'Athens')?' selected':''}>${c[0]}</option>`).join('')}</select></label></div>
+  <div class="form-actions"><button class="btn pri" type="submit">${u('matchGo')} ✧</button>${q.date?`<button class="btn" type="button" id="mq-cancel">${u('matchCancel')}</button>`:''}<span class="err" id="mq-err"></span></div></form>`;}
+function renderMatch(){
+  const box=$('#match-body'),others=charts.map((c,i)=>[c,i]).filter(([,i])=>i!==active),quick=store.get('tf.quick',null);
+  let sel=String(store.get('tf.match',others.length?others[0][1]:quick?'q':'new'));
+  if(sel!=='new'&&sel!=='q'&&!others.some(([,i])=>String(i)===sel))sel=others.length?String(others[0][1]):quick?'q':'new';
+  if(sel==='q'&&!quick)sel='new';
+  const lens=store.get('tf.mlens','love'),opt=(v,t)=>`<option value="${v}"${v===sel?' selected':''}>${esc(t)}</option>`;
+  const head=`<div class="m-top"><div class="switch-row"><label>${u('matchWith')} <select id="match-sel">${others.map(([c,i])=>opt(String(i),chartName(c,i))).join('')}${quick?opt('q',(quick.name||u('matchNew').replace(/[✧…]/g,'').trim())+' · '+u('matchUnsaved')):''}${opt('new',u('matchNew'))}</select></label></div>
+   <div class="seg sm m-lens" role="group" aria-label="${esc(u('matchLens'))}">${['love','friends','work'].map(k=>`<button type="button" data-mlens="${k}" aria-pressed="${k===lens}">${u('matchLens'+cap(k))}</button>`).join('')}</div></div>`;
+  if(sel==='new'){box.innerHTML=head+quickForm(null);syn=null;return;}
+  const oc=sel==='q'?quick:charts[+sel],ka=!profile.unknown,kb=!oc.unknown;
+  const ca=natal,cb=computeChart(localToUTC(oc.date,oc.time,oc.tz),oc.lat,oc.lon,oc.sys||'placidus');
+  const A=F.who(profile.name,true),B=F.who(oc.name,false),S=SYN(),hits=synHits(ca,cb,ka,kb),sc=synScore(ca,cb,hits,lens),comp=synComposite(ca,cb,ka&&kb);
+  const dk=sel+'|'+natalKey()+'|'+isoDate(new Date())+'|'+oc.date+oc.time;
+  syn={ca,cb,ka,kb,A,B,sc,lens,comp,days:syn&&syn.dk===dk?syn.days:synDays(comp,30),dk};
+  const W=LENSES[lens],rank=[...sc.dims].sort((x,y)=>y.pct*W[y.k]-x.pct*W[x.k]),top=rank[0],low=[...sc.dims].sort((x,y)=>x.pct-y.pct)[0];
+  const dn=k=>S.dims[k].n[lens],arch=S.arch[top.k][lens];
+  const flow=hits.find(h=>h.asp.cls==='soft'||(h.asp.id==='conj'&&!['Saturn','Pluto'].some(i=>i===h.a.id||i===h.b.id))),rub=hits.find(h=>h.asp.cls==='hard');
+  const cSun=comp.find(c=>c.id==='Sun'),cMoon=comp.find(c=>c.id==='Moon');
+  const soft=hits.filter(h=>h.asp.cls!=='hard').slice(0,4),hard=hits.filter(h=>h.asp.cls==='hard').slice(0,3);
+  const days=syn.days,d14=days.slice(0,14),best=[...days].sort((x,y)=>y.s-x.s).filter(x=>x.s>.3).slice(0,3),gentle=[...days].sort((x,y)=>x.s-y.s).filter(x=>x.s<-.3).slice(0,2);
+  const dayBtn=(x,cls)=>`<button type="button" class="chip ${cls}" data-ex="fn:${exReg(()=>synDayHTML(x))}">${x.d.toLocaleDateString(L.locale,{weekday:'short',day:'numeric',month:'short'})}</button>`;
+  const mx=Math.max(1,...d14.map(x=>Math.abs(x.s)));
+  box.innerHTML=head+`
+  <div class="m-hero"><div class="m-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+   <div class="m-names"><span>${esc(cap(A.n))}</span><span class="m-amp">&amp;</span><span>${esc(cap(B.n))}</span></div>
+   <button type="button" class="m-ringbtn" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('matchScore')}</div><h3>${esc(arch)}</h3><p class="deep-lead">${u('matchScoreHow')}</p><p class="note">${u('matchHonest')}</p>`)}" aria-label="${esc(u('matchScore'))}">${ring(sc.overall)}</button>
+   <div class="m-arch">${esc(arch)}</div><div class="m-sub">${F.synSub(dn(top.k),dn(low.k))}</div>
+   <div class="m-acts"><button type="button" class="btn sm pri" id="m-share">${u('matchShare')} ✧</button>${sel==='q'?`<button type="button" class="btn sm" id="mq-save">${u('matchSave')}</button><button type="button" class="btn sm" id="mq-edit">${u('matchEdit')}</button>`:''}</div>
+   ${!ka||!kb?`<p class="note">${u('matchTimeNote')}</p>`:''}</div>
+  <h3 class="m-h">${u('matchDims')}</h3><div class="m-dims">${sc.dims.map(d=>`<button type="button" class="m-dim tapcard" data-ex="fn:${exReg(()=>synDimHTML(d,A,B,lens))}"><span class="m-seal gl">${S.dims[d.k].g}</span><span class="m-dn">${dn(d.k)}</span><b class="m-dp">${d.pct}%</b><span class="m-bar"><i style="width:${d.pct}%"></i></span><span class="m-dt">${firstS(S.dims[d.k].tiers[d.tier])}</span></button>`).join('')}</div>
+  <h3 class="m-h">${u('matchStory')}</h3><div class="m-story"><p>${F.synOpen(esc(arch),{n:esc(A.n)},{n:esc(B.n)},dn(top.k),dn(low.k))}</p>
+   ${flow?`<h4>${u('matchDraw')}</h4><p class="exl" data-ex="fn:${exReg(()=>exMatchLink(flow,A,B))}">${synPair(flow,A,B).txt}</p>`:''}
+   <h4>${u('matchRub')}</h4>${rub?`<p class="exl" data-ex="fn:${exReg(()=>exMatchLink(rub,A,B))}">${synPair(rub,A,B).txt}</p>`:`<p>${u('matchNoRub')}</p>`}
+   <h4>${u('matchHeart')}</h4><p>${firstS(S.compSun[cSun.sign],2)} ${S.compMoon[cMoon.sign]}</p></div>
+  <h3 class="m-h">${u('matchSigns')}</h3><div class="m-signs">${synSignRows(ca,cb,A,B,ka&&kb)}</div>
+  <div class="m-cols"><div><h3 class="m-h">${u('matchGood')}</h3>${soft.map(h=>synLinkCard(h,A,B)).join('')||`<p class="note">${u('matchNoLinks')}</p>`}</div>
+   <div><h3 class="m-h">${u('matchEdge')}</h3>${hard.map(h=>synLinkCard(h,A,B)).join('')||`<p class="note">${u('matchNoRub')}</p>`}</div></div>
+  <h3 class="m-h">${u('matchComp')}</h3><p class="note">${u('matchCompNote')}</p><div class="m-comp">${comp.map(c=>{const t=c.id==='Sun'?S.compSun[c.sign]:c.id==='Moon'?S.compMoon[c.sign]:F.synComp[c.id](c.sign);
+    return `<div class="m-cc tapcard" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('matchComp')}</div><h3>${glyph(c)} ${F.synCompH(c.id,c.sign)}</h3><div class="pos">${fmtIn(c.lon)} ${sN(c.sign)}</div><p class="deep-lead">${t}</p><h4>${sN(c.sign)}</h4><p>${L.signs[c.sign].body}</p><p class="note">${u('matchCompNote')}</p>`)}"><span class="m-seal gl">${SIGNS[c.sign].g}</span><span><b>${F.synCompH(c.id,c.sign)}</b><br><span class="muted">${firstS(t)}</span></span></div>`;}).join('')}</div>
+  <h3 class="m-h">${u('matchDays')}</h3><p class="note">${u('matchDaysNote')}</p><div class="m-days">${d14.map((x,i)=>{const tone=x.s>.3?'good':x.s<-.3?'hard':'';
+    return `<button type="button" class="wday${i===0?' today':''}" data-ex="fn:${exReg(()=>synDayHTML(x))}" aria-label="${esc(fmtDay(x.d))}"><span class="wd">${x.d.toLocaleDateString(L.locale,{weekday:'short'}).replace('.','')}</span><span class="wn mono">${x.d.getDate()}</span><span class="wbar m-pearl ${tone}"><i style="height:${Math.round(50+x.s/mx*45)}%"></i></span></button>`;}).join('')}</div>
+   ${best.length?`<div class="m-dayrow"><b>${u('matchBest')}</b> ${best.map(x=>dayBtn(x,'good')).join('')}</div>`:''}${gentle.length?`<div class="m-dayrow"><b>${u('matchGentle')}</b> ${gentle.map(x=>dayBtn(x,'hard')).join('')}</div>`:''}
+  ${kb||ka?`<h3 class="m-h">${u('matchLands')}</h3><div class="m-cols">${kb?`<div><h4 class="m-lh4">${esc(F.synLandH(A,B))}</h4>${synLands(ca,cb,A,B)}</div>`:''}${ka?`<div><h4 class="m-lh4">${esc(F.synLandH(B,A))}</h4>${synLands(cb,ca,B,A)}</div>`:''}</div>`:''}
+  <details class="m-all"><summary>${u('matchAll')} (${hits.length})</summary>${hits.slice(0,24).map(h=>synLinkCard(h,A,B)).join('')}</details>
+  <p class="note m-honest">${u('matchHonest')}</p>`;
+}
+function quickSubmit(){
+  const c=$('#mq-city').value,ci=CITIES.find(x=>x[0]===c)||CITIES[0],unk=$('#mq-unk').checked,date=$('#mq-date').value,time=$('#mq-time').value;
+  if(!date)return $('#mq-err').textContent=u('matchErrDate');if(!unk&&!time)return $('#mq-err').textContent=u('matchErrTime');
+  store.set('tf.quick',{name:$('#mq-name').value.trim(),date,time:unk?'12:00':time,unknown:unk,city:ci[0],lat:ci[1],lon:ci[2],tz:ci[3],sys:'placidus'});store.set('tf.match','q');renderMatch();
+}
+document.addEventListener('submit',e=>{if(e.target.id==='mq-form'){e.preventDefault();quickSubmit();}});
+document.addEventListener('change',e=>{if(e.target.id==='match-sel'){store.set('tf.match',e.target.value);renderMatch();}else if(e.target.id==='mq-unk')$('#mq-time').disabled=e.target.checked;});
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-mlens],#mq-save,#mq-edit,#mq-cancel,#m-share');if(!t)return;
+  if(t.dataset.mlens){store.set('tf.mlens',t.dataset.mlens);keepScroll(renderMatch);return;}
+  if(t.id==='m-share'){shareMatch();return;}
+  if(t.id==='mq-cancel'){store.set('tf.match','q');renderMatch();return;}
+  const q=store.get('tf.quick',null);if(!q)return;
+  if(t.id==='mq-edit'){const box=$('#match-body'),f=box.querySelector('.m-top').outerHTML;box.innerHTML=f+quickForm(q);return;}
+  charts.push({...q,example:false});saveCharts();store.set('tf.quick',null);store.set('tf.match',charts.length-1);renderChartList();renderMatch();
+  const s=$('#m-share');if(s)s.insertAdjacentHTML('afterend',` <span class="note">${u('matchSaved')}</span>`);
+});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-tab-go]');if(b)showTab(b.dataset.tabGo);});
 /* ---------- share card and calendar file ---------- */
 async function shareFile(file,fallbackName){
@@ -1352,6 +1475,26 @@ async function shareBig3(){
   await shareFile(new File([blob],'two-fishes-big-three.png',{type:'image/png'}),'two-fishes-big-three.png');
 }
 $('#share-big3').addEventListener('click',shareBig3);
+async function shareMatch(){
+  if(!syn)return;try{await document.fonts.ready;}catch(e){}
+  const S=SYN(),{A,B,sc,lens}=syn,W=LENSES[lens],top=[...sc.dims].sort((x,y)=>y.pct*W[y.k]-x.pct*W[x.k])[0],arch=S.arch[top.k][lens];
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,'#0d2a44');g.addColorStop(.5,'#1d5f74');g.addColorStop(1,'#5a3f7a');x.fillStyle=g;x.fillRect(0,0,1080,1350);
+  [[880,180,520,'rgba(244,143,177,.42)'],[160,1180,560,'rgba(110,224,216,.35)'],[540,620,420,'rgba(196,170,240,.22)']].forEach(([cx,cy,r,col])=>{const q=x.createRadialGradient(cx,cy,10,cx,cy,r);q.addColorStop(0,col);q.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=q;x.fillRect(0,0,1080,1350);});
+  for(let i=0;i<46;i++){const bx=(i*197)%1080,by=(i*331)%1350,br=3+(i*7)%16;x.beginPath();x.arc(bx,by,br,0,7);x.strokeStyle='rgba(255,255,255,.22)';x.lineWidth=2;x.stroke();x.beginPath();x.arc(bx-br*.35,by-br*.35,br*.25,0,7);x.fillStyle='rgba(255,255,255,.35)';x.fill();}
+  const F1='"Cormorant Garamond", "Noto Serif Display", Georgia, serif',F3='"Alegreya Sans", sans-serif';
+  x.textAlign='center';x.fillStyle='#fff';x.font=`italic 600 82px ${F1}`;x.fillText(F.synPair(A,B),540,170);
+  const r=170,cx=540,cy=430;x.lineWidth=26;x.strokeStyle='rgba(255,255,255,.14)';x.beginPath();x.arc(cx,cy,r,0,7);x.stroke();
+  const rg=x.createLinearGradient(cx-r,cy-r,cx+r,cy+r);rg.addColorStop(0,'#6ee0d8');rg.addColorStop(.5,'#c9b2f2');rg.addColorStop(1,'#ff8fb8');x.strokeStyle=rg;x.lineCap='round';x.beginPath();x.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+2*Math.PI*sc.overall/100);x.stroke();
+  x.fillStyle='#fff';x.font=`600 132px ${F1}`;x.fillText(sc.overall+'%',cx,cy+45);
+  x.fillStyle='#ffd1e1';x.font=`italic 600 70px ${F1}`;x.fillText('✧ '+arch+' ✧',540,710);
+  sc.dims.forEach((d,i)=>{const y=820+i*74;x.textAlign='left';x.fillStyle='rgba(255,255,255,.85)';x.font=`36px ${F3}`;x.fillText(S.dims[d.k].n[lens],150,y);
+    x.fillStyle='rgba(255,255,255,.14)';x.fillRect(470,y-22,380,18);const bg=x.createLinearGradient(470,0,850,0);bg.addColorStop(0,'#6ee0d8');bg.addColorStop(1,'#ff8fb8');x.fillStyle=bg;x.fillRect(470,y-22,380*d.pct/100,18);
+    x.textAlign='right';x.fillStyle='#fff';x.fillText(d.pct+'%',940,y);});
+  x.textAlign='center';x.fillStyle='rgba(255,255,255,.6)';x.font=`30px ${F3}`;x.fillText('Two Fishes · gerasimosde1.github.io/two-fishes',540,1295);
+  const blob=await new Promise(res=>c.toBlob(res,'image/png'));if(!blob)return;
+  await shareFile(new File([blob],'two-fishes-match.png',{type:'image/png'}),'two-fishes-match.png');
+}
 function buildICS(){
   const pad=n=>String(n).padStart(2,'0'),dd=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`,esc2=t=>String(t).replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
   const now=new Date(),stamp=`${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}T000000Z`,ev=[];
