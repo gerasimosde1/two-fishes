@@ -30,7 +30,6 @@ L.pmode={
  "Node": "Ο Κόμβος φέρνει συναντήσεις και επιλογές που μοιάζουν πεπρωμένες και δείχνουν την κατεύθυνση ανάπτυξής σου, και σε καλεί να βγεις από την παλιά ζώνη άνεσης.",
  "Chiron": "Ο Χείρωνας αγγίζει ένα τρυφερό σημείο: μια παλιά πληγή ή ανασφάλεια βγαίνει στην επιφάνεια για να γίνει κατανοητή και, με τον καιρό, σοφία που μπορείς να μοιραστείς."
 };
-L.f.deepIn=(id,h)=>`${L.pmode[id]||''} ${L.hdeep[h-1]}`.trim();
 
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' και '+a[a.length-1];
@@ -339,5 +338,6 @@ L.q={
  comboSignQ:(p,z,g)=>`Ποια φράση περιγράφει καλύτερα ${P(p).acc} ${L.signs[z].inS} <span class="gl">${g}</span>;`,
  comboSignWhy:(p,z)=>`${cap(P(p).art)} αφορά ${P(p).key}. ${cap(L.signs[z].art)} φέρνει ${L.signs[z].key}. Πλανήτης = τι, ζώδιο = πώς.`
 };
+L.f.deepIn=(id,h)=>`${L.pmode[id]||''} ${L.hdeep[h-1]}`.trim();
 (window.TF_LANGS=window.TF_LANGS||{}).el=L;
 })();

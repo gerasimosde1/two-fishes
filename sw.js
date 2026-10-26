@@ -1,6 +1,6 @@
 // Two Fishes service worker: app shell works offline, updates arrive on next launch.
-const VERSION = 'tf-v30';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './app.js', './chiron.js', './i18n/en.js', './i18n/el.js', './i18n/it.js'];
+const VERSION = 'tf-v31';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './app.js', './chiron.js', './i18n/en.js', './i18n/en-deep.js', './i18n/el.js', './i18n/it.js'];
 
 self.addEventListener('install', e => {
   // Our own files must all cache; the outside libraries and fonts are cached best-effort so the app also starts offline.

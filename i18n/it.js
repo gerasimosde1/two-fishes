@@ -30,7 +30,6 @@ L.pmode={
  "Node": "Il Nodo porta incontri e scelte dal sapore di destino che indicano la tua direzione di crescita e ti chiedono di uscire dalla vecchia zona di comfort.",
  "Chiron": "Chirone tocca un punto delicato: una vecchia ferita o insicurezza affiora per essere capita e, col tempo, diventare saggezza da condividere."
 };
-L.f.deepIn=(id,h)=>`${L.pmode[id]||''} ${L.hdeep[h-1]}`.trim();
 
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
@@ -340,5 +339,6 @@ L.q={
  comboSignQ:(p,z,g)=>`Quale frase descrive meglio ${P(p).art} ${L.signs[z].inS} <span class="gl">${g}</span>?`,
  comboSignWhy:(p,z)=>`${cap(P(p).art)} riguarda ${P(p).key}. ${cap(L.signs[z].art)} aggiunge ${L.signs[z].key}. Pianeta = cosa, segno = come.`
 };
+L.f.deepIn=(id,h)=>`${L.pmode[id]||''} ${L.hdeep[h-1]}`.trim();
 (window.TF_LANGS=window.TF_LANGS||{}).it=L;
 })();

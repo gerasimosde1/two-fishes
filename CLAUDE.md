@@ -3,7 +3,7 @@
 Astrology web app built for the owner's girlfriend, who describes the features she wants. She is relearning astrology after about 10 years, so explanations should be plain and beginner friendly.
 
 ## How it ships
-- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), plus `manifest.webmanifest`, `sw.js` and `icons/`.
+- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), `i18n/en-deep.js` (English-only deep readings, loaded after en.js; other languages fall back to it), plus `manifest.webmanifest`, `sw.js` and `icons/`.
 - Languages: English, Greek, Italian (the owner said these three for now). No user-visible text belongs in app.js or index.html: static labels use `data-i18n` keys (`L.ui`), sentences are template functions in `L.f` / `L.q`. When adding text, add the key to all three packs. Greek and Italian templates handle articles and cases (e.g. Greek `art`, `acc`, `your`, `yourS`, sign `inS`/`gen`), so build sentences inside the pack, not by concatenating in app.js.
 - GitHub Pages serves `main` at https://gerasimosde1.github.io/two-fishes/. Her phone QR code opens that URL, so pushing to `main` updates her app within a minute or two.
 - It is an installable PWA. After changing cached files, bump `VERSION` in `sw.js` so phones pick up the new version.
@@ -21,6 +21,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 - She wants to be able to tap anything and see what it means for HER chart. Any item that shows a planet, sign, house, aspect, phase or date range must carry a `data-ex` attribute (`planet:ID`, `sign:N`, `house:N`, or `fn:<key>` from `exReg(() => html)`), styled with `.exl` (dotted underline) or `.tapcard`; a click opens the sheet with a plain explanation tied to her own placements. Reuse `natalPointHTML`, `signHTML`, `houseHTML`, `natalAspectHTML`, `transitStoryHTML`, `exPlacement` and friends. Add the wording to all three i18n packs.
 
 - Depth level: she has studied astrology for years, so tap sheets skip the basics (no "what is Mercury", no element/modality, aspect-angle or orb primers). Use `F.deepIn(id, house)` (`L.pmode` = how each planet acts, `L.hdeep` = what an active house is like in real life) and add depth rather than definitions. The basic `info`/`body` texts still exist in the packs for other screens.
+- Deep readings (`i18n/en-deep.js`): hand-written `L.pin[planet][sign]` (Sun to Saturn, ASC, MC, Node, Chiron) and `L.pih[planet][house]` (Sun to Pluto), aspect pairs `L.pair['A|B']` ({t topic, g flowing, x tense}, read through `pairText` / `F.pairLine`, which varies its opening so lists don't repeat), and `L.hid`, the "What most readings miss" layer in each placement sheet (`hiddenItems` in app.js): Chaldean decan ruler (`FACE`), edge degrees, dignity incl. detriment+fall (`dignityFull`), sect (`isDay`), cazimi/combust/under the beams, morning/evening Mercury and Venus, stations, chart ruler's house (`rulerIn`). `L.hprose` gives houses as natural phrases for sentences. Write these like a wise friend: a real insight per paragraph, no stock phrases, light wry humour.
 - Language work: for now the owner wants new work in English only. Add Greek/Italian when they say so, and then fill in everything that was left out.
 
 ## Voice
@@ -36,7 +37,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
   - Active life areas and a 12-month timeline of slow transits.
 - Explanations everywhere: house, sign and planet write-ups, plus the "How to read your chart" and "What is a transit?" guides. She is relearning, so keep everything explained.
 - Learn tab: 16 games across Beginner, Intermediate, Hard and Expert levels (Master Exam: 15 timed questions). She wants them challenging.
-- Your cosmic potential (launcher card `#tour` on the Chart tab, full-screen window `#tour-win`): 12 swipeable slides (CSS scroll-snap track `#tour-track`, dots, Back/Next, arrow keys, Esc) with SVG graphics (`gRose` house map, `gMini` per-planet house wheel, `gWeb` aspect web, `gRadar` life-area map) and analysis: chart volume (`tourVolume`), aspect patterns and stelliums (`tourPatterns`), receptions and final dispositor (`tourFlow`), life-area scores (`tourDomains`), lunar phase at birth, hemisphere emphasis. Code is in app.js (`tourSlide`, `openTour`...); wording lives in `L.tour`, `L.ui.tour*`, `L.f.tour*` of `i18n/en.js` only for now (el/it fall back to English; translate when the owner says). Progress is in localStorage `tf.tour`. Remove by deleting those, `#tour`, `#tour-win` and the `.twin/.tslide/.g-*/.gbar` CSS.
+- Your cosmic potential (launcher card `#tour` on the Chart tab, full-screen window `#tour-win`): 13 swipeable slides (slide 10 is "Secrets of your chart", `tourSecrets`: sect, planets living abroad, chart ruler's house, the Sun's glare, morning/evening stars, edge degrees, the Sun's decan; each slide also has a handwritten-style margin note from `L.tour.aside`) (CSS scroll-snap track `#tour-track`, dots, Back/Next, arrow keys, Esc) with SVG graphics (`gRose` house map, `gMini` per-planet house wheel, `gWeb` aspect web, `gRadar` life-area map) and analysis: chart volume (`tourVolume`), aspect patterns and stelliums (`tourPatterns`), receptions and final dispositor (`tourFlow`), life-area scores (`tourDomains`), lunar phase at birth, hemisphere emphasis. Code is in app.js (`tourSlide`, `openTour`...); wording lives in `L.tour`, `L.ui.tour*`, `L.f.tour*` of `i18n/en.js` only for now (el/it fall back to English; translate when the owner says). Progress is in localStorage `tf.tour`. Remove by deleting those, `#tour`, `#tour-win` and the `.twin/.tslide/.g-*/.gbar` CSS.
 - Me tab: multiple saved charts (add, edit, switch, delete) stored in localStorage `tf.charts` and `tf.active`, plus install help.
 
 ## Optional features (each one can be removed on its own)
@@ -52,6 +53,8 @@ Added in one batch; the owner's girlfriend may not want all of them. Each is its
 | Day journal | 263df5b | `dayNotes`, `saveDayNote`, the note box in `renderCalendar`, `.day-note` and `.has-note` CSS, ui `myNote notePh noteSaved` (notes live in localStorage `tf.notes`) |
 | Share card and calendar file | a0c937a | `shareBig3`, `buildICS`, `shareFile`, `#share-big3` and `#ics-btn` in index.html, ui `shareBtn icsBtn icsNote`, `F.icsStart icsEnd icsMoon` |
 | Offline start | (sw.js) | the `OUTSIDE` precache list in `sw.js` |
+
+Small delights: a sparkle and tiny vibration on every tap of an explainable item, tour graphics animate in (bars grow, aspect lines draw, petals and radar bloom), the sheet content fades in, and tapping the logo makes the sun wink and shows a joke from `L.ui.logoQuips`. All motion respects `prefers-reduced-motion`.
 
 Gotcha: `.tl` is an existing timeline class (min-width 640px); do not reuse that name for new styles.
 

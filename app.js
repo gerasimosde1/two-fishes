@@ -262,12 +262,39 @@ function dispositorLine(p){
   if(!rp)return '';
   return F.disp(p.sign,r,rp.sign,rp.house);
 }
-const DIGN_EXALT={Sun:0,Moon:1,Venus:11,Mars:9,Jupiter:3,Saturn:6};
+const DIGN_EXALT={Sun:0,Moon:1,Mercury:5,Venus:11,Mars:9,Jupiter:3,Saturn:6};
 function dignityOf(id,sign){
   if(!['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn'].includes(id))return null;
   const homes=SIGNS.filter(z=>z.rulers.includes(id)).map(z=>z.i);
   if(homes.includes(sign))return 'digHome';if(DIGN_EXALT[id]===sign)return 'digExalt';
   if(homes.some(i=>(i+6)%12===sign))return 'digDet';if(DIGN_EXALT[id]!=null&&(DIGN_EXALT[id]+6)%12===sign)return 'digFall';return null;
+}
+/* deep readings (English for now; other packs fall back to it) */
+const DP=k=>(L[k]||EN[k]);
+const pinText=(id,s)=>{const t=DP('pin')[id];return t?t[s]:null;};
+const pihText=(id,h)=>{const t=DP('pih')[id];return t?t[h-1]:null;};
+function pairText(a,b,cls){
+  const P=DP('pair'),x=P[a+'|'+b]||P[b+'|'+a];
+  return x?F.pairLine(a,b,x,cls):F.aspMeaning(a,b,cls);
+}
+const FACE=['Mars','Sun','Venus','Mercury','Moon','Saturn','Jupiter'];
+const isDay=c=>{const s=c.byId.Sun;return s.house>=7;};
+const STATION={Mercury:.1,Venus:.08,Mars:.04,Jupiter:.015,Saturn:.008};
+function dignityFull(id,sign){
+  const dg=dignityOf(id,sign);if(dg!=='digDet')return dg;
+  return DIGN_EXALT[id]!=null&&(DIGN_EXALT[id]+6)%12===sign?'both':dg;
+}
+function hiddenItems(id){
+  const p=natal.byId[id],H=DP('hid'),out=[],d=p.lon%30,sun=natal.byId.Sun;
+  if(id!=='MC'){const r=FACE[Math.floor(p.lon/10)%7],rp=natal.byId[r];out.push(F.faceLine(Math.floor(d),r,rp&&r!==id?rp.sign:null,rp?rp.house:null));}
+  if(d<1)out.push(H.deg.fresh);else if(d>=29)out.push(H.deg.anaretic);else if(d>=26)out.push(H.deg.late);
+  {const dg=dignityFull(id,p.sign);if(dg)out.push(H.dig[dg]+(dg!=='digHome'&&dg!=='digExalt'&&H.abroadP&&H.abroadP[id]?' '+H.abroadP[id]:''));}
+  if(H.sect[id]&&!profile.unknown){const day=isDay(natal),inS=(id==='Jupiter'||id==='Saturn')===day;out.push(`${day?H.sect.day:H.sect.night} ${H.sect[id][inS?'in':'out']}`);}
+  if(['Mercury','Venus','Mars','Jupiter','Saturn'].includes(id)){const o=sep(p.lon,sun.lon);
+    if(o<17/60)out.push(H.sun.cazimi);else if(o<8.5)out.push(H.sun.combust);else if(o<17)out.push(H.sun.beams);}
+  if(H.star[id]){const m=norm(sun.lon-p.lon)<180;out.push(H.star[id][m?'m':'e']);}
+  if(STATION[id]&&Math.abs(p.speed)<STATION[id])out.push(H.station);
+  return out;
 }
 function natalPointHTML(id,showTransits){
   const p=natal.byId[id],S=L.signs[p.sign],hh=homeHouse(p),rules=housesRuledBy(natal,id),isAngle=id==='ASC'||id==='MC',z=SIGNS[p.sign];
@@ -275,13 +302,14 @@ function natalPointHTML(id,showTransits){
   let h=`<div class="eyebrow">${showTransits?u('natalPoint'):u('yourPlacement')}</div>
   <h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)}</h3>
   <div class="pos">${posStr(p)} · ${isAngle?F.cuspOf(hh):hl(p.house)}</div>`;
-  h+=`<h4>${S.n} <span class="gl">${z.g}</span></h4><p>${S.body}</p>
-  <dl class="kv"><dt>${u('atBest')}</dt><dd>${pm(p.sign,id).plus}</dd><dt>${u('watchFor')}</dt><dd>${pm(p.sign,id).minus}</dd><dt>${u('type')}</dt><dd>${L.el[z.el].n}, ${L.mod[z.mod].n}</dd></dl>`;
-  h+=`<h4>${F.houseHeading(hh,isAngle)}</h4><p>${F.deepIn(id,hh)}</p>`;
+  const ps=pinText(id,p.sign),ph=isAngle?null:pihText(id,hh);
+  h+=`<h4>${S.n} <span class="gl">${z.g}</span></h4><p class="deep-lead">${ps||S.body}</p>`;
+  if(!ps)h+=`<dl class="kv"><dt>${u('atBest')}</dt><dd>${pm(p.sign,id).plus}</dd><dt>${u('watchFor')}</dt><dd>${pm(p.sign,id).minus}</dd></dl>`;
+  h+=`<h4>${F.houseHeading(hh,isAngle)}</h4><p>${ph||F.deepIn(id,hh)}</p>`;
+  {const hi=hiddenItems(id);if(hi.length)h+=`<div class="hidden-layer"><h4>✦ ${DP('hid').title}</h4>${hi.map(x=>`<p>${x}</p>`).join('')}</div>`;}
   if(rules.length&&!isAngle)h+=`<h4>${u('housesItRules')}</h4><p>${F.rulesPara(id,rules,p.house)}</p>`;
   if(p.retro)h+=`<p class="note">${F.retro(id)}</p>`;
-  {const dg=dignityOf(id,p.sign);if(dg)h+=`<p class="explain">${u(dg)}</p>`;}
-  if(id==='ASC'){const r=SIGNS[p.sign].rulers[0],rp=natal.byId[r];h+=`<h4>${u('chartRuler')}</h4><p>${F.chartRuler(r,rp.sign,rp.house)}</p>`;}
+  if(id==='ASC'){const r=SIGNS[p.sign].rulers[0],rp=natal.byId[r];h+=`<h4>${u('chartRuler')}</h4><p>${F.chartRuler(r,rp.sign,rp.house)}</p><p>${DP('hid').rulerIn[rp.house-1]}</p>`;}
   else if(!isAngle){const dl=dispositorLine(p);if(dl)h+=`<p class="note">${dl}</p>`;}
   if(showTransits&&transit){
     const ts=transit.aspects.filter(a=>a.n.id===id);
@@ -290,7 +318,7 @@ function natalPointHTML(id,showTransits){
   }else{
     h+=`<h4>${u('aspects')}</h4><p class="note">${u('aspectsNote')}</p>`;
     h+=asps.length?asps.map(a=>{const o=a.p1.id===id?a.p2:a.p1;return `<span class="chip" data-pick="natal:${o.id}"><span class="gl">${a.asp.g}</span>${aN(a.asp.id).toLowerCase()} ${nm(o)} <span class="mono" style="font-size:.75rem">${fmtOrb(a.orb)}</span></span>`;}).join(''):`<p class="note">${u('noAspects')}</p>`;
-    if(asps.length&&!isAngle)h+=`<h4>${u('plainWords')}</h4>`+asps.slice(0,4).map(a=>{const o=a.p1.id===id?a.p2:a.p1;return o.id==='ASC'||o.id==='MC'?'':`<p class="note" data-pick="na:${natal.aspects.indexOf(a)}" style="cursor:pointer"><b class="exl">${nm(p)} ${a.asp.g} ${nm(o)}.</b> ${F.aspMeaning(id,o.id,a.asp.cls)}</p>`;}).join('');
+    if(asps.length&&id!=='MC')h+=`<h4>${u('plainWords')}</h4>`+asps.slice(0,4).map(a=>{const o=a.p1.id===id?a.p2:a.p1;return o.id==='MC'?'':`<p class="note" data-pick="na:${natal.aspects.indexOf(a)}" style="cursor:pointer"><b class="exl">${nm(p)} ${a.asp.g} ${nm(o)}.</b> ${pairText(id,o.id,a.asp.cls)}</p>`;}).join('');
   }
   return h;
 }
@@ -314,7 +342,7 @@ function houseHTML(n,chart){
   <div class="explain"><b>${u('questions')}</b> ${H.q}</div>
   <h4>${F.yourHouseTitle(n)}</h4>
   <p>${F.cuspPara(n,si)}</p>`;
-  h+=inH.length?`<p><b>${u('planetsInside')}</b></p><ul class="ctx">${inH.map(p=>`<li><span>${nm(p)} ${sIn(p.sign)}</span>${F.planetInHouse(p.id,n)} <a href="#" class="chip" data-pick="natal:${p.id}" onclick="return false">${glyph(p)} ${u('more')}</a></li>`).join('')}</ul>`
+  h+=inH.length?`<p><b>${u('planetsInside')}</b></p><ul class="ctx">${inH.map(p=>`<li><span>${nm(p)} ${sIn(p.sign)}</span>${pihText(p.id,n)||F.planetInHouse(p.id,n)} <a href="#" class="chip" data-pick="natal:${p.id}" onclick="return false">${glyph(p)} ${u('more')}</a></li>`).join('')}</ul>`
     :`<p>${u('emptyHouse')}</p>`;
   rulers.forEach(r=>{h+=`<p>${F.rulerPara(r.id,r.house,n)} <a href="#" class="chip" data-pick="natal:${r.id}" onclick="return false">${glyph(r)} ${nm(r)}</a></p>`;});
   h+=`<p class="note">${F.naturalSign(natural)}</p>`;
@@ -328,10 +356,11 @@ function natalAspectHTML(k){
   const a=natal.aspects[k],h1=homeHouse(a.p1),h2=homeHouse(a.p2),A=L.aspects[a.asp.id];
   return `<div class="eyebrow">${u('aspectInChart')}</div><h3>${glyph(a.p1)} <span class="gl">${a.asp.g}</span> ${glyph(a.p2)}</h3>
   <div class="pos">${nm(a.p1)} ${A.v} ${nm(a.p2)} · ${u('orb')} ${fmtOrb(a.orb)}</div>
-  <p><b>${A.n}.</b> ${A.key}</p>
+  <p class="deep-lead">${pairText(a.p1.id,a.p2.id,a.asp.cls)}</p>
   <ul class="ctx"><li class="${a.asp.cls}"><span>${nm(a.p1)} ${sIn(a.p1.sign)} · ${hl(h1)}</span>${pKey(a.p1.id)}</li>
   <li class="${a.asp.cls}"><span>${nm(a.p2)} ${sIn(a.p2.sign)} · ${hl(h2)}</span>${pKey(a.p2.id)}</li></ul>
-  <p>${F.aspectLife(h1,h2,a.p1.id,a.p2.id,a.asp.cls)}</p>`;
+  <p>${F.aspectLife(h1,h2,a.p1.id,a.p2.id,a.asp.cls)}</p>
+  <p class="note"><b>${A.n}.</b> ${A.key} ${F.orbExplain(fmtOrb(a.orb))}</p>`;
 }
 function transitWindow(a){
   if(a.t.id==='Moon')return null;
@@ -823,7 +852,7 @@ function gWeb(){
   for(let h=0;h<12;h++){const [x1,y1]=gpt(120,120,96,180+natal.cusps[h]-asc),[x2,y2]=gpt(120,120,100,180+natal.cusps[h]-asc);s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="g-ring"/>`;}
   natal.aspects.forEach(a=>{if(a.asp.id==='conj'||!ids.includes(a.p1.id)||!ids.includes(a.p2.id))return;
     const [x1,y1]=gpt(120,120,92,180+a.p1.lon-asc),[x2,y2]=gpt(120,120,92,180+a.p2.lon-asc);
-    s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="g-asp ${a.asp.cls}" style="stroke-width:${(.7+Math.max(0,1-a.orb/8)*2.2).toFixed(2)}"/>`;});
+    s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" pathLength="1" class="g-asp ${a.asp.cls}" style="stroke-width:${(.7+Math.max(0,1-a.orb/8)*2.2).toFixed(2)}"/>`;});
   pos.forEach(p=>{const [x,y]=gpt(120,120,92,p.a),[tx,ty]=gpt(120,120,112,la[p.id]);
     s+=`<circle cx="${x}" cy="${y}" r="3" style="fill:var(--${elOf(p.id)})"/><text x="${tx}" y="${ty}" class="g-gl" style="fill:var(--${elOf(p.id)})" text-anchor="middle" dominant-baseline="central">${natal.byId[p.id].g}</text>`;});
   return s+'</svg>';
@@ -876,6 +905,21 @@ function tourDomains(){
   const sc=DOM_H.map(hs2=>TIDS().concat(natal.byId.Node?['Node']:[]).reduce((s,id)=>hs2.includes(natal.byId[id].house)?s+(W[id]||1)+(id===rulerId?1.5:0):s,0)),mx=Math.max(...sc,1);
   return sc.map(v=>v/mx);
 }
+/* secrets: sect, dignity, the Sun's glare, morning and evening stars, edge degrees, the Sun's decan */
+function tourSecrets(){
+  const ids=TIDS(),out=[],sec=(t,b)=>out.push(`<h4>${t}</h4>${b}`),day=isDay(natal),hp=day?'Jupiter':'Venus',xp=day?'Mars':'Saturn',H=natal.byId[hp],X=natal.byId[xp];
+  if(!profile.unknown&&H&&X)sec(u('secDayNight'),`<div class="tcard"><p>${F.secSect(day,hp,H.sign,H.house,xp,X.sign,X.house)}</p></div>`);
+  const ab=ids.map(id=>({id,k:dignityFull(id,natal.byId[id].sign)})).filter(x=>x.k&&x.k!=='digHome'&&x.k!=='digExalt');
+  if(ab.length)sec(u('secAbroad'),`${ab.length>=3?`<p>${DP('hid').abroad(ab.length)}</p>`:''}${ab.map(x=>`<div class="tcard tapcard" data-ex="planet:${x.id}"><p>${F.secDignity(x.id,natal.byId[x.id].sign,x.k)}</p></div>`).join('')}`);
+  {const r=SIGNS[natal.byId.ASC.sign].rulers[0],rp=natal.byId[r];if(rp&&!profile.unknown)sec(u('secRuler'),`<div class="tcard tapcard" data-ex="planet:${r}"><p>${DP('hid').rulerIn[rp.house-1]}</p></div>`);}
+  const sun=natal.byId.Sun,gl=['Mercury','Venus','Mars','Jupiter','Saturn'].map(id=>{const o=sep(natal.byId[id].lon,sun.lon);return {id,k:o<17/60?'cazimi':o<8.5?'combust':o<17?'beams':null};}).filter(x=>x.k);
+  if(gl.length)sec(u('secGlare'),gl.map(x=>`<div class="tcard tapcard" data-ex="planet:${x.id}"><p>${F.secGlare(x.id,x.k)}</p></div>`).join(''));
+  sec(u('secStars'),['Mercury','Venus'].map(id=>`<div class="tcard tapcard" data-ex="planet:${id}"><p>${F.secStar(id,norm(sun.lon-natal.byId[id].lon)<180)}</p></div>`).join(''));
+  const ed=ids.map(id=>({id,d:natal.byId[id].lon%30})).filter(x=>x.d<1||x.d>=26);
+  if(ed.length)sec(u('secEdges'),ed.map(x=>`<div class="tcard tapcard" data-ex="planet:${x.id}"><p>${F.secEdge(x.id,natal.byId[x.id].sign,Math.floor(x.d),(natal.byId[x.id].sign+1)%12)}</p></div>`).join(''));
+  {const r=FACE[Math.floor(sun.lon/10)%7],rp=natal.byId[r];sec(u('secDecan'),`<div class="tcard tapcard" data-ex="planet:Sun"><p>${F.faceLine(Math.floor(sun.lon%30),r,rp&&r!=='Sun'?rp.sign:null,rp?rp.house:null)}</p></div>`);}
+  return out.join('');
+}
 /* slides */
 function aspRows(id){
   return natal.aspects.filter(a=>a.p1.id===id||a.p2.id===id).sort((a,b)=>a.orb-b.orb).slice(0,3).map(a=>{const o=a.p1.id===id?a.p2:a.p1;
@@ -883,15 +927,15 @@ function aspRows(id){
 }
 function tourPlanet(id){
   const p=natal.byId[id];if(!p)return '';
-  const T=TT(),S=L.signs[p.sign],hh=homeHouse(p),dg=dignityOf(id,p.sign),rules=housesRuledBy(natal,id),ar=aspRows(id);
+  const T=TT(),hh=homeHouse(p),ar=aspRows(id);
   return `<div class="tcard"><div class="tcard-h">${gMini(hh,id)}<div><h4><span class="exl" data-ex="planet:${id}">${glyph(p)} ${nm(p)} ${sIn(p.sign)}</span></h4><div class="pos">${posStr(p)} · ${hl(hh)}${p.retro?' ℞':''}</div><p class="tpot">${T.pot[id]}</p></div></div>
-  <dl class="kv"><dt>${u('atBest')}</dt><dd>${pm(p.sign,id).plus}</dd><dt>${u('watchFor')}</dt><dd>${pm(p.sign,id).minus}</dd></dl>
-  <p>${F.deepIn(id,hh)}</p>${rules.length&&id!=='Node'&&id!=='Chiron'?`<p>${F.rulesPara(id,rules,p.house)}</p>`:''}${dg?`<p class="explain">${u(dg)}</p>`:''}${p.retro?`<p class="note">${F.retro(id)}</p>`:''}
+  ${pinText(id,p.sign)?`<p>${pinText(id,p.sign)}</p>`:`<dl class="kv"><dt>${u('atBest')}</dt><dd>${pm(p.sign,id).plus}</dd><dt>${u('watchFor')}</dt><dd>${pm(p.sign,id).minus}</dd></dl>`}
+  ${id==='ASC'?'':`<p>${pihText(id,hh)||F.deepIn(id,hh)}</p>`}${p.retro?`<p class="note">${F.retro(id)}</p>`:''}
   ${ar?`<h5>${u('tourAspectsOf')}</h5>${ar}`:''}<p class="tact"><b>${u('tourAsk')}</b> <i>${T.ask[id]}</i></p></div>`;
 }
 function tourSlide(i){
   const T=TT(),P=ids=>ids.map(tourPlanet).join(''),ids=TIDS(),pp=natal.aspects.filter(a=>ids.includes(a.p1.id)&&ids.includes(a.p2.id)).sort((a,b)=>a.orb-b.orb);
-  const aspCard=a=>`<div class="explain tapcard ${a.asp.cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>natalAspectHTML(natal.aspects.indexOf(a)))}"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.aspMeaning(a.p1.id,a.p2.id,a.asp.cls)}<br><span class="muted">${F.aspectLife(homeHouse(a.p1),homeHouse(a.p2),a.p1.id,a.p2.id,a.asp.cls)}</span></div>`;
+  const aspCard=a=>`<div class="explain tapcard ${a.asp.cls==='hard'?'hardx':''}" data-ex="fn:${exReg(()=>natalAspectHTML(natal.aspects.indexOf(a)))}"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${pairText(a.p1.id,a.p2.id,a.asp.cls)}<br><span class="muted">${F.aspectLife(homeHouse(a.p1),homeHouse(a.p2),a.p1.id,a.p2.id,a.asp.cls)}</span></div>`;
   if(i===0){const S=natal.byId.Sun,M=natal.byId.Moon,A=natal.byId.ASC;
     return `<div class="tcover"><div class="eyebrow">${u('tourTitle')}</div><h2>${esc(chartName(profile,active))}</h2><p class="note">${$('#who-meta').textContent}</p>
     <div class="trio">${[[S,u('sunSign')],[M,u('moonSign')],[A,u('risingSign')]].map(([p,l])=>`<div class="tri"><span class="ring"><span class="gl">${SIGNS[p.sign].g}</span></span><small>${l}</small><b>${sN(p.sign)}</b></div>`).join('')}</div>
@@ -910,11 +954,11 @@ function tourSlide(i){
     <h4>${u('tourStel')}</h4>${crowd.map(h=>`<div class="tcard"><p><span class="exl" data-ex="house:${h}">${F.tourCrowd(h,who[h])}</span></p><p>${L.hdeep[h-1]}</p></div>`).join('')}${empty.length?`<h4>${u('tourEmpty')}</h4><p>${F.tourEmptyH(empty)}</p>`:''}${profile.unknown?`<p class="note">${u('tourTime')}</p>`:''}`;}
   if(i===2){const v=tourVolume(),mx=v[0].sc;
     return `<h4>${u('tourVolume')}</h4>${bars(v.map(x=>({l:`${glyphTxt(natal.byId[x.id])} ${pN(x.id)}`,v:x.sc,max:mx,n:x.sc.toFixed(1),c:'pink'})))}
-    ${v.slice(0,3).map(x=>`<div class="tcard"><p><span class="exl" data-ex="planet:${x.id}">${F.tourWhy(x.id,x.why.slice(0,3))}</span></p><p>${L.pmode[x.id]}</p></div>`).join('')}`;}
+    ${v.slice(0,3).map(x=>`<div class="tcard"><p><span class="exl" data-ex="planet:${x.id}">${F.tourWhy(x.id,x.why.slice(0,3))}</span></p><p>${(T.whyMore||{})[x.why[0]]||L.pmode[x.id]}</p></div>`).join('')}`;}
   if(i===3){const S=natal.byId.Sun,M=natal.byId.Moon,deg=norm(M.lon-S.lon),k=Math.floor(deg/45)%8;
     return `<div class="tphase"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><div><h4>${u('tourPhase')}</h4><p>${F.tourPhaseLine(k,deg)}</p></div></div>${P(['Sun','Moon','ASC'])}`;}
   if(i===4){const fl=tourFlow(),r=SIGNS[natal.byId.ASC.sign].rulers[0],rp=natal.byId[r];
-    return `${rp?`<h4>${u('chartRuler')}</h4><p>${F.chartRuler(r,rp.sign,rp.house)}</p>${tourPlanet(r)}`:''}
+    return `${rp?`<h4>${u('chartRuler')}</h4><p>${F.chartRuler(r,rp.sign,rp.house)}</p><p>${DP('hid').rulerIn[rp.house-1]}</p>${tourPlanet(r)}`:''}
     <h4>${u('tourChain')}</h4><p>${fl.fin?F.tourFinal(fl.fin):F.tourNoFinal()}</p>
     <ul class="ctx">${ids.map(id=>{const p=natal.byId[id],rr=SIGNS[p.sign].rulers.find(x=>natal.byId[x]&&x!==id);return rr?`<li><span>${nm(p)}</span>${F.tourChainLine(id,p.sign,rr,natal.byId[rr].sign,natal.byId[rr].house)}</li>`:'';}).join('')}</ul>
     <h4>${u('tourReceptions')}</h4>${fl.rec.length?fl.rec.map(([a,b])=>`<p>${F.tourRecept(a,natal.byId[a].sign,b,natal.byId[b].sign)}</p>`).join(''):`<p class="note">${u('tourNoRecept')}</p>`}`;}
@@ -925,12 +969,13 @@ function tourSlide(i){
   if(i===9){const pt=tourPatterns();
     return `${gWeb()}<p class="note tcap">${u('tourWebNote')}</p><h4>${u('tourPatterns')}</h4>${pt.length?pt.map(x=>`<div class="tcard"><p>${x.type==='stellium'?F.tourStellium(x.sign,x.ids):F.tourPattern(x.type,x.ids,x.apex)}</p></div>`).join(''):`<p class="note">${u('tourNoPatterns')}</p>`}
     <h4>${u('tourTight')}</h4>${pp.slice(0,5).map(aspCard).join('')}`;}
-  if(i===10){const sc=tourDomains(),ord=sc.map((v,k)=>k).sort((a,b)=>sc[b]-sc[a]),D=T.dom,strong=ord.slice(0,2),quiet=ord.filter(k=>sc[k]<=.2).slice(0,3);
+  if(i===10)return tourSecrets();
+  if(i===11){const sc=tourDomains(),ord=sc.map((v,k)=>k).sort((a,b)=>sc[b]-sc[a]),D=T.dom,strong=ord.slice(0,2),quiet=ord.filter(k=>sc[k]<=.2).slice(0,3);
     return `${gRadar(sc)}${strong.map(k=>`<div class="tcard"><b>${D[k].n}.</b> ${D[k].d}</div>`).join('')}<p>${F.tourDomStrong(strong.map(k=>D[k].n.toLowerCase()))}</p>${quiet.length?`<p>${F.tourDomQuiet(quiet.map(k=>D[k].n.toLowerCase()))}</p>`:''}`;}
   const g=pp.filter(a=>a.asp.cls==='soft'&&a.orb<=5).slice(0,2),d=pp.filter(a=>a.asp.cls==='hard'&&a.orb<=5).slice(0,2),S=natal.byId.Sun,Mo=natal.byId.Moon,sat=natal.byId.Saturn,nd=natal.byId.Node,A=natal.byId.ASC;
   return `<h4>${u('tourSummary')}</h4><div class="explain"><p>${F.tourSummaryP(S.sign,S.house,Mo.sign,Mo.house,A.sign,sat?sat.house:1,nd?nd.sign:S.sign,nd?nd.house:1)}</p></div>
-  <h4>${u('tourGifts')}</h4>${g.length?g.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourGift(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoGifts')}</p>`}
-  <h4>${u('tourEdges')}</h4>${d.length?d.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${F.tourEdge(a.p1.id,a.p2.id)}</div>`).join(''):`<p class="note">${u('tourNoEdges')}</p>`}
+  <h4>${u('tourGifts')}</h4>${g.length?g.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${pairText(a.p1.id,a.p2.id,a.asp.cls)}</div>`).join(''):`<p class="note">${u('tourNoGifts')}</p>`}
+  <h4>${u('tourEdges')}</h4>${d.length?d.map(a=>`<div class="tcard"><b>${F.tourAspect(a.p1.id,a.p2.id,a.asp.id,fmtOrb(a.orb))}</b><br>${pairText(a.p1.id,a.p2.id,a.asp.cls)}</div>`).join(''):`<p class="note">${u('tourNoEdges')}</p>`}
   <h4>${u('tourQs')}</h4><div class="tcard"><p>${F.tourQ(u('tourSun'),S.house,T.houseAsk[S.house-1])}</p><p>${F.tourQ(u('tourMoon'),Mo.house,T.houseAsk[Mo.house-1])}</p>${sat?`<p>${F.tourQ(u('tourSat'),sat.house,T.houseAsk[sat.house-1])}</p>`:''}${nd?`<p>${F.tourQ(u('tourNode'),nd.house,T.houseAsk[nd.house-1])}</p>`:''}</div>
   <p class="note">${u('tourPotNote')}</p>`;
 }
@@ -948,7 +993,7 @@ function setTourI(i){
 function goTour(i,smooth){const tr=$('#tour-track');tr.scrollTo({left:i*tr.clientWidth,behavior:smooth?'smooth':'auto'});setTourI(i);}
 function openTour(){
   const T=TT(),n=T.ch.length,tr=$('#tour-track');tourI=Math.min(tourI,n-1);tourOpen=true;
-  tr.innerHTML=T.ch.map((c,k)=>`<section class="tslide" data-k="${k}"><div class="tin">${k&&c.i?`<p class="tintro">${c.i}</p>`:''}${tourSlide(k)}</div></section>`).join('');
+  tr.innerHTML=T.ch.map((c,k)=>`<section class="tslide" data-k="${k}"><div class="tin">${k&&c.i?`<p class="tintro">${c.i}</p>`:''}${T.aside&&T.aside[k]?`<p class="aside">${T.aside[k]}</p>`:''}${tourSlide(k)}</div></section>`).join('');
   $('#tour-dots').innerHTML=T.ch.map((c,k)=>`<button type="button" data-tour="go:${k}" aria-label="${esc(c.t)}"></button>`).join('');
   $('#tour-x').setAttribute('aria-label',u('tourClose'));$('#tour-back').textContent=u('tourBack');
   $('#tour-win').hidden=false;document.body.classList.add('tour-open');goTour(tourI,false);
@@ -990,6 +1035,23 @@ $('#tab-transits').addEventListener('click',e=>{
 function pickTransit(p,fromSheet){
   selT=(!fromSheet&&!isMobile()&&selT===p.dataset.pick&&!p.classList.contains('aitem'))?null:p.dataset.pick;
   renderTransits();if(isMobile())openSheet($('#detail-transit').innerHTML);}
+
+/* ---------- little delights: a sparkle where you tap, and a sun that winks back ---------- */
+const calm=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.addEventListener('pointerup',e=>{
+  if(calm()||!e.target.closest||!e.target.closest('[data-ex],[data-pick],.tapcard,[data-tour="open"]'))return;
+  for(let i=0;i<6;i++){const sp=document.createElement('span'),a=Math.random()*Math.PI*2,r=18+Math.random()*22;
+    sp.className='spark';sp.textContent=i%2?'✦':'·';sp.style.left=(e.clientX-5)+'px';sp.style.top=(e.clientY-6)+'px';
+    sp.style.setProperty('--dx',Math.cos(a)*r+'px');sp.style.setProperty('--dy',Math.sin(a)*r+'px');if(i%3===0)sp.style.color='var(--teal)';
+    document.body.appendChild(sp);setTimeout(()=>sp.remove(),800);}
+  try{navigator.vibrate&&navigator.vibrate(6);}catch(err){}
+},{passive:true});
+{let qi=Math.floor(Math.random()*20);$('.logo').addEventListener('click',()=>{
+  const lg=$('.logo'),Q=u('logoQuips');if(!Array.isArray(Q))return;
+  lg.classList.remove('wink');void lg.getBoundingClientRect();lg.classList.add('wink');
+  document.querySelectorAll('.quip').forEach(x=>x.remove());
+  const q=document.createElement('div');q.className='quip';q.setAttribute('role','status');q.textContent=Q[qi++%Q.length];document.body.appendChild(q);setTimeout(()=>q.remove(),3700);
+});}
 
 /* ---------- bottom sheet ---------- */
 function openSheet(html){$('#sheet-body').innerHTML=html;$('#sheet-body').scrollTop=0;$('#sheet').style.transform='';$('#sheet').classList.add('open');$('#scrim').hidden=false;document.body.classList.add('sheet-open');}

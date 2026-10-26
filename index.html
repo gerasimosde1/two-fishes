@@ -318,6 +318,50 @@ body.tour-open{overflow:hidden}
 .trow{padding:6px 2px;cursor:pointer;border-bottom:1px dotted var(--line)}
 @keyframes tup{from{opacity:0;transform:translateY(10px)}}
 @media (prefers-reduced-motion:no-preference){.tslide.on .tin>*{animation:tup .45s ease both}.tslide.on .tin>*:nth-child(2){animation-delay:.05s}.tslide.on .tin>*:nth-child(3){animation-delay:.1s}.tslide.on .tin>*:nth-child(4){animation-delay:.15s}}
+/* deep readings */
+.deep-lead{font-size:1.04em;line-height:1.6}
+.deep-lead::first-letter{font-family:var(--f-display);font-size:2.7em;float:left;line-height:.82;margin:5px 7px 0 0;color:var(--pink)}
+.hidden-layer{position:relative;margin:18px 0 8px;padding:4px 14px 6px;border:1px dashed var(--teal);border-radius:10px;background:linear-gradient(135deg,var(--water-wash),transparent 60%)}
+.hidden-layer h4{margin-top:10px!important;color:var(--teal)!important}
+.hidden-layer p{margin:.45em 0;font-size:.97rem}
+.aside{font-family:var(--f-italic);font-style:italic;color:var(--pink);background:var(--tband);border-radius:2px;padding:6px 12px;margin:4px 0 14px;transform:rotate(-.8deg);display:inline-block;box-shadow:2px 2px 0 var(--line)}
+.aside::before{content:'✎ ';font-style:normal}
+.quip{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;max-width:min(92vw,420px);background:var(--ink);color:var(--paper);font-family:var(--f-italic);font-style:italic;padding:10px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(8,18,32,.3);text-align:center;pointer-events:none}
+.spark{position:fixed;z-index:70;pointer-events:none;font-family:var(--f-glyph);color:var(--pink);font-size:12px;line-height:1}
+.tapcard,.exl,[data-pick],.trow{transition:transform .12s ease}
+.logo{cursor:pointer}
+@keyframes grow{from{width:0}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes bloom{from{transform:scale(.2);opacity:0}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes wink{0%,100%{transform:scaleY(1)}40%,60%{transform:scaleY(.1)}}
+@keyframes sparkle{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3) rotate(140deg)}}
+@keyframes quipIn{0%{opacity:0;transform:translate(-50%,-10px)}12%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+@keyframes twinkle{0%{opacity:0;transform:scale(.3) rotate(-30deg)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:no-preference){
+  #rays{animation:spin 120s linear infinite}
+  .logo .eyes{transform-box:fill-box;transform-origin:center;animation:blink 7s infinite}
+  .logo.wink .eyes{animation:wink .5s 2}
+  .quip{animation:quipIn 3.6s ease both}
+  .spark{animation:sparkle .7s ease-out forwards}
+  .tapcard:active,.exl:active,.trow:active,.chip:active{transform:scale(.97)}
+  [data-panel]:not([hidden]){animation:fadein .35s ease both}
+  #sheet-body>*{animation:tup .42s ease both}
+  #sheet-body>*:nth-child(2){animation-delay:.04s}#sheet-body>*:nth-child(3){animation-delay:.08s}#sheet-body>*:nth-child(4){animation-delay:.12s}#sheet-body>*:nth-child(5){animation-delay:.16s}#sheet-body>*:nth-child(6){animation-delay:.2s}#sheet-body>*:nth-child(7){animation-delay:.24s}#sheet-body>*:nth-child(n+8){animation-delay:.28s}
+  .tslide.on .tin>*:nth-child(5){animation-delay:.2s}.tslide.on .tin>*:nth-child(n+6){animation-delay:.25s}
+  .tslide.on .gbar i{animation:grow 1s cubic-bezier(.2,.8,.2,1) .2s both}
+  .tslide.on .g-asp{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.4s ease .3s forwards}
+  .tslide.on .g-area{transform-origin:0 0;animation:bloom 1s cubic-bezier(.2,.8,.2,1) .2s both}
+  .tslide.on .g-petal{transform-box:view-box;transform-origin:120px 120px;animation:bloom .9s cubic-bezier(.2,.8,.2,1) .15s both}
+  .tslide.on .tri{animation:pop .6s ease both}.tslide.on .tri:nth-child(2){animation-delay:.15s}.tslide.on .tri:nth-child(3){animation-delay:.3s}
+  .tslide.on .tri .ring{box-shadow:inset 0 0 0 4px var(--card),inset 0 0 0 5px var(--line),0 0 22px var(--sel-wash)}
+  .tslide.on .tphase .em{animation:pop .7s ease both}
+  .pot .stars{display:inline-block;animation:twinkle .5s ease both}
+  .pot[open] .why{animation:fadein .3s ease both}
+}
 .explain{background:var(--paper);border-left:3px solid var(--rose);padding:9px 12px;margin:10px 0;font-size:.96rem;border-radius:0 4px 4px 0}
 .guide{margin-bottom:14px}
 .today-strip .guide.tmore{margin:8px 0 0}.today-strip .guide.tmore summary{font-size:1rem}.today-strip .eyebrow{margin-bottom:4px}
@@ -481,7 +525,7 @@ body.sheet-open{overflow:hidden}
       <g id="rays" fill="var(--rose)"></g>
       <circle r="10.5" fill="var(--pink)"/>
       <circle r="10.5" fill="none" stroke="var(--card)" stroke-width="1"/>
-      <circle cx="-3" cy="-2" r="1.1" fill="var(--card)"/><circle cx="3" cy="-2" r="1.1" fill="var(--card)"/>
+      <g class="eyes"><circle cx="-3" cy="-2" r="1.1" fill="var(--card)"/><circle cx="3" cy="-2" r="1.1" fill="var(--card)"/></g>
       <path d="M-3.5 3 Q0 5.5 3.5 3" stroke="var(--card)" stroke-width="1" fill="none" stroke-linecap="round"/>
       <g transform="translate(-2 -31) scale(-1 1)">
         <path d="M-14 0 C-7 -8 7 -8 13 0 C7 8 -7 8 -14 0Z" fill="var(--turq)" stroke="var(--ink)" stroke-width=".9"/>
@@ -720,6 +764,7 @@ body.sheet-open{overflow:hidden}
 </div>
 
 <script src="i18n/en.js"></script>
+<script src="i18n/en-deep.js"></script>
 <script src="i18n/el.js"></script>
 <script src="i18n/it.js"></script>
 <script src="chiron.js"></script>
