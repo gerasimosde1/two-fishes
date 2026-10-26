@@ -594,5 +594,64 @@ Object.assign(L.q,{
  suddenMsg:n=>n>=15?`${n} in a row. That is astrologer-with-a-waiting-list territory.`:n>=8?`${n} in a row. Properly impressive.`:n>=3?`${n} in a row. A good warm-up; the stars are patient.`:`${n} in a row. Everyone falls at the first fence sometimes. Again?`,
  suddenBest:n=>`Best run: ${n}`
 });
+/* eclipses, Lord of the Year, backup (English only for now) */
+const EK={solar:'Solar',lunar:'Lunar'},ET={total:'Total ',annular:'Annular ',partial:'Partial ',penumbral:'Penumbral ',hybrid:'Hybrid '};
+L.eclType={
+ total:'A total eclipse: the full blackout. These tend to be the ones people remember a year later.',
+ annular:'An annular eclipse: the Moon is a little too far away to cover the Sun, so a ring of fire is left around the edge. A new start with something still glowing from the old one.',
+ hybrid:'A hybrid eclipse: total in some places and a ring of fire in others. The sky could not make up its mind, which is a mood in itself.',
+ partial:'A partial eclipse: only a bite out of the light. Quieter, but not nothing: it still marks the spot.',
+ penumbral:'A penumbral eclipse: the Moon only brushes Earth’s outer shadow, and most people would not notice it looking up. A soft one, more of a sigh than a slammed door.'};
+L.eclPt={
+ Sun:'An eclipse on your Sun is one of the big ones. It tends to show up as a question about who you are becoming, often through a change in role, direction or the people who see you shine.',
+ Moon:'On your Moon, it reaches into your private weather: home, family, the body, what makes you feel safe. Feelings you have been politely ignoring tend to ask for a seat at the table.',
+ Mercury:'On your Mercury, watch the conversations, contracts, studies and plans. A decision you have been circling usually gets made, one way or another.',
+ Venus:'On your Venus, love, money and what you find beautiful all get a review. Relationships can start, end or quietly change their terms. Not a time to panic-buy anything, including a person.',
+ Mars:'On your Mars, energy runs high and patience runs low. Good for a brave move you have prepared; less good for one you thought of at midnight.',
+ Jupiter:'On your Jupiter, a door can open: a teacher, a trip, a chance to grow. The usual Jupiter warning applies: more is not always better.',
+ Saturn:'On your Saturn, it touches your commitments and your sense of what you owe. Something long-term gets real, finished or rebuilt on better foundations.',
+ Uranus:'On your Uranus, expect the unexpected, a little more than usual. A sudden itch for freedom or a change of plan tends to arrive with it.',
+ Neptune:'On your Neptune, the line between intuition and wishful thinking gets thin. Lovely for art and spiritual life; read the small print on everything else.',
+ Pluto:'On your Pluto, it digs. Power, control and deep loyalties come up for honest inspection. Slow to show, and usually worth it.',
+ Node:'On your nodes, it is a fated-feeling eclipse: the kind that seems to nudge you back onto your own path. People and events arrive with a strange sense of timing.',
+ Chiron:'On your Chiron, an old sore spot can flare, and with it a real chance to treat it kindly. Healing here tends to come through helping, or being helped.',
+ ASC:'On your Ascendant, it is about you, visibly: your body, look, presence and how you start things. People often change something about themselves around eclipses on the Rising degree.',
+ MC:'On your Midheaven, career and public life are in play: a new role, a goal finished, a shift in what you want to be known for.'};
+L.lordYear={
+ Sun:'A Sun year asks you to be seen. Recognition, confidence and questions of purpose come forward, and so do the people who want you to stay small. Whatever the Sun is doing in the sky this year is your weather vane.',
+ Moon:'A Moon year runs on feeling and on the body. Home, family, mothering and moods all move faster than usual, because the Moon itself does. Little things matter more this year, so look after them.',
+ Mercury:'A Mercury year is busy in the head and on the phone: learning, writing, deals, siblings, errands. Its retrogrades this year are worth marking in the calendar, for re-dos rather than disasters.',
+ Venus:'A Venus year is about what you love and how you are loved: relationships, beauty, pleasure, and money as a form of comfort. It is a good year to make life prettier, and to notice what you actually value.',
+ Mars:'A Mars year turns the heat up. More drive, more decisions, more friction. It rewards courage and hard training, and punishes rushing. Choose your fights, then fight them well.',
+ Jupiter:'A Jupiter year opens things up: travel, study, teachers, faith, luck. The danger is only too much: too many yeses, too much on the plate. Say yes to the ones that make you larger, not just busier.',
+ Saturn:'A Saturn year is a building year. Responsibilities, structure, maybe some loneliness; also real, lasting results for steady effort. It is less fun than a Jupiter year and pays out for longer.'};
+Object.assign(L.ui,{
+ jumpEclipse:'Eclipses',jumpYear:'Your year',
+ eclTitle:'Eclipses for you',eclNote:'Eclipses come in seasons, two or three at a time, roughly every six months. Each one lands in a part of your chart and keeps working on it for months. Tap any eclipse to see what it touches.',
+ eclEyebrow:'Eclipse',eclPast:'still echoing',eclTouches:'It lands on',eclNone:'It does not land right on one of your planets, so it works on the life area as a whole.',
+ eclSeason:'Eclipse season',eclBorn:'The eclipse before you were born',eclBornNote:'Some astrologers read the last solar eclipse before birth as a quiet theme for your whole life. A footnote, not a headline, and a lovely one.',
+ eclTiming:'Eclipses are slow-release. Their effects are said to unfold over about six months, and often show up when a later New or Full Moon, or a planet, crosses the same degree. The old advice is to watch on the day itself rather than launch something big.',
+ yearTitle:'Your year',yearNeedsTime:'The Lord of the Year is counted from your Rising sign, so it needs a birth time. Add one on the Me tab to see your year.',
+ yearLordNow:'Where your Lord of the Year is now',yearWakes:'Also waking up this year',yearRetro:'Its retrogrades this year',yearMore:'How the year is counted',
+ yearHow:'This is annual profection, an old technique: each birthday moves your year one house on, starting from the 1st house at birth, so every twelve years you are back where you began. The planet that rules that house’s sign is the Lord of the Year: its condition in your chart and its movements in the sky colour the whole year.',
+ backupTitle:'Backup',backupNote:'Your charts, saved readings, notes and streaks live only on this phone. Save a backup file now and then (to Files, iCloud or an email to yourself), and you can bring everything back on a new phone.',
+ backupSave:'Save a backup',backupLoad:'Restore from a backup',backupSaved:'Backup ready. Keep it somewhere safe.',backupBad:'That file does not look like a Two Fishes backup.',
+ backupConfirm:'Restore this backup? It replaces your charts, saved readings and notes on this phone with the ones in the file.'
+});
+Object.assign(L.f,{
+ eclName:(k,t,s)=>`${ET[t]||''}${EK[k]} Eclipse in ${L.signs[s].n}`,
+ eclRow:(k,t,s,h)=>`${ET[t]||''}${EK[k]} Eclipse in ${L.signs[s].n} · ${yourH(h)}`,
+ eclLead:(k,s,h)=>k==='solar'?`A Solar Eclipse is a New Moon with the lights switched off. This one, in ${L.signs[s].n}, falls in ${yourH(h)}, the part of your chart about ${hp(h)}. Something new wants to start there, often before you feel ready, and often through events rather than plans.`:`A Lunar Eclipse is a Full Moon with extra voltage. This one, in ${L.signs[s].n}, lights up ${yourH(h)}, so ${hp(h)} comes into full view. Something there reaches a turning point, finishes, or finally gets said out loud.`,
+ eclHit:(id,opp,deg)=>`${opp?'Across from':'Right on'} your ${L.planets[id].n} (${deg})`,
+ eclSeason:(a,b)=>a===b?`This season works on ${yourH(a)}: ${hp(a)}.`:(b-a+12)%12===6?`This season works the line between ${yourH(a)} and ${yourH(b)}: ${hp(a)} on one side, ${hp(b)} on the other. Eclipses come back to the same pair of houses for about a year and a half, so the story has chapters.`:`This season works on ${yourH(a)} and ${yourH(b)}: ${hp(a)}, and ${hp(b)}. Your houses are not all the same size, so the two eclipses land a little off-opposite in your chart.`,
+ eclSoon:(k,d,h)=>`${EK[k]} eclipse ${d===0?'today':d===1?'tomorrow':d<0?`${-d} day${d===-1?'':'s'} ago`:`in ${d} days`} · ${yourH(h)}`,
+ eclBornLine:(k,t,s,h)=>`${ET[t]||''}${EK[k]} Eclipse in ${L.signs[s].n}, ${yourH(h)}: ${hp(h)} is one of the quiet threads of your life.`,
+ yearHead:(n,id)=>`${n===8||n===11?'An':'A'} ${L.hl(n)} year, run by ${['Sun','Moon'].includes(id)?'the ':''}${L.planets[id].n}`,
+ yearDates:(a,b,age)=>`Age ${age}, from your birthday on ${a} to ${b}.`,
+ yearSign:(n,z)=>`This year your chart turns to its ${L.signs[z].n} house, the part about ${hp(n)}.`,
+ yearNatal:(id,s,h)=>`In your birth chart ${['Sun','Moon'].includes(id)?'the ':''}${L.planets[id].n} sits in ${L.signs[s].n}, in ${yourH(h)}, so a lot of this year’s business tends to come through ${hp(h)}.`,
+ yearSky:(id,s,h,r)=>`Right now ${['Sun','Moon'].includes(id)?'the ':''}${L.planets[id].n} is in ${L.signs[s].n}, moving through ${yourH(h)}${r?', and retrograde: a good time to review this year’s plans rather than add to them':''}.`,
+ yearWakesLine:(ids,z)=>`Your ${list(ids.map(x=>L.planets[x].n))} ${ids.length>1?'live':'lives'} in ${L.signs[z].n}, the sign of the year, so ${ids.length>1?'they get':'it gets'} extra airtime too.`
+});
 (window.TF_LANGS=window.TF_LANGS||{}).en=L;
 })();

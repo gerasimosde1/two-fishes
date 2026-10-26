@@ -14,10 +14,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+Display:ital,wght@0,500;1,500&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Noto+Sans+Symbols:wght@400;500&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="lib/astronomy.browser.min.js"></script>
 <style>
 /* Look: a night-sky jewel box. Pearl (light) or deep-sea navy (dark) paper under a soft turquoise/pink aurora,
    rounded cards with a gradient hairline edge, pill buttons, glowing circles. Cormorant for titles, Alegreya for reading,
@@ -498,7 +496,7 @@ html[lang="el"] h1,html[lang="el"] h2,html[lang="el"] h3,html[lang="el"] h4{font
 .cal-d .mg{font-family:var(--f-glyph);font-size:.78rem;line-height:1}
 .cal-d .dots{display:flex;gap:2px;height:6px}
 .cal-d .dots i{width:5px;height:5px;border-radius:50%;display:block}
-.cal-d .dots .soft{background:var(--teal)} .cal-d .dots .hard{background:var(--pink)} .cal-d .dots .neu,.cal-d .dots .odd{background:var(--earth)}
+.cal-d .dots .soft{background:var(--teal)} .cal-d .dots .hard{background:var(--pink)} .cal-d .dots .neu,.cal-d .dots .odd{background:var(--earth)} .cal-d .dots .ecl{background:var(--ink);box-shadow:0 0 0 1.5px var(--pink)}
 .cal-d.today{border-color:var(--turq);box-shadow:0 0 0 2px rgba(60,196,192,.35)}
 .cal-d.sel{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 8px 18px -8px rgba(201,58,114,.7)}
 .cal-d.sel .mg{color:#fff!important}.cal-d.sel .dots i{box-shadow:0 0 0 1px #fff}
@@ -601,6 +599,10 @@ body.sheet-open{overflow:hidden}
 .mrow .gl{font-size:1.2rem;width:1.6em;text-align:center;flex:none}.mrow .em{font-size:1.3rem;width:1.6em;text-align:center;flex:none}
 .mrow .sub{display:block;font-family:var(--f-label);font-size:.8rem;color:var(--ink-soft)}
 .mrow.ph{background:var(--tband)}
+.mrow.past{opacity:.62}
+.ecl-season{margin:16px 0 0}.ecl-season>.note{margin:2px 0 6px}
+.year-card .year-h{display:flex;align-items:center;gap:10px;margin:2px 0 4px}.year-card .year-h .gl{font-size:1.1em;color:var(--pink)}
+.year-card .pos{font-size:.85rem;color:var(--ink-soft);margin:0 0 8px}.year-card p{margin:8px 0}.year-card h4{margin:16px 0 4px}
 .daily{margin-bottom:14px}
 .daily h3{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin:6px 0 8px;font-size:1.6rem}.daily h3 .gl{color:var(--pink)}
 .daily p{margin:0 0 8px}.daily .more{font-family:var(--f-italic);font-style:italic;font-weight:700;color:var(--pink);font-size:1.1rem}
@@ -814,6 +816,7 @@ body.sheet-open{overflow:hidden}
         <p class="note" style="margin:4px 0 0" data-i18n="weekNote"></p>
         <div class="week" id="week-row"></div>
       </div>
+      <div class="panel year-card" id="sec-year" style="margin-bottom:22px"><div id="year-card"></div></div>
       <details class="panel guide fold" id="sec-cal" style="margin-bottom:22px"><summary data-i18n="foldCal"></summary>
       <div class="cal-panel">
         <div class="cal-head">
@@ -831,6 +834,7 @@ body.sheet-open{overflow:hidden}
         </div>
       </div></details>
       <details class="panel guide fold" id="sec-moon" style="margin-bottom:22px"><summary data-i18n="moonMonth"></summary><div id="moon-month"></div></details>
+      <details class="panel guide fold" id="sec-eclipse" style="margin-bottom:22px"><summary data-i18n="eclTitle"></summary><div id="eclipses"></div></details>
       <details class="panel guide fold" id="sec-explore" style="margin-bottom:22px"><summary data-i18n="foldExplore"></summary>
       <details class="panel guide" style="margin-bottom:22px"><summary data-i18n="whatTransit"></summary><div data-i18n-html="whatTransitHtml"></div></details>
       <div class="split">
@@ -891,6 +895,9 @@ body.sheet-open{overflow:hidden}
         <div class="panel"><h2 data-i18n="language"></h2><div class="langs" id="langs" style="margin-top:10px"></div></div>
         <div class="panel" id="ts-panel"><h2 data-i18n="textSize"></h2><div class="langs" id="text-sizes" style="margin-top:10px;align-items:center"></div></div>
         <div class="panel" id="fav-panel"><h2 data-i18n="favTitle"></h2><p class="note" style="margin:4px 0 10px" data-i18n="favNote"></p><div id="fav-list" class="clist"></div></div>
+        <div class="panel" id="backup-panel"><h2 data-i18n="backupTitle"></h2><p class="note" style="margin:4px 0 10px" data-i18n="backupNote"></p>
+          <div class="form-actions"><button class="btn pri" type="button" id="backup-save" data-i18n="backupSave"></button><button class="btn" type="button" id="backup-load" data-i18n="backupLoad"></button><input type="file" id="backup-file" accept="application/json,.json" hidden></div>
+          <p class="note" id="backup-msg" aria-live="polite" style="margin:8px 0 0"></p></div>
         <div id="install-card" class="install" hidden>
           <img src="icons/icon-192.png" alt="">
           <p id="install-text"></p>

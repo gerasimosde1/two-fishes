@@ -3,7 +3,7 @@
 Astrology web app built for the owner's girlfriend, who describes the features she wants. She is relearning astrology after about 10 years, so explanations should be plain and beginner friendly.
 
 ## How it ships
-- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), `i18n/en-deep.js` (English-only deep readings, loaded after en.js; other languages fall back to it), `i18n/en-match.js` (English-only compatibility readings for Match, `L.syn`), plus `manifest.webmanifest`, `sw.js` and `icons/`.
+- `index.html` (markup + CSS), `app.js` (all logic), `i18n/en.js`, `i18n/el.js`, `i18n/it.js` (all wording), `i18n/en-deep.js` (English-only deep readings, loaded after en.js; other languages fall back to it), `i18n/en-match.js` (English-only compatibility readings for Match, `L.syn`), plus `manifest.webmanifest`, `sw.js`, `icons/`, `lib/astronomy.browser.min.js` (Astronomy Engine 2.1.19, bundled) and `fonts/` (`fonts.css` + woff2 subsets latin, latin-ext, greek, symbols, downloaded from Google Fonts). Nothing loads from a CDN any more.
 - Languages: English, Greek, Italian (the owner said these three for now). No user-visible text belongs in app.js or index.html: static labels use `data-i18n` keys (`L.ui`), sentences are template functions in `L.f` / `L.q`. When adding text, add the key to all three packs. Greek and Italian templates handle articles and cases (e.g. Greek `art`, `acc`, `your`, `yourS`, sign `inS`/`gen`), so build sentences inside the pack, not by concatenating in app.js.
 - GitHub Pages serves `main` at https://gerasimosde1.github.io/two-fishes/. Her phone QR code opens that URL, so pushing to `main` updates her app within a minute or two.
 - It is an installable PWA. After changing cached files, bump `VERSION` in `sw.js` so phones pick up the new version.
@@ -11,7 +11,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 
 ## Data and maths
 - Default chart (`EXAMPLE` in `index.html`) is hers: 3 Mar 2004, 16:05, Cagliari (Europe/Rome). Pisces Sun, Leo Moon, Leo Rising. The repo is public; the owner chose to keep her data in.
-- Planet positions come from Astronomy Engine 2.1.19 (jsDelivr). The Ascendant, MC and Placidus houses are computed in-file; the mean node uses the standard formula.
+- Planet positions come from Astronomy Engine 2.1.19 (bundled in `lib/`). Eclipses come from its `SearchGlobalSolarEclipse`/`SearchLunarEclipse`. The Ascendant, MC and Placidus houses are computed in-file; the mean node uses the standard formula.
 
 ## Design she asked for
 - Every shade of blue (turquoise to baby blue) and pink, with elegant vintage-looking type. Since Oct 2026 restyle: Cormorant Garamond for titles (`--f-display`/`--f-italic`; Greek uses Noto Serif Display), Alegreya for reading (`--f-body`), Alegreya Sans for small labels and numbers (`--f-label`, `--f-mono`). Rounded cards with a turquoise-to-rose gradient edge (`--edge`), pill buttons with `--grad`, glyphs in engraved seals (fine ring + dotted inner ring, centred by `centerGlyphs` in app.js), a soft aurora + stars behind the page (`body::before`), floating glass tab dock on phones. Radii are `--r-lg/md/sm`, shadows `--shadow`/`--shadow-lift`.
@@ -38,6 +38,8 @@ Astrology web app built for the owner's girlfriend, who describes the features s
   - A calendar (tap any day, past or future) and a biwheel.
   - Transits read against the WHOLE chart (houses, rulerships, dispositors, natal aspects), grouped into long-term (Jupiter to Pluto and the Node), short-term (Sun to Mars) and Moon, with in-orb dates and exact dates. This whole-chart reading is her key requirement.
   - Active life areas and a 12-month timeline of slow transits.
+  - "Your year" card (`#sec-year`, `profection`, `renderYear`): Lord of the Year by annual profection from the Rising sign (traditional rulers, `trad`), its natal place, where it is now, its retrogrades in the year (`retroCal`), natal planets in the year's sign. Needs a birth time. Wording `L.lordYear`, `F.year*`, ui `year*`.
+  - Eclipses (`#sec-eclipse`, `eclInfo`, `eclipsesBetween`, `eclData`, `renderEclipses`, `exEclipse`): the last season (still echoing) and the next two years, grouped into seasons, each with her house and natal points within 3° by conjunction or opposition; plus the prenatal solar eclipse. Also a line in the today strip when one is within 14 days, a dot (`.ecl`) and an entry on the calendar day, and in the .ics file. Wording `L.eclType`, `L.eclPt`, `F.ecl*`, ui `ecl*`. English only.
 - Explanations everywhere: house, sign and planet write-ups, plus the "How to read your chart" and "What is a transit?" guides. She is relearning, so keep everything explained.
 - Learn tab: 26 games. Harder set added Oct 2026 (English only, el/it fall back via `GT`/`Q`): Hard `sect` (day/night, benefic/malefic of sect), `moonphase`, `transithouse` (her Placidus cusps or whole-sign); Expert `decans` (Chaldean faces, `FACE`), `patterns` (Grand Trine, T-square, Grand Cross, Yod, Kite, Mystic Rectangle, stellium, and broken near-patterns), `profections` (Lord of the Year, traditional rulers, `ageNow`), `mirrors` (antiscia), `chain` (dispositors, final dispositor via `tourFlow`), and `sudden` (Sudden Death: `sudden:1` flag ends the run at the first wrong answer, best is the streak). Older games: (the newest, "Read My Chart" `GAMES.readmine`, mixes the first clause of her real deep readings with other signs/houses; `GT(k)` falls back to English game titles) across Beginner, Intermediate, Hard and Expert levels (Master Exam: 15 timed questions). She wants them challenging.
 - Your cosmic potential (launcher card `#tour` on the Chart tab, full-screen window `#tour-win`): 13 swipeable slides (slide 10 is "Secrets of your chart", `tourSecrets`: sect, planets living abroad, chart ruler's house, the Sun's glare, morning/evening stars, edge degrees, the Sun's decan; each slide also has a handwritten-style margin note from `L.tour.aside`) (CSS scroll-snap track `#tour-track`, dots, Back/Next, arrow keys, Esc) with SVG graphics (`gRose` house map, `gMini` per-planet house wheel, `gWeb` aspect web, `gRadar` life-area map) and analysis: chart volume (`tourVolume`), aspect patterns and stelliums (`tourPatterns`), receptions and final dispositor (`tourFlow`), life-area scores (`tourDomains`), lunar phase at birth, hemisphere emphasis. Code is in app.js (`tourSlide`, `openTour`...); wording lives in `L.tour`, `L.ui.tour*`, `L.f.tour*` of `i18n/en.js` only for now (el/it fall back to English; translate when the owner says). Progress is in localStorage `tf.tour`. Remove by deleting those, `#tour`, `#tour-win` and the `.twin/.tslide/.g-*/.gbar` CSS.
@@ -47,6 +49,7 @@ Astrology web app built for the owner's girlfriend, who describes the features s
 - Text size on the Me tab (`renderTS`, localStorage `tf.ts`, CSS `--ts` scales the root font).
 - The explanation sheet now also opens on wide screens (centred, 720px).
 - Match (Planets tab › Match, "Where your tides meet"): a full compatibility reading between her active chart and another. Pick a saved chart or "Someone new" (quick form, only a birth date needed, kept in localStorage `tf.quick` until "Keep in my charts"); lens Love / Friendship / Work (`tf.mlens`, weights in `LENSES`). Shows an overall % ring and archetype title (`L.syn.arch`), six sides (chemistry, emotional fit, talk, joy, staying power, soul bond: `synScore`, `synDimsOf`, `synVal`), "The story of you two", sign-by-sign rows, flowing and tense links with hand-written synastry texts (`L.syn.pair`, directional, tokens `{A}` `{A's}` `{A|verb|verb}` filled by `synFill`), the composite "relationship chart" (`synComposite`, `L.syn.compSun/compMoon`), "Your days together" (30 days of transits to the composite, `synDays`), house overlays both ways (`L.syn.over/overH`), all links, and a share card (`shareMatch`). Unknown birth times drop ASC/MC and houses. Mood: whimsical sea-and-pearl (`.m-*` CSS, `--lilac --pearl --bubble` tokens): shimmer, bubbles, shell seals, wavy section marks, no literal fairies or mermaids. English only for now (el/it fall back).
+- Backup on the Me tab (`#backup-panel`, `saveBackup`, `loadBackup`): every `tf.*` localStorage key in one JSON file (shared via `shareFile`), restored after a confirm. English only.
 - Me tab: multiple saved charts (add, edit, switch, delete) stored in localStorage `tf.charts` and `tf.active`, plus install help.
 
 ## Optional features (each one can be removed on its own)
@@ -61,7 +64,7 @@ Added in one batch; the owner's girlfriend may not want all of them. Each is its
 | Practice (mistakes review, streak) | cd89aa7 | `GAMES.mistakes`, `game.queue`/`game.n` handling, the `tf.missed` and `tf.practice` code in `answerQ`, the practice bar in `renderGames`, `L.games.mistakes`, `F.mistakesCta`, `F.practiceStreak`, `.practice-bar` CSS |
 | Day journal | 263df5b | `dayNotes`, `saveDayNote`, the note box in `renderCalendar`, `.day-note` and `.has-note` CSS, ui `myNote notePh noteSaved` (notes live in localStorage `tf.notes`) |
 | Share card and calendar file | a0c937a | `shareBig3`, `buildICS`, `shareFile`, `#share-big3` and `#ics-btn` in index.html, ui `shareBtn icsBtn icsNote`, `F.icsStart icsEnd icsMoon` |
-| Offline start | (sw.js) | the `OUTSIDE` precache list in `sw.js` |
+| Offline start | (sw.js) | the `lib/` and `fonts/` entries in the `SHELL` list of `sw.js` (the files themselves are needed either way) |
 
 Small delights: a sparkle and tiny vibration on every tap of an explainable item, tour graphics animate in (bars grow, aspect lines draw, petals and radar bloom), the sheet content fades in, and tapping the logo makes the sun wink and shows a joke from `L.ui.logoQuips`. All motion respects `prefers-reduced-motion`.
 
@@ -70,7 +73,7 @@ Finding your way (she got lost easily): the phone's back button/gesture steps ba
 Gotcha: `.tl` is an existing timeline class (min-width 640px); do not reuse that name for new styles.
 
 ## App Store launch rules (do all of these before submitting)
-The plan is to wrap the web app with Capacitor and publish on the iOS App Store. Her phone keeps using the GitHub Pages PWA; the store build is a separate, public-facing build of the same code. Nothing below is done yet.
+The plan is to wrap the web app with Capacitor and publish on the iOS App Store. Her phone keeps using the GitHub Pages PWA; the store build is a separate, public-facing build of the same code. Only the bundling below is done.
 
 **Accounts and money**
 - Enroll in the Apple Developer Program ($99/year, individual account). Check the current fee on Apple's site first.
@@ -85,7 +88,7 @@ The plan is to wrap the web app with Capacitor and publish on the iOS App Store.
 - App Privacy labels: charts stay on the device, so "Data not collected" is only true if nothing is sent anywhere. Check that no analytics or third-party requests remain.
 
 **Offline and native feel**
-- Bundle everything that loads from a CDN: Astronomy Engine 2.1.19 (jsDelivr) and the Google Fonts (Cormorant Garamond, Noto Serif Display, Alegreya, Alegreya Sans, Noto Sans Symbols). The store app must work with no internet.
+- Done (Oct 2026): Astronomy Engine and the Google Fonts are bundled in `lib/` and `fonts/`; the app makes no outside requests. Keep it that way.
 - Skip the service worker in the native build (unreliable in iOS web views); keep `sw.js` for the web version and keep bumping `VERSION` there.
 - Apple rejects "just a website" apps (guideline 4.2). Add at least one or two native touches (local notification for the Daily Horoscope, haptics, or a widget), handle safe areas and the status bar, and hide the PWA "install help" in the Me tab inside the native app.
 

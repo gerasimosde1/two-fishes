@@ -513,11 +513,12 @@ function renderToday(){
   const now=new Date(),sun=eclLon('Sun',now),moon=eclLon('Moon',now),k=Math.round(norm(moon-sun)/45)%8,ill=Math.round((1-Math.cos(rad(norm(moon-sun))))/2*100);
   const mz=Math.floor(moon/30),mh=houseOf(moon,natal.cusps),fc=moonForecast(now);
   const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
-  renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
+  renderRetroCal();const on=retroCal.rows.filter(r=>r.on),ecl=eclData().list.find(x=>{const d=daysFromToday(x.t);return d>=-3&&d<=14;});
   const moonSign=`<span class="exl" data-ex="fn:${exReg(()=>exMoonIn(mz,mh,u('todayTitle')))}"><span class="gl">☽︎</span> ${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span>`;
   $('#today-strip').innerHTML=`<div class="eyebrow">${u('todayTitle')}</div>
    <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${L.moonPhases[k]} · ${ill}%</h3><p>${L.moonAdvice[k]}</p>`)}">${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
    <div class="tsl">${moonSign}</div>
+   ${ecl?`<div class="tsl"><span class="em">${MOON_EM[ecl.k==='solar'?0:4]}</span><span class="exl" data-ex="fn:${exReg(()=>exEclipse(ecl,''))}">${F.eclSoon(ecl.k,daysFromToday(ecl.t),ecl.h)}</span></div>`:''}
    <div class="tadv">${L.moonAdvice[k]}</div>
    <details class="guide tmore"><summary>${u('todayMore')}</summary>
    <div class="tvoid ${fc.void||fc.id?'exl':''}" ${fc.void||fc.id?`data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${fc.void?L.moonPhases[k]:aN(fc.asp)}</h3><p>${u('voidInfo')}</p>`)}"`:''}>${fc.void?F.voidMoon(tf(fc.until),sN(fc.sign)):fc.id?F.moonNext(aN(fc.asp),pN(fc.id),tf(fc.t)):''}</div>
@@ -554,10 +555,12 @@ function renderTransits(){
   renderWeek();
   renderCalendar();
   renderMoonMonth();
+  renderYear();
+  renderEclipses();
   renderTimeline();
 }
 /* jump bar: the Transits page is long, so these chips jump straight to each part */
-const JUMPS=[['today-strip','jumpToday'],['sec-forecast','jumpForecast'],['sec-week','jumpWeek'],['sec-cal','jumpCal'],['sec-moon','jumpMoon'],['sec-explore','jumpExplore'],['sec-ahead','jumpAhead']];
+const JUMPS=[['today-strip','jumpToday'],['sec-forecast','jumpForecast'],['sec-week','jumpWeek'],['sec-year','jumpYear'],['sec-cal','jumpCal'],['sec-moon','jumpMoon'],['sec-eclipse','jumpEclipse'],['sec-explore','jumpExplore'],['sec-ahead','jumpAhead']];
 function renderJump(){const j=$('#t-jump');if(j.dataset.lang!==LANG){j.innerHTML=JUMPS.map(([id,k])=>`<button type="button" class="chip" data-jump="${id}">${u(k)}</button>`).join('');j.dataset.lang=LANG;}}
 function goSection(id){const el=document.getElementById(id);if(!el)return;if(el.tagName==='DETAILS')el.open=true;el.scrollIntoView({behavior:calm()?'auto':'smooth',block:'start'});}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-jump]');if(b)goSection(b.dataset.jump);});
@@ -593,6 +596,69 @@ function renderMoonMonth(){
     return `<button type="button" class="mrow" data-ex="fn:${exReg(()=>exMoonIn(x.s,x.h,u('moonMonth')))}"><span class="gl" style="color:var(--${z.el})">${z.g}</span><span>${F.moonIngress(x.s,x.h)}<span class="sub mono">${tf(x.t)}</span></span></button>`;}).join('');
 }
 const exMoonPhase=x=>`<div class="eyebrow">${u('moonMonth')}</div><h3>${MOON_EM[x.k]} ${L.moonPhases[x.k]} ${sIn(x.s)}</h3><div class="pos">${fmtDate(x.t)} · ${hl(x.h)}</div><p class="deep-lead">${F.moonPhaseIn(x.k,x.s,x.h)}</p><p>${L.moonAdvice[x.k]}</p><h4>${F.houseHeading(x.h,false)}</h4><p>${L.hdeep[x.h-1]}</p>`;
+/* eclipses: the last season and the next two years, where each lands in her chart and what it touches */
+function eclInfo(k,type,t){
+  const lon=eclLon(k==='solar'?'Sun':'Moon',t),hits=[];
+  natal.pts.forEach(n=>{const d=sep(lon,n.lon);if(d<=3)hits.push({n,opp:false,orb:d});else if(180-d<=3)hits.push({n,opp:true,orb:180-d});});
+  hits.sort((a,b)=>a.orb-b.orb);
+  return {k,type,t,lon,s:Math.floor(lon/30),h:houseOf(lon,natal.cusps),hits};
+}
+function eclipsesBetween(a,b,kinds){
+  const A=window.Astronomy,out=[],src={solar:[A.SearchGlobalSolarEclipse,A.NextGlobalSolarEclipse],lunar:[A.SearchLunarEclipse,A.NextLunarEclipse]};
+  for(const k of kinds||['solar','lunar']){let e=src[k][0](a);while(e.peak.date<b){out.push(eclInfo(k,e.kind,e.peak.date));e=src[k][1](e.peak);}}
+  return out.sort((x,y)=>x.t-y.t);
+}
+let eclC=null;
+function eclData(){
+  const t0=startOfDayNoon(new Date()),key=natalKey()+'|'+isoDate(t0);
+  if(!eclC||eclC.key!==key){
+    const list=eclipsesBetween(new Date(t0.getTime()-190*DAY),new Date(t0.getTime()+760*DAY)),seasons=[];
+    list.forEach(x=>{const s=seasons[seasons.length-1];if(s&&x.t-s[s.length-1].t<40*DAY)s.push(x);else seasons.push([x]);});
+    const born=eclipsesBetween(new Date(natal.date.getTime()-200*DAY),natal.date,['solar']).pop();
+    eclC={key,seasons,list,born};}
+  return eclC;
+}
+function eclSeasonText(se){const sol=se.find(x=>x.k==='solar'),lun=se.find(x=>x.k==='lunar');return F.eclSeason((sol||lun).h,(lun||sol).h);}
+function exEclipse(x,season){
+  const P=DP('eclPt'),T=DP('eclType');
+  return `<div class="eyebrow">${u('eclEyebrow')}</div><h3>${MOON_EM[x.k==='solar'?0:4]} ${F.eclName(x.k,x.type,x.s)}</h3><div class="pos">${fmtDate(x.t)} · ${fmtIn(x.lon)} ${sN(x.s)} · ${hl(x.h)}</div>
+  <p class="deep-lead">${F.eclLead(x.k,x.s,x.h)}</p><p>${T[x.type]||''}</p>
+  <h4>${u('eclTouches')}</h4>${x.hits.length?`<ul class="ctx">${x.hits.map(hh=>`<li class="${hh.opp?'hard':'soft'}"><span class="exl" data-ex="planet:${hh.n.id}">${F.eclHit(hh.n.id,hh.opp,`${fmtIn(hh.n.lon)} ${sN(hh.n.sign)}`)}</span>${P[hh.n.id]||''}</li>`).join('')}</ul>`:`<p class="note">${u('eclNone')}</p>`}
+  <h4>${F.houseHeading(x.h,false)}</h4><p>${DP('hdeep')[x.h-1]}</p>${season?`<p>${season}</p>`:''}<p class="note">${u('eclTiming')}</p><p class="honest">${u('honestNote')}</p>`;
+}
+function renderEclipses(){
+  const E=eclData(),key=E.key+'|'+LANG,el=$('#eclipses');if(el.dataset.key===key)return;el.dataset.key=key;
+  const t0=startOfDayNoon(new Date()),mo=d=>d.toLocaleDateString(L.locale,{month:'long',year:'numeric'});
+  const row=(x,season)=>`<button type="button" class="mrow${x.t<t0?' past':''}" data-ex="fn:${exReg(()=>exEclipse(x,season))}"><span class="em">${MOON_EM[x.k==='solar'?0:4]}</span><span><b>${F.eclRow(x.k,x.type,x.s,x.h)}</b><span class="sub mono">${fmtDate(x.t)}${x.hits.length?` · ${x.hits.map(hh=>hh.n.g).join(' ')}`:''}${x.t<t0?` · ${u('eclPast')}`:''}</span></span></button>`;
+  el.innerHTML=`<p class="note">${u('eclNote')}</p>`+E.seasons.map(se=>{const st=eclSeasonText(se);
+    return `<div class="ecl-season"><div class="eyebrow">${u('eclSeason')} · ${mo(se[0].t)}</div><p class="note">${st}</p>${se.map(x=>row(x,st)).join('')}</div>`;}).join('')+
+    (E.born?`<div class="ecl-season"><div class="eyebrow">${u('eclBorn')}</div><p class="note">${u('eclBornNote')}</p><button type="button" class="mrow" data-ex="fn:${exReg(()=>exEclipse(E.born,''))}"><span class="em">${MOON_EM[0]}</span><span>${F.eclBornLine(E.born.k,E.born.type,E.born.s,E.born.h)}<span class="sub mono">${fmtDate(E.born.t)}</span></span></button></div>`:'');
+}
+/* Lord of the Year: annual profections from the Rising sign, traditional rulers */
+function profection(){
+  if(profile.unknown)return null;
+  const [y,m,d]=profile.date.split('-').map(Number),t=new Date();let start=new Date(t.getFullYear(),m-1,d,12);if(start>t)start=new Date(t.getFullYear()-1,m-1,d,12);
+  const age=start.getFullYear()-y,z=(natal.byId.ASC.sign+age)%12;
+  return {age,start,end:new Date(start.getFullYear()+1,m-1,d,12),n:age%12+1,z,lord:trad(z)};
+}
+function renderYear(){
+  const el=$('#year-card'),p=profection();
+  if(!p){el.innerHTML=`<div class="eyebrow">${u('yearTitle')}</div><p class="note">${u('yearNeedsTime')}</p>`;return;}
+  const id=p.lord,n=natal.byId[id],now=startOfDayNoon(new Date()),lon=eclLon(id,now),sp=speedOf(id,now),zs=Math.floor(lon/30),hs=houseOf(lon,natal.cusps);
+  const as=computeTransits(natal,now).aspects.filter(a=>a.t.id===id).slice(0,3);
+  renderRetroCal();const rets=retroCal.rows.filter(r=>r.id===id&&r.s<p.end&&r.e>p.start);
+  const wakes=natal.pts.filter(q=>q.sign===p.z&&q.id!==id&&!['ASC','MC'].includes(q.id)).map(q=>q.id);
+  el.innerHTML=`<div class="eyebrow">${u('yearTitle')}</div><h2 class="year-h"><span class="gl">${PDEF[id].g}</span> ${F.yearHead(p.n,id)}</h2>
+  <p class="pos mono">${F.yearDates(fmtDate(p.start),fmtDate(p.end),p.age)}</p>
+  <p class="deep-lead"><span class="exl" data-ex="house:${p.n}">${F.yearSign(p.n,p.z)}</span> ${DP('hdeep')[p.n-1]}</p>
+  <p>${DP('lordYear')[id]}</p>
+  <p><span class="exl" data-ex="planet:${id}">${F.yearNatal(id,n.sign,homeHouse(n))}</span></p>
+  ${wakes.length?`<p>${F.yearWakesLine(wakes,p.z)}</p>`:''}
+  <h4>${u('yearLordNow')}</h4><p><span class="exl" data-ex="fn:${exReg(()=>exSky({...PDEF[id],lon,speed:sp,sign:zs,house:hs,retro:sp<0},computeTransits(natal,now)))}">${F.yearSky(id,zs,hs,sp<0)}</span></p>
+  ${as.length?as.map(a=>`<div class="rt"><span class="exl" data-ex="fn:${exReg(()=>transitStoryHTML(a))}">${aN(a.asp.id)} → ${glyph(a.n)} ${nm(a.n)} · ${fmtOrb(a.orb)}</span></div>`).join(''):''}
+  ${rets.length?`<p class="note"><b>${u('yearRetro')}:</b> ${rets.map(r=>`${fmtShort(r.s)} – ${fmtShort(r.e)}`).join('; ')}</p>`:''}
+  <details class="guide"><summary>${u('yearMore')}</summary><p>${u('yearHow')}</p></details>`;
+}
 
 /* ---------- Today's Tides ---------- */
 const BENEFIC=['Venus','Jupiter','Sun','Moon'],MALEFIC=['Mars','Saturn','Pluto','Uranus','Neptune'];
@@ -670,10 +736,12 @@ function computeMonth(y,m){
           days[d].ev.push({kind:'aspect',cls:a.cls,rank:SLOW[id]??1,id,nid:np.id,aid:a.id,pick:`ta:${id}|${np.id}|${a.id}`});}
     });});
   });
+  eclipsesBetween(at(-1),at(n)).forEach(x=>{const d=x.t.getDate()-1;if(x.t.getMonth()===m&&days[d])days[d].ev.push({kind:'eclipse',cls:'neu',rank:20,x});});
   days.forEach(x=>x.ev.sort((a,b)=>b.rank-a.rank));
   return {y,m,days,key:natalKey()};
 }
 function eventHTML(e){
+  if(e.kind==='eclipse')return `<button type="button" class="aitem" data-ex="fn:${exReg(()=>exEclipse(e.x,''))}" style="grid-template-columns:minmax(0,1fr)"><span><span>${MOON_EM[e.x.k==='solar'?0:4]} ${F.eclRow(e.x.k,e.x.type,e.x.s,e.x.h)}</span><span class="sub" style="display:block">${firstS(F.eclLead(e.x.k,e.x.s,e.x.h),2)}</span></span></button>`;
   if(e.kind==='ingress')return `<div class="cal-ev"><span><span><span class="gl">${PDEF[e.id].g}</span> ${F.enters(e.id,e.to)} <span class="gl">${SIGNS[e.to].g}</span></span><span class="sub note" style="display:block">${F.nowMoving(e.h)}</span></span></div>`;
   if(e.kind==='station')return `<div class="cal-ev"><span><span><span class="gl">${PDEF[e.id].g}</span> ${F.turns(e.id,e.retro)}</span><span class="sub note" style="display:block">${e.retro?F.stationRetro(e.id):F.stationDirect(e.id)}</span></span></div>`;
   const np=natal.byId[e.nid];
@@ -691,7 +759,7 @@ function renderCalendar(){
   for(let i=0;i<lead;i++)h+='<div class="cal-d pad"></div>';
   const notes=dayNotes();
   cal.days.forEach(x=>{const iso=isoDate(x.date),z=SIGNS[Math.floor(x.moon/30)];
-    const dots=x.ev.slice(0,3).map(e=>`<i class="${e.cls}"></i>`).join('');
+    const dots=x.ev.slice(0,3).map(e=>`<i class="${e.kind==='eclipse'?'ecl':e.cls}"></i>`).join('');
     h+=`<button type="button" class="cal-d${iso===todayIso?' today':''}${iso===selIso?' sel':''}${notes[iso]?' has-note':''}" data-day="${iso}" aria-label="${esc(fmtShort(x.date))}"><span class="n">${x.date.getDate()}</span><span class="mg" style="color:var(--${z.el})">${z.g}</span><span class="dots">${dots}</span></button>`;});
   $('#cal-grid').innerHTML=h;
   const x=cal.days[tDate.getDate()-1],ms=Math.floor(x.moon/30),mh=houseOf(x.moon,natal.cusps);
@@ -1240,6 +1308,23 @@ function renderFavs(){const ck=natalKey(),mine=favs().filter(f=>f.ck===ck);
 function openFav(id){const f=favs().find(x=>x.id===id);if(!f)return;const fresh=/^(planet|sign|house):/.test(f.k)?exHTML(f.k):'';openSheet(fresh||f.h,fresh?f.k:'snap');}
 
 /* search: planets, signs, houses, aspects, guides and places in the app */
+/* backup: everything the app keeps (tf.* in localStorage) as one file, and back again */
+function saveBackup(){
+  const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('tf.'))data[k]=localStorage.getItem(k);}
+  const name=`two-fishes-backup-${isoDate(new Date())}.json`;
+  shareFile(new File([JSON.stringify({app:'two-fishes',v:1,saved:new Date().toISOString(),data})],name,{type:'application/json'}),name).then(()=>{$('#backup-msg').textContent=u('backupSaved');});
+}
+function loadBackup(f){
+  const r=new FileReader();
+  r.onload=()=>{let b=null;try{b=JSON.parse(r.result);}catch(e){}
+    if(!b||b.app!=='two-fishes'||!b.data||typeof b.data!=='object'){$('#backup-msg').textContent=u('backupBad');return;}
+    if(!confirm(u('backupConfirm')))return;
+    try{Object.entries(b.data).forEach(([k,v])=>{if(k.startsWith('tf.')&&typeof v==='string')localStorage.setItem(k,v);});}catch(e){}
+    location.reload();};
+  r.readAsText(f);
+}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('#backup-save,#backup-load');if(!t)return;if(t.id==='backup-save')saveBackup();else $('#backup-file').click();});
+$('#backup-file').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f)loadBackup(f);});
 const fold=t=>String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 let searchIdx=[];
 function searchIndex(){
@@ -1562,6 +1647,7 @@ function buildICS(){
   retroCal.rows.forEach(r=>{const p=PDEF[r.id],tag=(L.retroInfo[r.id]||'').split('. ')[0],where=`${sN(r.z1)}${r.z2!==r.z1?' → '+sN(r.z2):''} · ${hl(r.h1)}${r.h2!==r.h1?' → '+hl(r.h2):''}`;
     if(!r.on)add(`rs-${r.id}-${dd(r.s)}`,r.s,F.icsStart(pN(r.id)),`${tag}. ${where}`);
     add(`re-${r.id}-${dd(r.e)}`,r.e,F.icsEnd(pN(r.id)),`${where}`);});
+  eclData().list.filter(x=>x.t>=startOfDayNoon(new Date())).forEach(x=>add(`ec-${x.k}-${dd(x.t)}`,x.t,F.eclRow(x.k,x.type,x.s,x.h),firstS(F.eclLead(x.k,x.s,x.h),2)));
   let prev=null;const t0=Date.now();
   for(let t=t0;t<=t0+730*DAY;t+=6*3600000){const d=new Date(t),e=norm(eclLon('Moon',d)-eclLon('Sun',d));
     if(prev!=null){for(const [target,idx] of [[0,0],[180,4]]){const f0=((prev-target+540)%360)-180,f1=((e-target+540)%360)-180;
