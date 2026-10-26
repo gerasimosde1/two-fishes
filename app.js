@@ -1655,7 +1655,7 @@ function buildICS(){
 }
 $('#ics-btn').addEventListener('click',()=>shareFile(new File([buildICS()],'astro-pisces.ics',{type:'text/calendar'}),'astro-pisces.ics'));
 let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
-function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);setWhere();}
+function setPseg(v){const order=[...document.querySelectorAll('[data-pseg]')].map(b=>b.dataset.pseg),was=psegV;psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);if(was!==v)glide(document.querySelector(`[data-pp="${v}"]`),order.indexOf(v)>order.indexOf(was)?'r':'l');setWhere();}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
 function retroCard(p,badge,cls,dates,where,tag,body){
   return `<details class="rcard"><summary><div class="rh"><span class="exl" data-ex="planet:${p.id}">${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;
@@ -1695,12 +1695,20 @@ function setWhere(){let s=u(TAB_KEY[curTab]);
   if(curTab==='planets')s+=' · '+u(SEG_KEY[psegV]);
   if(curTab==='learn'&&!$('#quiz').hidden&&game)s+=' · '+GT(game.k).t;
   $('#mast-page').textContent=s;}
+const TAB_ORDER=[...document.querySelectorAll('nav.tabs button')].map(b=>b.dataset.tab);
+function placePill(){const nav=$('nav.tabs'),b=nav.querySelector('button[aria-selected="true"]'),p=nav.querySelector('.tab-pill');if(!b||!p)return;
+  p.style.left=b.offsetLeft+'px';p.style.right=(nav.clientWidth-b.offsetLeft-b.offsetWidth)+'px';p.style.top=b.offsetTop+'px';p.style.height=b.offsetHeight+'px';
+  if(!nav.classList.contains('has-pill')){nav.classList.add('has-pill');setTimeout(()=>nav.classList.add('ready'),60);}}
+if(window.ResizeObserver){const ro=new ResizeObserver(placePill);document.querySelectorAll('nav.tabs,nav.tabs button').forEach(el=>ro.observe(el));}
+if(document.fonts)document.fonts.ready.then(placePill);
+function glide(el,dir){if(!el||calm())return;el.classList.remove('go-l','go-r');void el.offsetWidth;el.classList.add('go-'+dir);}
 function showTab(t,fromPop){
   if(t===curTab&&!fromPop&&document.querySelector(`[data-panel="${t}"]`).hidden===false){closeSheet();window.scrollTo({top:0,behavior:calm()?'auto':'smooth'});return;}
   tabScroll[curTab]=window.scrollY;closeSheet();
   if(!fromPop){try{const s=history.state;if(!s||s.boot)history.replaceState({tab:t},'','#'+t);else history.pushState({tab:t},'','#'+t);}catch(e){}}
-  curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
-  document.querySelectorAll('[data-panel]').forEach(s=>s.hidden=s.dataset.panel!==t);
+  const dir=TAB_ORDER.indexOf(t)>=TAB_ORDER.indexOf(curTab)?'r':'l';$('nav.tabs').dataset.dir=dir;
+  curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));placePill();
+  document.querySelectorAll('[data-panel]').forEach(s=>s.hidden=s.dataset.panel!==t);glide(document.querySelector(`[data-panel="${t}"]`),dir);
   if(t!=='transits')stopPlay();
   if(t!=='learn')stopTimer();
   if(t==='planets')renderPlanets();if(t==='transits')renderTransits();if(t==='learn'&&$('#quiz').hidden)renderGames();if(t==='me'){fillForm();renderLangs();renderTS();renderFavs();}store.set('tf.tab',t);

@@ -133,6 +133,10 @@ a{color:var(--teal)}
 nav.tabs{display:inline-flex;gap:4px;flex-wrap:wrap;margin:16px 0 20px;padding:5px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
 nav.tabs button{background:none;border:0;border-radius:999px;padding:8px 20px;cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.2rem;color:var(--ink-soft)}
 nav.tabs button[aria-selected="true"]{color:#fff;background:var(--grad);box-shadow:0 6px 16px -6px rgba(201,58,114,.5)}
+/* the selected tab's gradient is one pill that swims from tab to tab (placePill in app.js) */
+nav.tabs{position:relative}nav.tabs button{position:relative;z-index:1}
+.tab-pill{position:absolute;left:0;top:0;right:100%;height:0;border-radius:999px;background:var(--grad);box-shadow:0 6px 16px -6px rgba(201,58,114,.5);pointer-events:none;z-index:0}
+nav.tabs.has-pill button[aria-selected="true"]{background:none;box-shadow:none}
 nav.tabs button:not([aria-selected="true"]):hover{color:var(--pink);background:var(--sel-wash)}
 
 /* cards: rounded, with a turquoise-to-rose hairline edge */
@@ -389,7 +393,9 @@ body.tour-open{overflow:hidden}
 @keyframes bloom{from{transform:scale(.2);opacity:0}}
 @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1)}}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}}
-@keyframes tabin{from{opacity:.45;transform:translateY(4px)}}
+@keyframes glideR{from{opacity:0;transform:translateX(28px)}}
+@keyframes glideL{from{opacity:0;transform:translateX(-28px)}}
+@keyframes icobob{0%{transform:none}35%{transform:translateY(-3px) rotate(-8deg)}70%{transform:translateY(1px) rotate(3deg)}100%{transform:none}}
 @keyframes leap{0%,100%{transform:none}35%{transform:translate(4px,-1px) rotate(-14deg)}65%{transform:translate(1px,0) rotate(8deg)}}
 @keyframes glint{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
 @keyframes sparkle{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3) rotate(140deg)}}
@@ -403,7 +409,15 @@ body.tour-open{overflow:hidden}
   .quip{animation:quipIn 3.6s ease both}
   .spark{animation:sparkle .7s ease-out forwards}
   .tapcard:active,.exl:active,.trow:active,.chip:active{transform:scale(.97)}
-  [data-panel]:not([hidden]){animation:tabin .25s ease both}
+  /* the leading edge of the pill moves first and the tail catches up a beat later, like a fish stretching */
+  nav.tabs.ready .tab-pill{transition:left .46s cubic-bezier(.3,1.3,.5,1),right .46s cubic-bezier(.3,1.3,.5,1),top .3s ease,height .3s ease}
+  nav.tabs.ready[data-dir="r"] .tab-pill{transition-delay:.1s,0s,0s,0s}
+  nav.tabs.ready[data-dir="l"] .tab-pill{transition-delay:0s,.1s,0s,0s}
+  nav.tabs.ready button[aria-selected="true"] .tab-ico{animation:icobob .55s ease .12s}
+  /* the new page drifts in from the side you moved towards, card by card */
+  .go-r>*{animation:glideR .55s cubic-bezier(.22,1,.36,1) backwards}
+  .go-l>*{animation:glideL .55s cubic-bezier(.22,1,.36,1) backwards}
+  :is(.go-r,.go-l)>*:nth-child(2){animation-delay:.05s}:is(.go-r,.go-l)>*:nth-child(3){animation-delay:.1s}:is(.go-r,.go-l)>*:nth-child(4){animation-delay:.15s}:is(.go-r,.go-l)>*:nth-child(5){animation-delay:.2s}:is(.go-r,.go-l)>*:nth-child(n+6){animation-delay:.24s}
   #sheet-body>*{animation:tup .42s ease both}
   #sheet-body>*:nth-child(2){animation-delay:.04s}#sheet-body>*:nth-child(3){animation-delay:.08s}#sheet-body>*:nth-child(4){animation-delay:.12s}#sheet-body>*:nth-child(5){animation-delay:.16s}#sheet-body>*:nth-child(6){animation-delay:.2s}#sheet-body>*:nth-child(7){animation-delay:.24s}#sheet-body>*:nth-child(n+8){animation-delay:.28s}
   .tslide.on .tin>*:nth-child(5){animation-delay:.2s}.tslide.on .tin>*:nth-child(n+6){animation-delay:.25s}
@@ -550,6 +564,7 @@ body.sheet-open{overflow:hidden}
     border:1px solid var(--line);border-radius:26px;padding:5px;box-shadow:var(--shadow-lift)}
   nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:1px;font-family:var(--f-label);font-weight:500;font-size:11.5px;letter-spacing:.02em;padding:7px 2px 6px;border-radius:21px}
   nav.tabs button[aria-selected="true"]{color:#fff;background:var(--grad);font-weight:700}
+  .tab-pill{border-radius:21px}
   .tab-ico{display:block;width:23px;height:23px}
   main{padding-top:12px}
   .banner{margin-top:12px}
@@ -716,6 +731,7 @@ body.sheet-open{overflow:hidden}
   </header>
 
   <nav class="tabs" role="tablist">
+    <span class="tab-pill" aria-hidden="true"></span>
     <button role="tab" data-tab="chart" aria-selected="true"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M3 12h4.5M16.5 12H21M12 3v4.5M12 16.5V21"/></svg><span data-i18n="tabChart"></span></button>
     <button role="tab" data-tab="planets" aria-selected="false"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span data-i18n="tabPlanets"></span></button>
     <button role="tab" data-tab="transits" aria-selected="false"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/><circle cx="20" cy="8.6" r="1.4" fill="currentColor"/></svg><span data-i18n="tabTransits"></span></button>
