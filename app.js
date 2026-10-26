@@ -541,7 +541,7 @@ function renderPotential(){
   $('#pot-list').innerHTML=res.map(r=>{
     const C=L.cats[r.cat.id],tone=r.score>=4?0:r.score<=2?2:1,cls=tone===0?' good':tone===2?' hard':'';
     const items=r.why.map(({a,v})=>`<li class="${v>=0?'soft':'hard'}"><span class="gl">${a.t.g}${a.asp.g}</span>${glyphTxt(a.n)} ${F.transitTitle(a.t.id,a.asp.id,a.n.id)} <span class="mono muted" style="font-size:.75rem">${fmtOrb(a.orb)}</span><br><span class="muted">${F.whyLine(v>=0,a.t.id,a.n.id,homeHouse(a.n))}</span></li>`).join('');
-    return `<details class="pot${cls}"><summary><span class="pi">${r.cat.g}</span><span class="pn">${C.n}</span><span class="stars" aria-label="${r.score}/5">${starHTML(r.score)}</span><span class="adv">${C.adv[tone]}</span></summary>
+    return `<details class="pot${cls}"><summary><span class="pi">${r.cat.g}</span><span class="pn">${C.n}</span><span class="stars" aria-label="${r.score}/5">${starHTML(r.score)}</span><span class="adv">${L.advPick?L.advPick(r.cat.id,tone,Math.floor(tDate.getTime()/864e5)):C.adv[tone]}</span></summary>
       <div class="why">${items?`<b>${u('why')}</b><ul>${items}</ul>`:`<p class="muted" style="margin:4px 0">${u('calmArea')}</p>`}${r.moonHere?`<p style="margin:4px 0">${F.moonHere(moon.house)}</p>`:''}<div class="learn"><b>${u('learn')}</b> ${C.learn} ${u('learnTail')}</div></div></details>`;}).join('');
   let st=store.get('tf.visits',{last:'',n:0});const today=isoDate(new Date());
   if(st.last!==today){const y=new Date();y.setDate(y.getDate()-1);st={last:today,n:st.last===isoDate(y)?st.n+1:1};store.set('tf.visits',st);}
