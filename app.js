@@ -858,7 +858,8 @@ function renderGames(){
   $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${GT(k).t}</h3><p>${GT(k).d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
 }
 function startGame(k){if($('#quiz').hidden)navPush({quiz:1});game={k,i:0,score:0,res:[],streak:0,bestStreak:0};
-  if(k==='mistakes'){const m=store.get('tf.missed',[]).filter(x=>x.lang===LANG);game.queue=shuffle(m).slice(0,10).map(x=>x.q);game.n=game.queue.length;}
+  if(k==='mistakes'){const m=store.get('tf.missed',[]).filter(x=>x.lang===LANG);game.queue=shuffle(m).slice(0,10).map(x=>x.q);game.n=game.queue.length;
+    if(!game.n){if(navState().quiz)history.back();else leaveQuiz();return;}}
 nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;window.scrollTo(0,0);setWhere();}
 function leaveQuiz(){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();setWhere();}
 function stopTimer(){if(qTimer){clearInterval(qTimer);qTimer=null;}}
@@ -1361,7 +1362,7 @@ function synDays(comp,n){
 }
 const synDayHTML=x=>`<div class="eyebrow">${u('matchDays')}</div><h3>${fmtDay(x.d)}</h3>${x.why.length?x.why.slice(0,5).map(w=>`<div class="explain${w.v<0?' hardx':''}">${F.synDayLine(w.t,w.asp.id,w.c,SYN().tr[w.t][w.v<0?1:0])}</div>`).join(''):`<p>${u('matchDayNone')}</p>`}<p class="note">${u('honestNote')}</p>`;
 function synLinkCard(h,A,B){const sp=synPair(h,A,B),cls=h.asp.cls==='hard'?'hard':h.asp.cls==='soft'?'soft':'neu';
-  return `<div class="m-link tapcard ${cls}" data-ex="fn:${exReg(()=>exMatchLink(h,A,B))}"><div class="m-lh"><span>${esc(cap(A.p))} ${glyph(h.a)} ${pN(h.a.id)}</span><span class="m-asp gl">${h.asp.g}</span><span>${esc(B.p)} ${glyph(h.b)} ${pN(h.b.id)}</span></div>${sp.t?`<div class="m-topic">${esc(sp.t)} · ${fmtOrb(h.orb)}</div>`:''}<p>${firstS(sp.txt)}</p></div>`;}
+  return `<div class="m-link tapcard ${cls}" data-ex="fn:${exReg(()=>exMatchLink(h,A,B))}"><div class="m-lh"><span>${esc(cap(A.p))} ${glyph(h.a)} ${pN(h.a.id)}</span><span class="m-asp gl">${h.asp.g}</span><span>${esc(B.p)} ${glyph(h.b)} ${pN(h.b.id)}</span></div><div class="m-topic">${sp.t?esc(sp.t)+' · ':''}${fmtOrb(h.orb)}</div><p>${firstS(sp.txt)}</p></div>`;}
 let syn=null;
 function exMatchLink(h,A,B){
   const sp=synPair(h,A,B),cls=h.asp.cls,row=(w,p)=>`<li class="${cls}"><span>${esc(cap(w.p))} ${pN(p.id)} ${sIn(p.sign)}</span>${pKey(p.id)} · ${sKey(p.sign)}</li>`;

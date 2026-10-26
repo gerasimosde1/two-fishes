@@ -85,9 +85,9 @@ The plan is to wrap the web app with Capacitor and publish on the iOS App Store.
 - App Privacy labels: charts stay on the device, so "Data not collected" is only true if nothing is sent anywhere. Check that no analytics or third-party requests remain.
 
 **Offline and native feel**
-- Bundle everything that loads from a CDN: Astronomy Engine 2.1.19 (jsDelivr) and the fonts (IM Fell English, EB Garamond, Courier Prime). The store app must work with no internet.
+- Bundle everything that loads from a CDN: Astronomy Engine 2.1.19 (jsDelivr) and the Google Fonts (Cormorant Garamond, Noto Serif Display, Alegreya, Alegreya Sans, Noto Sans Symbols). The store app must work with no internet.
 - Skip the service worker in the native build (unreliable in iOS web views); keep `sw.js` for the web version and keep bumping `VERSION` there.
-- Apple rejects "just a website" apps (guideline 4.2). Add at least one or two native touches (local notification for Today's Tides, haptics, or a widget), handle safe areas and the status bar, and hide the PWA "install help" in the Me tab inside the native app.
+- Apple rejects "just a website" apps (guideline 4.2). Add at least one or two native touches (local notification for the Daily Horoscope, haptics, or a widget), handle safe areas and the status bar, and hide the PWA "install help" in the Me tab inside the native app.
 
 **Store assets**
 - 1024x1024 app icon, no transparency (from the two-fishes logo), plus screenshots for the 6.9" iPhone size (iPad too if supported).
