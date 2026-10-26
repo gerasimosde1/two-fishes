@@ -174,7 +174,7 @@ L.ui={
  placidusFallback:'Placidus can’t be drawn at this latitude, so Equal houses are shown.',
  timeUnknownNote:'Birth time unknown: the Moon may be a few degrees off, and the Rising sign and houses are only a noon placeholder.',
  noneInOrb:'None in orb on this date.',noTransits:'No transits within orb on this date.',outOfOrb:'That transit is out of orb on this date.',
- todaysTides:'Today’s Tides',theTides:'The Tides',why:'Why this score',tidesWhat:'<b>What is this?</b> The planets keep moving, and each day they pass over different parts of <i>your</i> birth chart. These are called transits. Below, that is turned into a simple forecast of the day for eight areas of life.',tidesLegend:'<span class="stars">★★★★★</span> flowing, a good day for it · <span class="stars">★★★</span> ordinary · <span class="stars">★</span> take it slow. Tap any row to see why.',tidesTap:'Tap for why',calmArea:'No transits touch this part of your chart today, so it stays calm.',learn:'Learn:',
+ todaysTides:'Your Daily Horoscope',theTides:'Your Horoscope for This Day',why:'Why this score',tidesWhat:'<b>What is this?</b> The planets keep moving, and each day they pass over different parts of <i>your</i> birth chart. These are called transits. Below, that is turned into a simple forecast of the day for eight areas of life.',tidesLegend:'<span class="stars">★★★★★</span> flowing, a good day for it · <span class="stars">★★★</span> ordinary · <span class="stars">★</span> take it slow. Tap any row to see why.',tidesTap:'Tap for why',calmArea:'No transits touch this part of your chart today, so it stays calm.',learn:'Learn:',
  learnTail:'Flowing aspects (trine, sextile) help; tense ones (square, opposition) challenge.',comeBack:'Come back tomorrow',exact:'exact',
  yourDay:'Your day',noExact:'No transit becomes exact on this day. The wheel and list below show everything still in orb.',
  selectedDate:'selected date',noSlow:'No slow transits in orb during this window.',hAbbr:'H',
@@ -499,5 +499,33 @@ Object.assign(L.f,{
  tourDomQuiet:a=>`Quieter, and so less effortful: ${list(a)}.`,
  tourSummaryP:(ss,sh,ms,mh,rs,sath,ns,nh)=>{const P=n=>L.hprose[n-1];return `If I had to describe your chart to a stranger in one breath: a ${L.signs[ss].n} Sun who comes alive through ${P(sh)}, with a ${L.signs[ms].n} Moon that needs ${P(mh)} to feel at home, behind a ${L.signs[rs].n} front door. Saturn, your slow and patient teacher, works on you through ${P(sath)}, and the North Node keeps nudging you towards ${P(nh)}, ${L.signs[ns].how}. None of that is a prediction. It is a description of the instrument. You still get to choose the music.`;}
 });
+/* interface additions (English only for now; Greek and Italian fall back to these) */
+Object.assign(L.ui,{
+ jumpAria:'Jump to a section',jumpToday:'Today',jumpForecast:'Horoscope',jumpWeek:'Week',jumpCal:'Calendar',jumpMoon:'Moon month',jumpExplore:'Explore',jumpAhead:'Ahead',
+ weekTitle:'Your week ahead',weekNote:'Each bar is the overall mood of the day. Top symbol: the area that flows best. Bottom: where to go gently. Tap a day to read its horoscope.',
+ moonMonth:'The Moon this month',moonMonthNote:'The next 30 days of Moon phases and sign changes, and which part of your chart each one lights up. Tap any line.',
+ dailyTitle:'Today’s piece of you',dailyMore:'Read the whole thing →',
+ favAdd:'Save this reading',favRemove:'Remove from saved',favTitle:'Saved readings',favNote:'Tap the ☆ at the top of any explanation to keep it here.',favEmpty:'Nothing saved yet. Your favourite readings will wait for you here.',
+ search:'Search',searchPh:'Venus, 7th house, love, Leo…',searchHint:'Start typing, or try one of these:',searchNone:'Nothing found. Try a planet, a sign, a house number, or a word like love, work or money.',
+ kPlacement:'Your placement',kSign:'Sign',kHouse:'House',kAspect:'Aspect in your chart',kGuide:'Guide',kPlace:'Go to',
+ textSize:'Text size',tsS:'Small',tsM:'Normal',tsL:'Large',tsXL:'Larger'
+});
+Object.assign(L.f,{
+ glance:(b,bs,c,cs)=>`<b>Best:</b> ${b} <span class="stars">${bs}</span> · <b>Go gently:</b> ${c} <span class="stars">${cs}</span>`,
+ glanceEven:()=>'An even day: no area stands out, for better or worse.',
+ moonIngress:(s,h)=>`Moon enters ${L.signs[s].n} · ${yourH(h)}`,
+ moonPhaseRow:(k,s,h)=>`${L.moonPhases[k]} in ${L.signs[s].n} · ${yourH(h)}`,
+ moonPhaseIn:(k,s,h)=>{const S=L.signs[s].n,H=yourH(h),P=hp(h);return {
+  0:`A New Moon in ${S} falls in ${H}, the part of your chart about ${P}. It is a quiet reset there: a good fortnight to start one small thing, not ten big ones.`,
+  2:`The First Quarter Moon in ${S} sits in ${H} (${P}). Halfway up the hill: whatever you started at the New Moon wants a push now, or an honest rethink.`,
+  4:`A Full Moon in ${S} lights up ${H}, so ${P} comes into full view. Things there may peak, finish or get emotional. Notice what you see; it is a moment, not a verdict.`,
+  6:`The Last Quarter Moon in ${S} sits in ${H} (${P}). Time to clear the decks: finish, tidy and let go of what did not work before the next New Moon.`}[k]||'';}
+});
+Object.assign(L.q,{
+ readSignQ:(id,s)=>`Your ${L.planets[id].n} is in ${L.signs[s].n}. Which reading is about yours?`,
+ readHouseQ:(id,h)=>`Your ${L.planets[id].n} sits in ${yourH(h)}. Which reading fits?`,
+ readWhy:(id,where,full)=>`That is your ${L.planets[id].n} in ${where}. The whole reading: ${full}`
+});
+L.games.readmine={t:'Read My Chart',d:'Real readings of your own placements, mixed with readings of other signs and houses. Pick the one that is about you.'};
 (window.TF_LANGS=window.TF_LANGS||{}).en=L;
 })();

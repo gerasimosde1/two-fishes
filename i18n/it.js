@@ -198,7 +198,7 @@ L.ui={
  placidusFallback:'Placidus non si può calcolare a questa latitudine, quindi vengono mostrate case uguali.',
  timeUnknownNote:'Ora di nascita sconosciuta: la Luna potrebbe differire di qualche grado, e Ascendente e case sono solo indicativi (calcolati per mezzogiorno).',
  noneInOrb:'Nessuno entro l’orbita in questa data.',noTransits:'Nessun transito entro l’orbita in questa data.',outOfOrb:'Questo transito è fuori orbita in questa data.',
- todaysTides:'Le Maree di Oggi',theTides:'Le Maree',why:'Perché',calmArea:'Nessun transito tocca questa parte del tuo tema oggi, quindi resta tranquilla.',learn:'Impara:',
+ todaysTides:'Il tuo Oroscopo di Oggi',theTides:'Il tuo Oroscopo per Questo Giorno',why:'Perché',calmArea:'Nessun transito tocca questa parte del tuo tema oggi, quindi resta tranquilla.',learn:'Impara:',
  learnTail:'Gli aspetti armonici (trigono, sestile) aiutano; quelli tesi (quadratura, opposizione) mettono alla prova.',comeBack:'Torna domani',exact:'esatto',
  yourDay:'La tua giornata',noExact:'Nessun transito diventa esatto in questo giorno. La ruota e l’elenco qui sotto mostrano tutto ciò che è ancora entro l’orbita.',
  selectedDate:'data scelta',noSlow:'Nessun transito lento entro l’orbita in questo periodo.',hAbbr:'C',

@@ -11,6 +11,8 @@ const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const DAY=864e5;
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
 
+document.documentElement.style.setProperty('--ts',store.get('tf.ts',1));
+
 /* ---------- language ---------- */
 const LANGS=window.TF_LANGS,EN=LANGS.en,LANG_ORDER=['en','el','it'].filter(c=>window.TF_LANGS[c]);
 function detectLang(){const s=store.get('tf.lang',null);if(s&&LANGS[s])return s;const n=(navigator.language||'en').slice(0,2).toLowerCase();return LANGS[n]?n:'en';}
@@ -24,6 +26,8 @@ const hl=n=>L.hl(n), hShort=n=>L.houses[n-1].short, hKey=n=>L.houses[n-1].key;
 const aN=id=>L.aspects[id].n, aV=id=>L.aspects[id].v;
 const fmtDate=d=>d.toLocaleDateString(L.locale,{day:'numeric',month:'long',year:'numeric'});
 const fmtShort=d=>d.toLocaleDateString(L.locale,{day:'numeric',month:'short',year:'numeric'});
+const sents=t=>String(t).match(/[^.!?]+[.!?]+["”’)]*(\s+|$)/g)||[String(t)];
+const firstS=(t,n=1)=>sents(t).slice(0,n).join('').trim();
 const fmtDay=d=>d.toLocaleDateString(L.locale,{weekday:'long',day:'numeric',month:'long'});
 
 // logo rays
@@ -434,7 +438,16 @@ function renderNatal(){
     d=k==='natal'?natalPointHTML(v):k==='sign'?signHTML(+v,natal):k==='house'?houseHTML(+v,natal):k==='na'?natalAspectHTML(+v):'';}
   if(profile.unknown)d+=`<p class="note">${u('timeUnknownNote')}</p>`;
   $('#detail-natal').innerHTML=d;
-  renderTour();
+  renderTour();renderDaily();
+}
+/* today's piece of you: one of her placements each day, with the start of its reading */
+function renderDaily(){
+  const el=$('#daily-card');if(!el||!natal)return;
+  const pool=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','ASC','Node','Chiron','MC','Uranus','Neptune','Pluto'].filter(id=>natal.byId[id]&&!(profile.unknown&&(id==='ASC'||id==='MC')));
+  const id=pool[Math.floor(startOfDayNoon(new Date()).getTime()/DAY)%pool.length],p=natal.byId[id],hh=homeHouse(p);
+  const txt=pinText(id,p.sign)||pihText(id,hh)||cap(pm(p.sign,id).plus)+'.';
+  el.dataset.ex='planet:'+id;
+  el.innerHTML=`<div class="eyebrow">${u('dailyTitle')}</div><h3>${glyph(p)} ${nm(p)} ${sIn(p.sign)} <span class="mono muted" style="font-size:.85rem">${hl(hh)}</span></h3><p>${firstS(txt,2)}</p><span class="more">${u('dailyMore')}</span>`;
 }
 /* ---------- tap-to-explain: every dotted item opens a plain explanation in the sheet ---------- */
 const EX={};let exN=0;
@@ -469,11 +482,17 @@ function exProg(x){const p=PDEF[x.id];return `<div class="eyebrow">${u('progTitl
 document.addEventListener('click',e=>{
   const t=e.target.closest&&e.target.closest('[data-ex]');if(!t)return;
   if(t.closest('summary'))e.preventDefault();
-  const [k,v]=t.dataset.ex.split(':');let h='';
-  try{if(k==='planet')h=natalPointHTML(v);else if(k==='sign')h=signHTML(+v,natal);else if(k==='house')h=houseHTML(+v,natal);else if(k==='fn'&&EX[v])h=EX[v]();}catch(err){h='';console.error('explain failed',t.dataset.ex,err);}
-  if(h)openSheet(h);
+  const h=exHTML(t.dataset.ex);
+  if(h)openSheet(h,t.dataset.ex.startsWith('fn:')?'snap':t.dataset.ex);
 });
+function exHTML(key){
+  const [k,v]=key.split(':');
+  try{if(k==='planet')return natalPointHTML(v);if(k==='sign')return signHTML(+v,natal);if(k==='house')return houseHTML(+v,natal);if(k==='fn'&&EX[v])return EX[v]();}catch(err){console.error('explain failed',key,err);}
+  return '';
+}
 /* ---------- today strip (moon phase, void of course Moon) ---------- */
+const MOON_EM=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+const exMoonIn=(z,h,eb)=>`<div class="eyebrow">${eb}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(z)}</h3><div class="pos">${hl(h)}</div><h4>${L.signs[z].n}</h4><p>${L.signs[z].body}</p><h4>${F.houseHeading(h,false)}</h4><p>${F.deepIn('Moon',h)}</p>`;
 function moonForecast(now){
   const ids=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],ang=[0,60,90,120,180],AID={0:'conj',60:'sext',90:'sq',120:'tri',180:'opp'};
   const base=Object.fromEntries(ids.map(id=>[id,[eclLon(id,now),speedOf(id,now)]])),z0=Math.floor(eclLon('Moon',now)/30);
@@ -490,7 +509,7 @@ function renderToday(){
   const mz=Math.floor(moon/30),mh=houseOf(moon,natal.cusps),fc=moonForecast(now);
   const tf=t=>t.toLocaleString(L.locale,{weekday:'short',hour:'2-digit',minute:'2-digit'});
   renderRetroCal();const on=retroCal.rows.filter(r=>r.on);
-  const moonSign=`<span class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3><span class="gl">☽︎</span> ${nm(PDEF.Moon)} ${sIn(mz)}</h3><div class="pos">${hl(mh)}</div><h4>${L.signs[mz].n}</h4><p>${L.signs[mz].body}</p><h4>${F.houseHeading(mh,false)}</h4><p>${F.deepIn('Moon',mh)}</p>`)}"><span class="gl">☽︎</span> ${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span>`;
+  const moonSign=`<span class="exl" data-ex="fn:${exReg(()=>exMoonIn(mz,mh,u('todayTitle')))}"><span class="gl">☽︎</span> ${sIn(mz)} · ${hl(mh)} (${hShort(mh)})</span>`;
   $('#today-strip').innerHTML=`<div class="eyebrow">${u('todayTitle')}</div>
    <div class="tsl"><span class="em">${['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][k]}</span><b class="exl" data-ex="fn:${exReg(()=>`<div class="eyebrow">${u('todayTitle')}</div><h3>${L.moonPhases[k]} · ${ill}%</h3><p>${L.moonAdvice[k]}</p>`)}">${L.moonPhases[k]}</b><span class="mono muted">${ill}%</span></div>
    <div class="tsl">${moonSign}</div>
@@ -501,7 +520,7 @@ function renderToday(){
 }
 document.addEventListener('click',e=>{if(!(e.target.closest&&e.target.closest('[data-goretro]')))return;showTab('planets');setPseg('retro');setRseg('now');});
 function renderTransits(){
-  renderToday();
+  renderJump();renderToday();
   transit=computeTransits(natal,tDate);
   $('#t-label').textContent=fmtDate(tDate);
   $('#t-date').value=isoDate(tDate);
@@ -527,9 +546,48 @@ function renderTransits(){
     else if(k==='house')d=houseHTML(+v,natal);}
   $('#detail-transit').innerHTML=d;
   renderPotential();
+  renderWeek();
   renderCalendar();
+  renderMoonMonth();
   renderTimeline();
 }
+/* jump bar: the Transits page is long, so these chips jump straight to each part */
+const JUMPS=[['today-strip','jumpToday'],['sec-forecast','jumpForecast'],['sec-week','jumpWeek'],['sec-cal','jumpCal'],['sec-moon','jumpMoon'],['sec-explore','jumpExplore'],['sec-ahead','jumpAhead']];
+function renderJump(){const j=$('#t-jump');if(j.dataset.lang!==LANG){j.innerHTML=JUMPS.map(([id,k])=>`<button type="button" class="chip" data-jump="${id}">${u(k)}</button>`).join('');j.dataset.lang=LANG;}}
+function goSection(id){const el=document.getElementById(id);if(!el)return;if(el.tagName==='DETAILS')el.open=true;el.scrollIntoView({behavior:calm()?'auto':'smooth',block:'start'});}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-jump]');if(b)goSection(b.dataset.jump);});
+/* your week: the daily horoscope for the next seven days at a glance */
+let weekC=null;
+function renderWeek(){
+  const t0=startOfDayNoon(new Date()),key=natalKey()+'|'+isoDate(t0);
+  if(!weekC||weekC.key!==key)weekC={key,days:Array.from({length:7},(_,i)=>{const d=new Date(t0.getTime()+i*DAY),res=dayPotential(computeTransits(natal,d)),srt=[...res].sort((a,b)=>b.score-a.score);
+    return {d,avg:res.reduce((x,r)=>x+r.score,0)/res.length,hi:srt[0],lo:srt[srt.length-1]};})};
+  const sel=isoDate(tDate);
+  $('#week-row').innerHTML=weekC.days.map((x,i)=>{const tone=x.avg>=3.3?'good':x.avg<=2.4?'hard':'';
+    return `<button type="button" class="wday${i===0?' today':''}${isoDate(x.d)===sel?' sel':''}" data-wday="${isoDate(x.d)}" aria-label="${esc(fmtDay(x.d))}"><span class="wd">${x.d.toLocaleDateString(L.locale,{weekday:'short'}).replace('.','')}</span><span class="wn mono">${x.d.getDate()}</span><span class="wbar ${tone}"><i style="height:${Math.round(8+(x.avg-1)/4*92)}%"></i></span><span class="wg hi">${x.hi.score>=3.5?x.hi.cat.g:''}</span><span class="wg lo">${x.lo.score<=2.5?x.lo.cat.g:''}</span></button>`;}).join('');
+}
+/* the Moon this month: phases and sign changes for the next 30 days, each tied to a house */
+let moonMo=null;
+function computeMoonMonth(t0){
+  const ev=[],elong=t=>norm(eclLon('Moon',t)-eclLon('Sun',t)),zOf=t=>Math.floor(eclLon('Moon',t)/30),qOf=t=>Math.floor(elong(t)/90);
+  const refine=(a,b,changed)=>{for(let k=0;k<10;k++){const m=new Date((a.getTime()+b.getTime())/2);if(changed(m))b=m;else a=m;}return b;};
+  let pt=t0,pz=zOf(pt),pq=qOf(pt);
+  for(let i=1;i<=30*24;i++){const t=new Date(t0.getTime()+i*36e5),z=zOf(t),q=qOf(t);
+    if(q!==pq){const q0=pq,at=refine(pt,t,x=>qOf(x)!==q0),ml=eclLon('Moon',at);ev.push({kind:'ph',k:q*2,t:at,s:Math.floor(ml/30),h:houseOf(ml,natal.cusps)});}
+    if(z!==pz){const z0=pz,at=refine(pt,t,x=>zOf(x)!==z0);ev.push({kind:'in',t:at,s:z,h:houseOf(eclLon('Moon',at)+.01,natal.cusps)});}
+    pt=t;pz=z;pq=q;}
+  return ev.sort((a,b)=>a.t-b.t);
+}
+function renderMoonMonth(){
+  const t0=new Date();t0.setMinutes(0,0,0);const key=natalKey()+'|'+isoDate(t0)+'|'+LANG;
+  if(moonMo&&moonMo.key===key)return;
+  const ev=computeMoonMonth(t0),tf=t=>t.toLocaleString(L.locale,{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  moonMo={key};
+  $('#moon-month').innerHTML=`<p class="note">${u('moonMonthNote')}</p>`+ev.map(x=>{const z=SIGNS[x.s];
+    if(x.kind==='ph')return `<button type="button" class="mrow ph" data-ex="fn:${exReg(()=>exMoonPhase(x))}"><span class="em">${MOON_EM[x.k]}</span><span><b>${F.moonPhaseRow(x.k,x.s,x.h)}</b><span class="sub mono">${tf(x.t)}</span></span></button>`;
+    return `<button type="button" class="mrow" data-ex="fn:${exReg(()=>exMoonIn(x.s,x.h,u('moonMonth')))}"><span class="gl" style="color:var(--${z.el})">${z.g}</span><span>${F.moonIngress(x.s,x.h)}<span class="sub mono">${tf(x.t)}</span></span></button>`;}).join('');
+}
+const exMoonPhase=x=>`<div class="eyebrow">${u('moonMonth')}</div><h3>${MOON_EM[x.k]} ${L.moonPhases[x.k]} ${sIn(x.s)}</h3><div class="pos">${fmtDate(x.t)} · ${hl(x.h)}</div><p class="deep-lead">${F.moonPhaseIn(x.k,x.s,x.h)}</p><p>${L.moonAdvice[x.k]}</p><h4>${F.houseHeading(x.h,false)}</h4><p>${L.hdeep[x.h-1]}</p>`;
 
 /* ---------- Today's Tides ---------- */
 const BENEFIC=['Venus','Jupiter','Sun','Moon'],MALEFIC=['Mars','Saturn','Pluto','Uranus','Neptune'];
@@ -562,6 +620,7 @@ function dayPotential(tr){
   });
 }
 const starHTML=sc=>{let h='';for(let i=1;i<=5;i++)h+=sc>=i?'★':sc>=i-.5?'<span style="position:relative">☆<span style="position:absolute;left:0;width:50%;overflow:hidden">★</span></span>':'<span class="off">★</span>';return h;};
+let potWhatSet=false;
 function renderPotential(){
   const res=dayPotential(transit);
   $('#pot-eyebrow').textContent=daysFromToday(tDate)===0?u('todaysTides'):u('theTides');
@@ -569,16 +628,22 @@ function renderPotential(){
   const best=res.filter(r=>r.score>=4).sort((a,b)=>b.score-a.score).map(r=>L.cats[r.cat.id].n.toLowerCase());
   const care=res.filter(r=>r.score<=2).sort((a,b)=>a.score-b.score).map(r=>L.cats[r.cat.id].n.toLowerCase());
   const moon=transit.byId.Moon;
+  {const srt=[...res].sort((a,b)=>b.score-a.score),hi=srt[0],lo=srt[srt.length-1],go=r=>`<span class="exl" data-potgo="${r.cat.id}">${L.cats[r.cat.id].n}</span>`;
+   $('#pot-glance').innerHTML=hi.score-lo.score<1?F.glanceEven():F.glance(go(hi),starHTML(hi.score),go(lo),starHTML(lo.score));}
+  {const tw=u('tidesWhat'),m=/^<b>(.*?)<\/b>\s*/.exec(tw);$('#pot-whatq').innerHTML=m?m[1]:'';$('#pot-what').innerHTML=m?tw.slice(m[0].length):tw;}
+  if(!potWhatSet){potWhatSet=true;const sn=store.get('tf.potSeen',{d:'',n:0}),td=isoDate(new Date());if(sn.d!==td){sn.d=td;sn.n++;store.set('tf.potSeen',sn);}$('#pot-whatd').open=sn.n<=3;}
   $('#pot-sum').innerHTML=F.tidesSummary(best.slice(0,3),care.slice(0,2),moon.sign,moon.house,SIGNS[moon.sign].g);
   $('#pot-list').innerHTML=res.map(r=>{
     const C=L.cats[r.cat.id],tone=r.score>=4?0:r.score<=2?2:1,cls=tone===0?' good':tone===2?' hard':'';
     const items=r.why.map(({a,v})=>`<li class="${v>=0?'soft':'hard'}"><span class="gl">${a.t.g}${a.asp.g}</span>${glyphTxt(a.n)} ${F.transitTitle(a.t.id,a.asp.id,a.n.id)} <span class="mono muted" style="font-size:.75rem">${fmtOrb(a.orb)}</span><br><span class="muted">${F.whyLine(v>=0,a.t.id,a.n.id,homeHouse(a.n))}</span></li>`).join('');
-    return `<details class="pot${cls}"><summary><span class="pi">${r.cat.g}</span><span class="pn">${C.n}</span><span class="stars" aria-label="${r.score}/5">${starHTML(r.score)}</span><span class="adv">${L.advPick?L.advPick(r.cat.id,tone,Math.floor(tDate.getTime()/864e5)):C.adv[tone]}</span></summary>
+    return `<details class="pot${cls}" data-cat="${r.cat.id}"><summary><span class="pi">${r.cat.g}</span><span class="pn">${C.n}</span><span class="stars" aria-label="${r.score}/5">${starHTML(r.score)}</span><span class="adv">${L.advPick?L.advPick(r.cat.id,tone,Math.floor(tDate.getTime()/864e5)):C.adv[tone]}</span></summary>
       <div class="why">${items?`<b>${u('why')}</b><ul>${items}</ul>`:`<p class="muted" style="margin:4px 0">${u('calmArea')}</p>`}${r.moonHere?`<p style="margin:4px 0">${F.moonHere(moon.house)}</p>`:''}<div class="learn"><b>${u('learn')}</b> ${C.learn} ${u('learnTail')}</div></div></details>`;}).join('');
   let st=store.get('tf.visits',{last:'',n:0});const today=isoDate(new Date());
   if(st.last!==today){const y=new Date();y.setDate(y.getDate()-1);st={last:today,n:st.last===isoDate(y)?st.n+1:1};store.set('tf.visits',st);}
   $('#pot-streak').textContent=st.n>1?F.streak(st.n):u('comeBack');
 }
+
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-potgo]');if(!b)return;const d=document.querySelector(`details.pot[data-cat="${b.dataset.potgo}"]`);if(d){d.open=true;d.scrollIntoView({behavior:calm()?'auto':'smooth',block:'center'});}});
 
 /* ---------- calendar ---------- */
 const CAL_BODIES=['Sun','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
@@ -684,6 +749,7 @@ const uniq=a=>[...new Set(a)];
 const opts=(ans,pool,k=4)=>shuffle([ans,...shuffle(uniq(pool).filter(x=>x!==ans)).slice(0,k-1)]);
 const TEN=PLANETS.slice(0,10);
 const signDist=(a,b)=>{const d=Math.abs(Math.floor(a/30)-Math.floor(b/30));return Math.min(d,12-d);};
+const GT=k=>L.games[k]||EN.games[k];
 const Q=new Proxy({},{get:(_,k)=>(L.q[k]||EN.q[k])});
 const GAMES={
   glyphs:{lvl:'beginner',i:'♓'+VS,gen(){
@@ -762,9 +828,21 @@ const GAMES={
     const homes=SIGNS.filter(z=>z.rulers.includes(id)).map(z=>z.i);
     const good=kind==='home'?homes:kind==='detriment'?homes.map(i=>(i+6)%12):kind==='exalt'?[EXALT[id]]:[(EXALT[id]+6)%12],a=pick(good);
     return {g:pl.g,q:Q.dignityQ(id,kind),ans:sN(a),options:opts(sN(a),SIGNS.filter(z=>!good.includes(z.i)).map(z=>sN(z.i))),why:Q.dignityWhy(id,kind,good.map(sN).join(' / '))};}},
+  readmine:{lvl:'intermediate',i:'❦',gen(){
+    const ids=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','ASC','MC','Node','Chiron'].filter(id=>natal.byId[id]&&(pinText(id,0)||pihText(id,1))&&!(profile.unknown&&(id==='ASC'||id==='MC')));
+    const id=pick(ids),p=natal.byId[id],hh=homeHouse(p),g=id==='ASC'?'AC':id==='MC'?'MC':p.g;
+    // the first sentence that does not name the house or sign, so the answer is not given away
+    // and only its first clause, so her own (longer) readings do not stand out by length
+    const short=x=>{const parts=x.split(/(?<=[,;:—])\s+/);let o='';for(const pt of parts){o+=(o?' ':'')+pt;if(o.length>=28)break;}o=o.replace(/[,;:—]$/,'').trim();return /[.!?]$/.test(o)?o:o+'.';};
+    const clue=(t,bad)=>{const ss=sents(t).map(x=>x.trim()),ok=ss.find(x=>!bad.test(x));return short(ok||ss[0].replace(/^[^:]*:\s*/,''));};
+    const badH=/\b(1[0-2]|[1-9])(st|nd|rd|th)\b|\bhouse\b/i,badS=new RegExp('\\b('+EN.signs.map(z=>z.n).join('|')+')s?\\b|own sign|at home|exalt|detriment|\\bfall\\b','i');
+    if(pihText(id,hh)&&(!pinText(id,p.sign)||Math.random()<.4)){const ans=clue(pihText(id,hh),badH),pool=[1,2,3,4,5,6,7,8,9,10,11,12].filter(h=>h!==hh).map(h=>clue(pihText(id,h),badH));
+      return {g,q:Q.readHouseQ(id,hh),ans,options:opts(ans,pool),why:Q.readWhy(id,hl(hh),pihText(id,hh)),long:1};}
+    const ans=clue(pinText(id,p.sign),badS),pool=SIGNS.filter(z=>z.i!==p.sign).map(z=>clue(pinText(id,z.i),badS));
+    return {g,q:Q.readSignQ(id,p.sign),ans,options:opts(ans,pool),why:Q.readWhy(id,sN(p.sign),pinText(id,p.sign)),long:1};}},
   mistakes:{lvl:'practice',i:'↺',gen(){return {...game.queue[game.i]};}},
   exam:{lvl:'expert',i:'✦',total:15,timer:20,gen(){
-    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements','domains','natural','whoswhere','dignity']),q=GAMES[k].gen();q.from=L.games[k].t;return q;}}
+    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements','domains','natural','whoswhere','dignity']),q=GAMES[k].gen();q.from=GT(k).t;return q;}}
 };
 let game=null,qTimer=null;
 const LEVELS=['beginner','intermediate','hard','expert'];
@@ -772,7 +850,7 @@ const total=()=>game.n||GAMES[game.k].total||10;
 function renderGames(){
   const best=store.get('tf.best',{}),missed=store.get('tf.missed',[]).filter(x=>x.lang===LANG).length,pr=store.get('tf.practice',{last:'',streak:0});
   const live=pr.last===new Date().toISOString().slice(0,10)||pr.last===new Date(Date.now()-DAY).toISOString().slice(0,10);
-  $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${L.games[k].t}</h3><p>${L.games[k].d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
+  $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${GT(k).t}</h3><p>${GT(k).d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
 }
 function startGame(k){if($('#quiz').hidden)navPush({quiz:1});game={k,i:0,score:0,res:[],streak:0,bestStreak:0};
   if(k==='mistakes'){const m=store.get('tf.missed',[]).filter(x=>x.lang===LANG);game.queue=shuffle(m).slice(0,10).map(x=>x.q);game.n=game.queue.length;}
@@ -787,7 +865,7 @@ function nextQ(){stopTimer();if(game.i>=total())return endGame();game.q=GAMES[ga
 function answerQ(idx){if(game.picked!=null)return;stopTimer();game.picked=idx;const ok=idx>=0&&game.q.options[idx]===game.q.ans;
   game.res[game.i]=ok;
   {const qq=game.q.q,m=store.get('tf.missed',[]);
-   if(!ok&&game.k!=='mistakes'&&!m.some(x=>x.q.q===qq)){m.push({lang:LANG,k:game.k,q:{g:game.q.g,q:qq,ans:game.q.ans,options:game.q.options,why:game.q.why,from:game.q.from}});store.set('tf.missed',m.slice(-40));}
+   if(!ok&&game.k!=='mistakes'&&!m.some(x=>x.q.q===qq)){m.push({lang:LANG,k:game.k,q:{g:game.q.g,q:qq,ans:game.q.ans,options:game.q.options,why:game.q.why,from:game.q.from,long:game.q.long}});store.set('tf.missed',m.slice(-40));}
    if(ok&&game.k==='mistakes')store.set('tf.missed',m.filter(x=>x.q.q!==qq));
    const day=d=>d.toISOString().slice(0,10),pr=store.get('tf.practice',{last:'',streak:0}),td=day(new Date()),yd=day(new Date(Date.now()-DAY));
    if(pr.last!==td){pr.streak=pr.last===yd?pr.streak+1:1;pr.last=td;store.set('tf.practice',pr);}}
@@ -796,9 +874,9 @@ function answerQ(idx){if(game.picked!=null)return;stopTimer();game.picked=idx;co
 function renderQ(){
   const q=game.q,G=GAMES[game.k],N=total();
   const dots=Array.from({length:N},(_,i)=>`<i class="${game.res[i]===true?'ok':game.res[i]===false?'no':i===game.i?'cur':''}"></i>`).join('');
-  let h=`<div class="qhead"><div><div class="eyebrow">${L.games[game.k].t}${q.from?' · '+q.from:''}</div><div class="mono muted" style="font-size:.85rem">${F.qHead(game.i+1,N,game.score,game.streak)}${G.timer&&game.picked==null?` · <b id="q-timer" style="color:var(--pink)">${game.left}s</b>`:''}</div></div><div class="dots">${dots}</div></div>
-  <div class="qprompt">${q.g?`<span class="qg">${q.g==='AC'?'<span class="mono" style="font-size:.6em">AC</span>':q.g}</span>`:''}<div class="qt">${q.q}</div></div>
-  <div class="qopts">${q.options.map((o,i)=>{let c='';if(game.picked!=null){if(o===q.ans)c=' right';else if(i===game.picked)c=' wrong';}
+  let h=`<div class="qhead"><div><div class="eyebrow">${GT(game.k).t}${q.from?' · '+q.from:''}</div><div class="mono muted" style="font-size:.85rem">${F.qHead(game.i+1,N,game.score,game.streak)}${G.timer&&game.picked==null?` · <b id="q-timer" style="color:var(--pink)">${game.left}s</b>`:''}</div></div><div class="dots">${dots}</div></div>
+  <div class="qprompt">${q.g?`<span class="qg">${q.g==='AC'||q.g==='MC'?`<span class="mono" style="font-size:.6em">${q.g}</span>`:q.g}</span>`:''}<div class="qt">${q.q}</div></div>
+  <div class="qopts${q.long?' long':''}">${q.options.map((o,i)=>{let c='';if(game.picked!=null){if(o===q.ans)c=' right';else if(i===game.picked)c=' wrong';}
     return `<button type="button" class="qopt${c}" data-opt="${i}"${game.picked!=null?' disabled':''}>${esc(cap(o))}</button>`;}).join('')}</div>`;
   if(game.picked!=null){const ok=game.picked>=0&&q.options[game.picked]===q.ans;
     h+=`<div class="qfb${ok?'':' no'}"><b>${ok?u('correct'):game.picked<0?F.timesUp(esc(q.ans)):F.notQuite(esc(q.ans))}</b> ${q.why}</div>
@@ -809,7 +887,7 @@ function renderQ(){
 function endGame(){
   stopTimer();const N=total(),best=store.get('tf.best',{}),prev=best[game.k];if(prev==null||game.score>prev){best[game.k]=game.score;store.set('tf.best',best);}
   const pct=game.score/N,msg=pct>=.9?u('msgHigh'):pct>=.6?u('msgMid'):u('msgLow');
-  $('#quiz').innerHTML=`<div class="score"><div class="eyebrow">${L.games[game.k].t}</div><div class="n">${game.score}<span style="font-size:.4em;color:var(--ink-soft)"> / ${N}</span></div><p class="it" style="font-size:1.2rem">${msg}</p>
+  $('#quiz').innerHTML=`<div class="score"><div class="eyebrow">${GT(game.k).t}</div><div class="n">${game.score}<span style="font-size:.4em;color:var(--ink-soft)"> / ${N}</span></div><p class="it" style="font-size:1.2rem">${msg}</p>
   <p class="mono muted">${F.longestStreak(game.bestStreak,prev!=null&&game.score>prev)}</p>
   <div class="form-actions" style="justify-content:center"><button class="btn pri" type="button" id="q-again">${u('playAgain')}</button><button class="btn" type="button" id="q-quit">${u('backGames')}</button></div></div>`;
 }
@@ -1019,13 +1097,15 @@ document.addEventListener('click',e=>{
 const isMobile=()=>window.matchMedia('(max-width:879px)').matches;
 function pickNatal(p,fromSheet){
   selN=(!fromSheet&&!isMobile()&&selN===p.dataset.pick&&!p.classList.contains('aitem'))?null:p.dataset.pick;
-  renderNatal();if(isMobile())openSheet($('#detail-natal').innerHTML);}
+  renderNatal();if(isMobile()||fromSheet)openSheet($('#detail-natal').innerHTML,selN&&/^(sign|house):/.test(selN)?selN:'snap');}
 $('#tab-chart').addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(p)pickNatal(p);});
 $('#tab-transits').addEventListener('click',e=>{
   const r=e.target.closest('[data-tl]');
   if(r){const row=tl.rows[+r.dataset.tl],cur=(tDate-tl.start)/DAY,p=row.passes.reduce((a,b)=>Math.abs(b.ex-cur)<Math.abs(a.ex-cur)?b:a);
     tDate=startOfDayNoon(new Date(tl.start.getTime()+p.ex*DAY));selT='ta:'+row.t.id+'|'+row.n.id+'|'+row.asp.id;renderTransits();
     if(isMobile())openSheet($('#detail-transit').innerHTML);else $('#detail-transit').scrollIntoView({behavior:'smooth',block:'nearest'});return;}
+  const wd=e.target.closest('[data-wday]');
+  if(wd){stopPlay();const [y,m,d]=wd.dataset.wday.split('-').map(Number);tDate=new Date(y,m-1,d,12);selT=null;renderTransits();goSection('sec-forecast');return;}
   const dc=e.target.closest('[data-day]');
   if(dc){stopPlay();const [y,m,d]=dc.dataset.day.split('-').map(Number);tDate=new Date(y,m-1,d,12);selT=null;renderTransits();return;}
   const cn=e.target.closest('[data-cal]');
@@ -1039,7 +1119,7 @@ $('#tab-transits').addEventListener('click',e=>{
 });
 function pickTransit(p,fromSheet){
   selT=(!fromSheet&&!isMobile()&&selT===p.dataset.pick&&!p.classList.contains('aitem'))?null:p.dataset.pick;
-  renderTransits();if(isMobile())openSheet($('#detail-transit').innerHTML);}
+  renderTransits();if(isMobile()||fromSheet)openSheet($('#detail-transit').innerHTML);}
 
 /* ---------- little delights: a sparkle where you tap, and a sun that winks back ---------- */
 const calm=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1060,17 +1140,18 @@ document.addEventListener('pointerup',e=>{
 
 /* ---------- bottom sheet ---------- */
 /* each explanation opened from inside the sheet stacks on the last one, so Back (button or phone gesture) returns to it */
-let sheetStack=[];
+let sheetStack=[],sheetKey=null;
 const sheetOpen=()=>$('#sheet').classList.contains('open');
-function openSheet(html){const sb=$('#sheet-body'),was=sheetOpen();
-  if(was)sheetStack.push([sb.innerHTML,sb.scrollTop]);else sheetStack=[];
+function openSheet(html,key){const sb=$('#sheet-body'),was=sheetOpen();
+  if(was)sheetStack.push([sb.innerHTML,sb.scrollTop,sheetKey]);else sheetStack=[];
+  sheetKey=key===undefined?'snap':key;
   sb.innerHTML=html;sb.scrollTop=0;$('#sheet').style.transform='';$('#sheet').classList.add('open');$('#scrim').hidden=false;document.body.classList.add('sheet-open');
   if(isMobile())navPush({sheet:sheetStack.length+1});
-  $('#sheet-back').hidden=!sheetStack.length;}
+  $('#sheet-back').hidden=!sheetStack.length;updFav();}
 function sheetTo(depth){const sb=$('#sheet-body');let last=null;
   while(sheetStack.length>=depth&&sheetStack.length)last=sheetStack.pop();
-  if(last){sb.innerHTML=last[0];sb.scrollTop=last[1];}
-  $('#sheet-back').hidden=!sheetStack.length;}
+  if(last){sb.innerHTML=last[0];sb.scrollTop=last[1];sheetKey=last[2];}
+  $('#sheet-back').hidden=!sheetStack.length;updFav();}
 function closeSheet(){if(!sheetOpen())return;sheetStack=[];$('#sheet').classList.remove('open');$('#sheet').style.transform='';$('#scrim').hidden=true;document.body.classList.remove('sheet-open');
   keepScroll(()=>{if(selN){selN=null;renderNatal();}if(selT&&curTab==='transits'){selT=null;renderTransits();}});}
 function dismissSheet(){const d=navState().sheet||0;if(d&&sheetOpen())history.go(-d);else closeSheet();}
@@ -1080,6 +1161,51 @@ $('#sheet-back').addEventListener('click',()=>{if(navState().sheet>1)history.bac
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen())dismissSheet();});
 $('#sheet-body').addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(!p)return;
   if(curTab==='transits')pickTransit(p,true);else pickNatal(p,true);});
+/* saved readings: the star in the sheet keeps a reading; planet, sign and house readings are rebuilt fresh when reopened */
+const favs=()=>store.get('tf.favs',[]);
+function sheetTitle(){const sb=$('#sheet-body'),h=sb.querySelector('h3'),e=sb.querySelector('.eyebrow');return ((h&&h.textContent)||(e&&e.textContent)||'').replace(/\s+/g,' ').trim();}
+const favMatch=(f,t,ck)=>f.t===t&&f.ck===ck;
+function updFav(){const b=$('#sheet-fav');b.hidden=!sheetKey||!sheetTitle();if(b.hidden)return;
+  const on=favs().some(f=>favMatch(f,sheetTitle(),natalKey()));b.textContent=on?'★':'☆';b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',u(on?'favRemove':'favAdd'));b.title=u(on?'favRemove':'favAdd');}
+$('#sheet-fav').addEventListener('click',()=>{const t=sheetTitle(),ck=natalKey();let all=favs();
+  if(all.some(f=>favMatch(f,t,ck)))all=all.filter(f=>!favMatch(f,t,ck));
+  else all=[{id:Date.now().toString(36),t,k:sheetKey,h:$('#sheet-body').innerHTML,ck,at:isoDate(new Date())},...all].slice(0,60);
+  store.set('tf.favs',all);updFav();if(curTab==='me')renderFavs();try{navigator.vibrate&&navigator.vibrate(10);}catch(e){}});
+function renderFavs(){const ck=natalKey(),mine=favs().filter(f=>f.ck===ck);
+  $('#fav-list').innerHTML=mine.length?mine.map(f=>`<div class="citem"><button type="button" class="cmain" data-fav-open="${f.id}"><span class="it">${esc(f.t)}</span><span class="mono muted">${esc(fmtShort(new Date(f.at+'T12:00:00')))}</span></button><button class="btn sm" type="button" data-fav-del="${f.id}" aria-label="${esc(u('favRemove'))}">×</button></div>`).join(''):`<p class="note">${u('favEmpty')}</p>`;}
+function openFav(id){const f=favs().find(x=>x.id===id);if(!f)return;const fresh=/^(planet|sign|house):/.test(f.k)?exHTML(f.k):'';openSheet(fresh||f.h,fresh?f.k:'snap');}
+
+/* search: planets, signs, houses, aspects, guides and places in the app */
+const fold=t=>String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+let searchIdx=[];
+function searchIndex(){
+  const out=[],add=(label,sub,kw,ex,go)=>out.push({label,sub,ex,go,hay:fold(label+' '+sub+' '+kw)});
+  natal.pts.forEach(p=>{const P=L.planets[p.id];add(`${nm(p)} ${sIn(p.sign)}`,`${u('kPlacement')} · ${hl(homeHouse(p))}`,[P.key,P.what,P.short||''].join(' '),'planet:'+p.id);});
+  SIGNS.forEach(z=>add(sN(z.i),`${u('kSign')} · ${sKey(z.i)}`,[L.el[z.el].n,L.mod[z.mod].n,z.rulers.map(pN).join(' ')].join(' '),'sign:'+z.i));
+  L.houses.forEach((H,i)=>add(cap(hl(i+1)),`${u('kHouse')} · ${H.short}`,H.key+' '+(i+1),'house:'+(i+1)));
+  natal.aspects.forEach((a,k)=>add(`${nm(a.p1)} ${aV(a.asp.id)} ${nm(a.p2)}`,`${u('kAspect')} · ${fmtOrb(a.orb)}`,aN(a.asp.id),'fn:'+exReg(()=>natalAspectHTML(k))));
+  [['guideChart',()=>$('#guide-chart-body').innerHTML],['whatTransit',()=>u('whatTransitHtml')],['retroWhatQ',()=>u('retroGuide')]].forEach(([k,fn])=>add(u(k),u('kGuide'),'','fn:'+exReg(()=>`<div class="eyebrow">${u('kGuide')}</div><h3>${u(k)}</h3>${fn()}`)));
+  [['transits|sec-forecast','todaysTides'],['transits|sec-week','weekTitle'],['transits|sec-cal','foldCal'],['transits|sec-moon','moonMonth'],['transits|sec-explore','foldExplore'],['transits|sec-ahead','foldAhead'],
+   ['planets||signs','segSigns'],['planets||sky','segSky'],['planets||retro','segRetro'],['planets||cycles','segCycles'],['planets||match','segMatch'],['learn','tabLearn'],
+   ['me|fav-panel','favTitle'],['me|me-charts','savedCharts'],['me|ts-panel','textSize']].forEach(([go,k])=>add(u(k),u('kPlace'),'',null,go));
+  return out;
+}
+function renderSearch(q){
+  const ts=fold(q).trim().split(/\s+/).filter(Boolean);
+  let r=ts.length?searchIdx.filter(x=>ts.every(t=>x.hay.includes(t))):searchIdx.filter(x=>['planet:Sun','planet:Moon','planet:ASC'].includes(x.ex)||x.go);
+  if(ts.length)r=r.map((x,i)=>({x,i,s:fold(x.label).startsWith(ts[0])?0:fold(x.label).includes(ts[0])?1:2})).sort((a,b)=>a.s-b.s||a.i-b.i).map(o=>o.x).slice(0,30);
+  $('#srch-res').innerHTML=(ts.length?'':`<p class="note">${u('searchHint')}</p>`)+(r.length?r.map(x=>`<button type="button" class="sres"${x.ex?` data-ex="${x.ex}"`:` data-go="${x.go}"`}><b>${x.label}</b><span class="note">${x.sub}</span></button>`).join(''):`<p class="note">${u('searchNone')}</p>`);
+}
+function openSearch(){searchIdx=searchIndex();
+  openSheet(`<div class="eyebrow">${u('search')}</div><input id="srch" class="srch" type="search" placeholder="${esc(u('searchPh'))}" autocomplete="off" enterkeyhint="search" aria-label="${esc(u('search'))}"><div id="srch-res"></div>`,null);
+  renderSearch('');try{$('#srch').focus();}catch(e){}}
+$('#search-btn').addEventListener('click',openSearch);
+document.addEventListener('input',e=>{if(e.target.id==='srch')renderSearch(e.target.value);});
+let pendingGo=null;
+function runGo(g){const [tab,id,seg]=g.split('|');showTab(tab);if(seg)setPseg(seg);if(id)setTimeout(()=>goSection(id),30);}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-go]');if(!b)return;
+  const d=navState().sheet||0;if(d&&sheetOpen()){pendingGo=b.dataset.go;history.go(-d);}else{closeSheet();runGo(b.dataset.go);}});
+
 /* pull the sheet down from the top of its text to close it, like the handle */
 (function(){let y0=null,dy=0;const sb=$('#sheet-body'),sh=$('#sheet');
   sb.addEventListener('touchstart',e=>{y0=sb.scrollTop<=0?e.touches[0].clientY:null;dy=0;},{passive:true});
@@ -1268,7 +1394,7 @@ function navPush(extra){try{history.pushState({...navState(),tab:curTab,...extra
 function keepScroll(fn){const y=window.scrollY;fn();if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);}
 function setWhere(){let s=u(TAB_KEY[curTab]);
   if(curTab==='planets')s+=' · '+u(SEG_KEY[psegV]);
-  if(curTab==='learn'&&!$('#quiz').hidden&&game)s+=' · '+L.games[game.k].t;
+  if(curTab==='learn'&&!$('#quiz').hidden&&game)s+=' · '+GT(game.k).t;
   $('#mast-page').textContent=s;}
 function showTab(t,fromPop){
   if(t===curTab&&!fromPop&&document.querySelector(`[data-panel="${t}"]`).hidden===false){closeSheet();window.scrollTo({top:0,behavior:calm()?'auto':'smooth'});return;}
@@ -1278,7 +1404,7 @@ function showTab(t,fromPop){
   document.querySelectorAll('[data-panel]').forEach(s=>s.hidden=s.dataset.panel!==t);
   if(t!=='transits')stopPlay();
   if(t!=='learn')stopTimer();
-  if(t==='planets')renderPlanets();if(t==='transits')renderTransits();if(t==='learn'&&$('#quiz').hidden)renderGames();if(t==='me'){fillForm();renderLangs();}store.set('tf.tab',t);
+  if(t==='planets')renderPlanets();if(t==='transits')renderTransits();if(t==='learn'&&$('#quiz').hidden)renderGames();if(t==='me'){fillForm();renderLangs();renderTS();renderFavs();}store.set('tf.tab',t);
   setWhere();window.scrollTo(0,tabScroll[t]||0);}
 window.addEventListener('popstate',e=>{const s=e.state||{},want=s.sheet||0,depth=sheetOpen()?sheetStack.length+1:0;
   if(want<depth){if(want===0)closeSheet();else sheetTo(want);}
@@ -1287,6 +1413,7 @@ window.addEventListener('popstate',e=>{const s=e.state||{},want=s.sheet||0,depth
   const quiz=!$('#quiz').hidden;
   if(quiz&&!s.quiz)leaveQuiz();else if(!quiz&&s.quiz){history.back();return;}
   if(s.tab&&s.tab!==curTab&&TAB_KEY[s.tab])showTab(s.tab,true);
+  if(pendingGo){const g=pendingGo;pendingGo=null;runGo(g);}
 });
 
 /* ---------- form & saved charts ---------- */
@@ -1308,6 +1435,9 @@ function openChart(i){active=i;profile=charts[i];saveCharts();selN=null;selT=nul
 document.addEventListener('change',e=>{if(e.target.classList&&e.target.classList.contains('chart-switch'))openChart(+e.target.value);});
 $('#tab-me').addEventListener('click',e=>{
   const lb=e.target.closest('[data-lang]');if(lb){setLang(lb.dataset.lang);return;}
+  const tsb=e.target.closest('[data-ts]');if(tsb){store.set('tf.ts',+tsb.dataset.ts);document.documentElement.style.setProperty('--ts',+tsb.dataset.ts);renderTS();return;}
+  const fo=e.target.closest('[data-fav-open]');if(fo){openFav(fo.dataset.favOpen);return;}
+  const fd=e.target.closest('[data-fav-del]');if(fd){store.set('tf.favs',favs().filter(f=>f.id!==fd.dataset.favDel));renderFavs();return;}
   const o=e.target.closest('[data-open]'),ed=e.target.closest('[data-edit]'),dl=e.target.closest('[data-del]');
   if(o){openChart(+o.dataset.open);showTab('chart');return;}
   if(ed){const i=+ed.dataset.edit;delArm=-1;fillForm(charts[i],i);renderChartList();$('#form-panel').scrollIntoView({behavior:'smooth',block:'start'});return;}
@@ -1339,6 +1469,9 @@ $('#bform').addEventListener('submit',e=>{e.preventDefault();
   profile=charts[active];saveCharts();selN=null;selT=null;tl=null;cal=null;boot();showTab('chart');
 });
 
+const TS=[['tsS',.92],['tsM',1],['tsL',1.12],['tsXL',1.25]];
+function renderTS(){const cur=+store.get('tf.ts',1);$('#text-sizes').innerHTML=TS.map(([k,v])=>`<button type="button" class="lang-btn" data-ts="${v}" aria-pressed="${v===cur}" style="font-size:${v}rem">${u(k)}</button>`).join('');}
+
 /* ---------- language switching ---------- */
 function applyStatic(){
   document.documentElement.lang=LANG;
@@ -1360,7 +1493,7 @@ function setLang(c){
   if(curTab==='planets')renderPlanets();
   if(curTab==='transits')renderTransits();
   if(curTab==='learn'){if(!$('#quiz').hidden&&game){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;}renderGames();}
-  if(curTab==='me')fillForm();
+  if(curTab==='me'){fillForm();renderTS();renderFavs();}
   setWhere();
 }
 $('#lang-top').addEventListener('change',e=>setLang(e.target.value));
@@ -1371,6 +1504,7 @@ function checkNewDay(){
   const now=isoDate(new Date());if(now===lastToday)return;
   const wasToday=isoDate(tDate)===lastToday;lastToday=now;
   if(wasToday){tDate=startOfDayNoon(new Date());selT=null;}
+  renderDaily();
   if(curTab==='transits')renderTransits();
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkNewDay();});

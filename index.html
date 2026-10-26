@@ -56,10 +56,10 @@
   color-scheme:dark}
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light;overscroll-behavior:none}
+html{font-size:calc(100% * var(--ts,1));-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light;overscroll-behavior:none}
 [hidden]{display:none!important}
 img{max-width:100%}
-body{margin:0;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
+body{margin:0;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:calc(17px * var(--ts,1));line-height:1.5;
   background-image:radial-gradient(var(--dot) 1px,transparent 1.3px);background-size:22px 22px}
 .wrap{max-width:1220px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 48px}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
@@ -343,6 +343,7 @@ body.tour-open{overflow:hidden}
 @keyframes bloom{from{transform:scale(.2);opacity:0}}
 @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1)}}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}}
+@keyframes tabin{from{opacity:.45;transform:translateY(4px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 @keyframes wink{0%,100%{transform:scaleY(1)}40%,60%{transform:scaleY(.1)}}
@@ -356,7 +357,7 @@ body.tour-open{overflow:hidden}
   .quip{animation:quipIn 3.6s ease both}
   .spark{animation:sparkle .7s ease-out forwards}
   .tapcard:active,.exl:active,.trow:active,.chip:active{transform:scale(.97)}
-  [data-panel]:not([hidden]){animation:fadein .35s ease both}
+  [data-panel]:not([hidden]){animation:tabin .25s ease both}
   #sheet-body>*{animation:tup .42s ease both}
   #sheet-body>*:nth-child(2){animation-delay:.04s}#sheet-body>*:nth-child(3){animation-delay:.08s}#sheet-body>*:nth-child(4){animation-delay:.12s}#sheet-body>*:nth-child(5){animation-delay:.16s}#sheet-body>*:nth-child(6){animation-delay:.2s}#sheet-body>*:nth-child(7){animation-delay:.24s}#sheet-body>*:nth-child(n+8){animation-delay:.28s}
   .tslide.on .tin>*:nth-child(5){animation-delay:.2s}.tslide.on .tin>*:nth-child(n+6){animation-delay:.25s}
@@ -483,7 +484,7 @@ button,.chip,.hcell,.aitem,nav.tabs{touch-action:manipulation;-webkit-user-selec
 body.sheet-open{overflow:hidden}
 
 @media (max-width:879px){
-  body{font-size:16px}
+  body{font-size:calc(16px * var(--ts,1))}
   .wrap{padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
   .mast{position:sticky;top:0;z-index:30;background:var(--paper);margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));
     padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
@@ -500,7 +501,7 @@ body.sheet-open{overflow:hidden}
     background:var(--card);border-top:1px solid var(--ink-line);border-bottom:0;
     padding:4px max(6px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px));
     box-shadow:0 -4px 18px rgba(8,18,32,.08)}
-  nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;letter-spacing:.04em;padding:6px 2px;border-bottom:0;border-radius:12px}
+  nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12.5px;letter-spacing:.04em;padding:6px 2px;border-bottom:0;border-radius:12px}
   nav.tabs button[aria-selected="true"]{color:var(--pink);background:var(--sel-wash)}
   .tab-ico{display:block;width:24px;height:24px}
   main{padding-top:12px}
@@ -521,9 +522,49 @@ body.sheet-open{overflow:hidden}
   footer{display:none}
   .swipe-hint{display:block}
 }
-@media (min-width:880px){#sheet,#scrim{display:none!important}}
+@media (min-width:880px){#sheet{width:min(720px,94vw);margin:0 auto;border:1px solid var(--ink-line);border-bottom:0}}
 .mast-date,.swipe-hint,.mast-page{display:none}
 .swipe-hint{text-align:center;font-size:.85rem;color:var(--ink-soft);margin:4px 0 0}
+/* ---------- added: jump bar, glance line, week, Moon month, daily card, saved readings, search, text size ---------- */
+.jump{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px;padding:2px 0}
+.jump::-webkit-scrollbar{display:none}
+.jump .chip{flex:none;margin:0;padding:5px 13px;font-family:var(--f-display);font-size:.9rem;background:var(--card)}
+#today-strip,[id^="sec-"],#fav-panel,#ts-panel{scroll-margin-top:84px}
+.pot-glance{margin:8px 0 2px;font-size:1.02rem}
+.pot-glance .stars{color:var(--pink);letter-spacing:1px;white-space:nowrap}.pot-glance .off{color:var(--line)}
+.pot-whatd{margin:6px 0 0}
+.pot-whatd summary{cursor:pointer;list-style:none;color:var(--teal);font-size:.92rem;font-family:var(--f-display);letter-spacing:.03em}
+.pot-whatd summary::-webkit-details-marker{display:none}
+.pot-whatd summary::before{content:'ⓘ ';font-family:var(--f-body)}
+.pot-whatd .pot-what{margin:4px 0 0}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:10px}
+.wday{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 8px;border:1px solid var(--line);border-radius:10px;background:var(--paper);cursor:pointer;color:var(--ink);min-width:0}
+.wday:hover{border-color:var(--pink)}
+.wday .wd{font-family:var(--f-display);font-size:.78rem;letter-spacing:.04em;color:var(--ink-soft)}
+.wday .wn{font-size:.9rem}
+.wbar{width:10px;height:44px;border-radius:5px;background:var(--line);display:flex;align-items:flex-end;overflow:hidden}
+.wbar i{display:block;width:100%;background:var(--sky);border-radius:5px}
+.wbar.good i{background:var(--teal)}.wbar.hard i{background:var(--rose)}
+.wg{font-family:var(--f-glyph);font-size:1rem;line-height:1;min-height:1em}.wg.hi{color:var(--teal)}.wg.lo{color:var(--pink)}
+.wday.today{border-color:var(--teal);border-width:2px}.wday.sel{background:var(--sel-wash);border-color:var(--pink)}
+@media (prefers-reduced-motion:no-preference){.wbar i{animation:wgrow .6s cubic-bezier(.2,.8,.2,1) both}}
+@keyframes wgrow{from{height:0}}
+.mrow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:8px 4px;cursor:pointer;color:inherit}
+.mrow:hover{background:var(--sel-wash)}
+.mrow .gl{font-size:1.2rem;width:1.6em;text-align:center;flex:none}.mrow .em{font-size:1.3rem;width:1.6em;text-align:center;flex:none}
+.mrow .sub{display:block;font-size:.78rem;color:var(--ink-soft)}
+.mrow.ph{background:var(--tband)}
+.daily{margin-bottom:14px}
+.daily h3{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin:4px 0 6px}.daily h3 .gl{color:var(--pink)}
+.daily p{margin:0 0 6px}.daily .more{font-family:var(--f-display);color:var(--pink);font-size:.92rem;letter-spacing:.03em}
+.sheet-fav{position:absolute;right:50px;top:4px;border:0;background:none;font-size:1.45rem;line-height:1;color:var(--pink);padding:4px 8px;cursor:pointer}
+.who-row{display:flex;gap:8px;align-items:center}
+.icon-btn{border:1px solid var(--ink-line);background:var(--card);color:var(--ink);border-radius:999px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;padding:0;flex:none}
+.icon-btn:hover{border-color:var(--pink);color:var(--pink)}.icon-btn svg{width:17px;height:17px}
+.srch{width:100%;padding:10px 14px;border:1px solid var(--ink-line);border-radius:999px;background:var(--paper);font-size:1.05rem;margin:8px 0 10px}
+.sres{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 4px;cursor:pointer;color:inherit}
+.sres:hover{background:var(--sel-wash)}.sres b{font-weight:500;font-size:1.05rem}.sres .note{font-size:.85rem}
+.qopts.long{grid-template-columns:minmax(0,1fr)}.qopts.long .qopt{text-align:left;font-size:.98rem;line-height:1.4}
 </style>
 </head>
 <body>
@@ -558,7 +599,7 @@ body.sheet-open{overflow:hidden}
       <div class="mast-page" id="mast-page" aria-live="polite"></div>
     </div>
     <div class="who">
-      <select id="lang-top" class="lang-top" data-i18n-aria="language"></select>
+      <div class="who-row"><button class="icon-btn" id="search-btn" type="button" data-i18n-aria="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button><select id="lang-top" class="lang-top" data-i18n-aria="language"></select></div>
       <div class="nm" id="who-name"></div>
       <div class="meta" id="who-meta"></div>
       <button class="btn sm" id="edit-btn" type="button" data-i18n="editBirth"></button>
@@ -582,6 +623,7 @@ body.sheet-open{overflow:hidden}
     <section id="tab-chart" data-panel="chart">
       <div class="switch-row" data-switch hidden><label><span data-i18n="viewing"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
       <div class="big3" id="big3"></div>
+      <div class="panel daily tapcard" id="daily-card"></div>
       <div class="panel tour" id="tour"></div>
       <div style="margin:0 0 14px"><button class="btn sm" id="share-big3" type="button" data-i18n="shareBtn"></button></div>
       <details class="panel guide" id="guide-chart"><summary data-i18n="guideChart"></summary><div id="guide-chart-body"></div></details>
@@ -644,16 +686,23 @@ body.sheet-open{overflow:hidden}
 
     <section id="tab-transits" data-panel="transits" hidden>
       <div class="switch-row" data-switch hidden><label><span data-i18n="transitsFor"></span> <select class="chart-switch" data-i18n-aria="chooseChart"></select></label></div>
+      <nav class="jump" id="t-jump" data-i18n-aria="jumpAria"></nav>
       <div class="panel today-strip" id="today-strip" style="margin-bottom:22px"></div>
-      <div class="panel pot-panel" style="margin-bottom:22px">
+      <div class="panel pot-panel" id="sec-forecast" style="margin-bottom:22px">
         <div class="pot-head"><div><div class="eyebrow" id="pot-eyebrow"></div><h2 id="pot-title"></h2></div><div class="pot-streak" id="pot-streak"></div></div>
-        <p class="pot-what" data-i18n-html="tidesWhat"></p>
+        <p class="pot-glance" id="pot-glance"></p>
+        <details class="pot-whatd" id="pot-whatd"><summary id="pot-whatq"></summary><p class="pot-what" id="pot-what"></p></details>
         <p class="pot-sum" id="pot-sum"></p>
         <p class="pot-legend muted" data-i18n-html="tidesLegend"></p>
         <div id="pot-list" class="pot-list"></div>
         <p class="note" style="margin:10px 0 0" data-i18n="tidesNote"></p>
       </div>
-      <details class="panel guide fold" style="margin-bottom:22px"><summary data-i18n="foldCal"></summary>
+      <div class="panel" id="sec-week" style="margin-bottom:22px">
+        <div class="eyebrow" data-i18n="weekTitle"></div>
+        <p class="note" style="margin:4px 0 0" data-i18n="weekNote"></p>
+        <div class="week" id="week-row"></div>
+      </div>
+      <details class="panel guide fold" id="sec-cal" style="margin-bottom:22px"><summary data-i18n="foldCal"></summary>
       <div class="cal-panel">
         <div class="cal-head">
           <button class="cal-nav" type="button" data-cal="-12" data-i18n-aria="prevYear">«</button>
@@ -669,7 +718,8 @@ body.sheet-open{overflow:hidden}
           <div class="cal-day" id="cal-day"></div>
         </div>
       </div></details>
-      <details class="panel guide fold" style="margin-bottom:22px"><summary data-i18n="foldExplore"></summary>
+      <details class="panel guide fold" id="sec-moon" style="margin-bottom:22px"><summary data-i18n="moonMonth"></summary><div id="moon-month"></div></details>
+      <details class="panel guide fold" id="sec-explore" style="margin-bottom:22px"><summary data-i18n="foldExplore"></summary>
       <details class="panel guide" style="margin-bottom:22px"><summary data-i18n="whatTransit"></summary><div data-i18n-html="whatTransitHtml"></div></details>
       <div class="split">
         <div class="panel">
@@ -703,7 +753,7 @@ body.sheet-open{overflow:hidden}
         </div>
       </div>
       </details>
-      <details class="panel guide fold" style="margin-bottom:22px"><summary data-i18n="foldAhead"></summary>
+      <details class="panel guide fold" id="sec-ahead" style="margin-bottom:22px"><summary data-i18n="foldAhead"></summary>
       <div style="margin-top:6px">
         <h3 data-i18n="lifeAreas"></h3>
         <p class="note" style="margin:2px 0 10px" data-i18n="lifeAreasNote"></p>
@@ -727,12 +777,14 @@ body.sheet-open{overflow:hidden}
     <section id="tab-me" data-panel="me" hidden>
       <div class="stack">
         <div class="panel"><h2 data-i18n="language"></h2><div class="langs" id="langs" style="margin-top:10px"></div></div>
+        <div class="panel" id="ts-panel"><h2 data-i18n="textSize"></h2><div class="langs" id="text-sizes" style="margin-top:10px;align-items:center"></div></div>
+        <div class="panel" id="fav-panel"><h2 data-i18n="favTitle"></h2><p class="note" style="margin:4px 0 10px" data-i18n="favNote"></p><div id="fav-list" class="clist"></div></div>
         <div id="install-card" class="install" hidden>
           <img src="icons/icon-192.png" alt="">
           <p id="install-text"></p>
           <button class="btn pri sm" type="button" id="install-btn" hidden data-i18n="install"></button>
         </div>
-        <div class="panel"><h2 data-i18n="savedCharts"></h2><p class="note" style="margin:4px 0 10px" data-i18n="savedNote"></p>
+        <div class="panel" id="me-charts"><h2 data-i18n="savedCharts"></h2><p class="note" style="margin:4px 0 10px" data-i18n="savedNote"></p>
           <div id="chart-list" class="clist"></div>
           <div class="form-actions"><button class="btn pri" type="button" id="add-chart" data-i18n="addChart"></button></div></div>
         <div id="form-panel" class="panel">
@@ -771,7 +823,7 @@ body.sheet-open{overflow:hidden}
 </div>
 <div id="scrim" hidden></div>
 <div id="sheet" role="dialog" aria-modal="true">
-  <div class="sheet-grab" id="sheet-grab"><button class="sheet-back" type="button" id="sheet-back" hidden>‹ <span data-i18n="back"></span></button><i></i><button class="sheet-x" type="button" id="sheet-x" data-i18n-aria="close">×</button></div>
+  <div class="sheet-grab" id="sheet-grab"><button class="sheet-back" type="button" id="sheet-back" hidden>‹ <span data-i18n="back"></span></button><i></i><button class="sheet-fav" type="button" id="sheet-fav" hidden>☆</button><button class="sheet-x" type="button" id="sheet-x" data-i18n-aria="close">×</button></div>
   <div id="sheet-body"></div>
 </div>
 
