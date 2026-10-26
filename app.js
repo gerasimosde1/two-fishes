@@ -774,9 +774,10 @@ function renderGames(){
   const live=pr.last===new Date().toISOString().slice(0,10)||pr.last===new Date(Date.now()-DAY).toISOString().slice(0,10);
   $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${L.games[k].t}</h3><p>${L.games[k].d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
 }
-function startGame(k){game={k,i:0,score:0,res:[],streak:0,bestStreak:0};
+function startGame(k){if($('#quiz').hidden)navPush({quiz:1});game={k,i:0,score:0,res:[],streak:0,bestStreak:0};
   if(k==='mistakes'){const m=store.get('tf.missed',[]).filter(x=>x.lang===LANG);game.queue=shuffle(m).slice(0,10).map(x=>x.q);game.n=game.queue.length;}
-nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;window.scrollTo(0,0);}
+nextQ();$('#games-home').hidden=true;$('#quiz').hidden=false;window.scrollTo(0,0);setWhere();}
+function leaveQuiz(){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();setWhere();}
 function stopTimer(){if(qTimer){clearInterval(qTimer);qTimer=null;}}
 function nextQ(){stopTimer();if(game.i>=total())return endGame();game.q=GAMES[game.k].gen();game.picked=null;
   const T=GAMES[game.k].timer;
@@ -817,7 +818,7 @@ $('#quiz').addEventListener('click',e=>{
   if(o&&game.picked==null){answerQ(+o.dataset.opt);return;}
   if(e.target.closest('#q-next')){game.i++;nextQ();}
   else if(e.target.closest('#q-again'))startGame(game.k);
-  else if(e.target.closest('#q-quit')){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;renderGames();}
+  else if(e.target.closest('#q-quit')){if(navState().quiz)history.back();else leaveQuiz();}
 });
 $('#games').addEventListener('click',e=>{const c=e.target.closest('[data-game]');if(c)startGame(c.dataset.game);});
 
@@ -999,17 +1000,18 @@ function openTour(){
   tr.innerHTML=T.ch.map((c,k)=>`<section class="tslide" data-k="${k}"><div class="tin">${k&&c.i?`<p class="tintro">${c.i}</p>`:''}${T.aside&&T.aside[k]?`<p class="aside">${T.aside[k]}</p>`:''}${tourSlide(k)}</div></section>`).join('');
   $('#tour-dots').innerHTML=T.ch.map((c,k)=>`<button type="button" data-tour="go:${k}" aria-label="${esc(c.t)}"></button>`).join('');
   $('#tour-x').setAttribute('aria-label',u('tourClose'));$('#tour-back').textContent=u('tourBack');
-  $('#tour-win').hidden=false;document.body.classList.add('tour-open');goTour(tourI,false);
+  $('#tour-win').hidden=false;document.body.classList.add('tour-open');goTour(tourI,false);navPush({tour:1});
 }
+function leaveTour(){if(navState().tour)history.back();else closeTour();}
 function closeTour(){tourOpen=false;$('#tour-win').hidden=true;document.body.classList.remove('tour-open');if(tourI>=TT().ch.length-1){tourI=0;store.set('tf.tour',0);}renderTour();}
 {let tm=null;$('#tour-track').addEventListener('scroll',()=>{clearTimeout(tm);tm=setTimeout(()=>{const tr=$('#tour-track'),i=Math.round(tr.scrollLeft/(tr.clientWidth||1));if(i!==tourI&&tourOpen)setTourI(i);},90);},{passive:true});}
 window.addEventListener('resize',()=>{if(tourOpen)goTour(tourI,false);});
 document.addEventListener('keydown',e=>{if(!tourOpen||$('#sheet').classList.contains('open'))return;
-  if(e.key==='ArrowRight'&&tourI<TT().ch.length-1)goTour(tourI+1,true);else if(e.key==='ArrowLeft'&&tourI>0)goTour(tourI-1,true);else if(e.key==='Escape')closeTour();});
+  if(e.key==='ArrowRight'&&tourI<TT().ch.length-1)goTour(tourI+1,true);else if(e.key==='ArrowLeft'&&tourI>0)goTour(tourI-1,true);else if(e.key==='Escape')leaveTour();});
 document.addEventListener('click',e=>{
   const b=e.target.closest&&e.target.closest('[data-tour]');if(!b||b.disabled)return;const v=b.dataset.tour,n=TT().ch.length;
-  if(v==='open')openTour();else if(v==='close')closeTour();
-  else if(v==='next'){if(tourI<n-1)goTour(tourI+1,true);else closeTour();}
+  if(v==='open')openTour();else if(v==='close')leaveTour();
+  else if(v==='next'){if(tourI<n-1)goTour(tourI+1,true);else leaveTour();}
   else if(v==='back'&&tourI>0)goTour(tourI-1,true);else if(v.startsWith('go:'))goTour(+v.slice(3),true);
 });
 
@@ -1057,18 +1059,36 @@ document.addEventListener('pointerup',e=>{
 });}
 
 /* ---------- bottom sheet ---------- */
-function openSheet(html){$('#sheet-body').innerHTML=html;$('#sheet-body').scrollTop=0;$('#sheet').style.transform='';$('#sheet').classList.add('open');$('#scrim').hidden=false;document.body.classList.add('sheet-open');}
-function closeSheet(){if(!$('#sheet').classList.contains('open'))return;$('#sheet').classList.remove('open');$('#sheet').style.transform='';$('#scrim').hidden=true;document.body.classList.remove('sheet-open');
-  if(curTab==='chart'){selN=null;renderNatal();}else if(curTab==='transits'){selT=null;renderTransits();}}
-$('#scrim').addEventListener('click',closeSheet);
-$('#sheet-x').addEventListener('click',closeSheet);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+/* each explanation opened from inside the sheet stacks on the last one, so Back (button or phone gesture) returns to it */
+let sheetStack=[];
+const sheetOpen=()=>$('#sheet').classList.contains('open');
+function openSheet(html){const sb=$('#sheet-body'),was=sheetOpen();
+  if(was)sheetStack.push([sb.innerHTML,sb.scrollTop]);else sheetStack=[];
+  sb.innerHTML=html;sb.scrollTop=0;$('#sheet').style.transform='';$('#sheet').classList.add('open');$('#scrim').hidden=false;document.body.classList.add('sheet-open');
+  if(isMobile())navPush({sheet:sheetStack.length+1});
+  $('#sheet-back').hidden=!sheetStack.length;}
+function sheetTo(depth){const sb=$('#sheet-body');let last=null;
+  while(sheetStack.length>=depth&&sheetStack.length)last=sheetStack.pop();
+  if(last){sb.innerHTML=last[0];sb.scrollTop=last[1];}
+  $('#sheet-back').hidden=!sheetStack.length;}
+function closeSheet(){if(!sheetOpen())return;sheetStack=[];$('#sheet').classList.remove('open');$('#sheet').style.transform='';$('#scrim').hidden=true;document.body.classList.remove('sheet-open');
+  keepScroll(()=>{if(selN){selN=null;renderNatal();}if(selT&&curTab==='transits'){selT=null;renderTransits();}});}
+function dismissSheet(){const d=navState().sheet||0;if(d&&sheetOpen())history.go(-d);else closeSheet();}
+$('#scrim').addEventListener('click',dismissSheet);
+$('#sheet-x').addEventListener('click',dismissSheet);
+$('#sheet-back').addEventListener('click',()=>{if(navState().sheet>1)history.back();else sheetTo(sheetStack.length);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen())dismissSheet();});
 $('#sheet-body').addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(!p)return;
-  if(curTab==='chart')pickNatal(p,true);else if(curTab==='transits')pickTransit(p,true);});
+  if(curTab==='transits')pickTransit(p,true);else pickNatal(p,true);});
+/* pull the sheet down from the top of its text to close it, like the handle */
+(function(){let y0=null,dy=0;const sb=$('#sheet-body'),sh=$('#sheet');
+  sb.addEventListener('touchstart',e=>{y0=sb.scrollTop<=0?e.touches[0].clientY:null;dy=0;},{passive:true});
+  sb.addEventListener('touchmove',e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy<=0){if(dy<-8)y0=null;sh.style.transform='';return;}e.preventDefault();sh.style.transform=`translateY(${dy}px)`;},{passive:false});
+  sb.addEventListener('touchend',()=>{if(y0===null)return;y0=null;if(dy>90)dismissSheet();else sh.style.transform='';});})();
 (function(){let y0=null,dy=0;const g=$('#sheet-grab'),sh=$('#sheet');
-  g.addEventListener('pointerdown',e=>{y0=e.clientY;dy=0;g.setPointerCapture(e.pointerId);});
+  g.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;y0=e.clientY;dy=0;g.setPointerCapture(e.pointerId);});
   g.addEventListener('pointermove',e=>{if(y0===null)return;dy=Math.max(0,e.clientY-y0);sh.style.transform=`translateY(${dy}px)`;});
-  g.addEventListener('pointerup',()=>{if(y0===null)return;y0=null;if(dy>90)closeSheet();else sh.style.transform='';});})();
+  g.addEventListener('pointerup',()=>{if(y0===null)return;y0=null;if(dy>90)dismissSheet();else sh.style.transform='';});})();
 
 (function(){let x0=null,y0=null;const w=$('#wheel-transit');
   w.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
@@ -1210,7 +1230,7 @@ function buildICS(){
 }
 $('#ics-btn').addEventListener('click',()=>shareFile(new File([buildICS()],'two-fishes.ics',{type:'text/calendar'}),'two-fishes.ics'));
 let psegV=store.get('tf.pseg','signs'),rsegV=store.get('tf.rseg','now');
-function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);}
+function setPseg(v){psegV=v;if(v==='cycles')renderCycles();if(v==='match')renderMatch();store.set('tf.pseg',v);document.querySelectorAll('[data-pseg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pseg===v));document.querySelectorAll('[data-pp]').forEach(p=>p.hidden=p.dataset.pp!==v);setWhere();}
 function setRseg(v){rsegV=v;store.set('tf.rseg',v);renderRetroCards();}
 function retroCard(p,badge,cls,dates,where,tag,body){
   return `<details class="rcard"><summary><div class="rh"><span class="exl" data-ex="planet:${p.id}">${glyph(p)} ${nm(p)} ℞</span>${badge?`<span class="badge ${cls}">${badge}</span>`:''}</div>${dates?`<div class="rd mono">${dates}</div>`:''}<div class="rd">${where}</div><div class="rtag">${tag}</div></summary><div class="rb">${body}</div></details>`;
@@ -1237,14 +1257,37 @@ function renderPlanets(){
   $('#planet-list').innerHTML=pts.map(p=>`<button type="button" class="prow" data-pick="natal:${p.id}"><span>${glyph(p)}</span><span>${nm(p)}</span><span><span class="gl" style="color:var(--${SIGNS[p.sign].el})">${SIGNS[p.sign].g}</span> ${sIn(p.sign)}</span><span class="pd mono">${fmtIn(p.lon)}${p.retro?' ℞':''}</span><span class="ph mono">${hl(homeHouse(p))}</span></button>`).join('');
   renderSky();renderRetroCal();renderRetroCards();setPseg(psegV);
 }
-document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.prow[data-pick]');if(!r)return;showTab('chart');selN=r.dataset.pick;renderNatal();});
+document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.prow[data-pick]');if(!r)return;if(isMobile()){pickNatal(r,true);return;}showTab('chart');selN=r.dataset.pick;renderNatal();});
 
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-function showTab(t){closeSheet();curTab=t;window.scrollTo(0,0);document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+/* ---------- finding your way: back gesture, a "you are here" line, each tab keeps its scroll ---------- */
+const TAB_KEY={chart:'tabChart',planets:'tabPlanets',transits:'tabTransits',learn:'tabLearn',me:'tabMe'},SEG_KEY={signs:'segSigns',sky:'segSky',retro:'segRetro',cycles:'segCycles',match:'segMatch'};
+const tabScroll={};
+const navState=()=>history.state||{};
+function navPush(extra){try{history.pushState({...navState(),tab:curTab,...extra},'','#'+curTab);}catch(e){}}
+function keepScroll(fn){const y=window.scrollY;fn();if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);}
+function setWhere(){let s=u(TAB_KEY[curTab]);
+  if(curTab==='planets')s+=' · '+u(SEG_KEY[psegV]);
+  if(curTab==='learn'&&!$('#quiz').hidden&&game)s+=' · '+L.games[game.k].t;
+  $('#mast-page').textContent=s;}
+function showTab(t,fromPop){
+  if(t===curTab&&!fromPop&&document.querySelector(`[data-panel="${t}"]`).hidden===false){closeSheet();window.scrollTo({top:0,behavior:calm()?'auto':'smooth'});return;}
+  tabScroll[curTab]=window.scrollY;closeSheet();
+  if(!fromPop){try{const s=history.state;if(!s||s.boot)history.replaceState({tab:t},'','#'+t);else history.pushState({tab:t},'','#'+t);}catch(e){}}
+  curTab=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
   document.querySelectorAll('[data-panel]').forEach(s=>s.hidden=s.dataset.panel!==t);
   if(t!=='transits')stopPlay();
   if(t!=='learn')stopTimer();
-  if(t==='planets')renderPlanets();if(t==='transits')renderTransits();if(t==='learn')renderGames();if(t==='me'){fillForm();renderLangs();}store.set('tf.tab',t);}
+  if(t==='planets')renderPlanets();if(t==='transits')renderTransits();if(t==='learn'&&$('#quiz').hidden)renderGames();if(t==='me'){fillForm();renderLangs();}store.set('tf.tab',t);
+  setWhere();window.scrollTo(0,tabScroll[t]||0);}
+window.addEventListener('popstate',e=>{const s=e.state||{},want=s.sheet||0,depth=sheetOpen()?sheetStack.length+1:0;
+  if(want<depth){if(want===0)closeSheet();else sheetTo(want);}
+  else if(want>depth){history.back();return;}
+  if(tourOpen&&!s.tour)closeTour();else if(!tourOpen&&s.tour){history.back();return;}
+  const quiz=!$('#quiz').hidden;
+  if(quiz&&!s.quiz)leaveQuiz();else if(!quiz&&s.quiz){history.back();return;}
+  if(s.tab&&s.tab!==curTab&&TAB_KEY[s.tab])showTab(s.tab,true);
+});
 
 /* ---------- form & saved charts ---------- */
 const fc=$('#f-city');
@@ -1318,6 +1361,7 @@ function setLang(c){
   if(curTab==='transits')renderTransits();
   if(curTab==='learn'){if(!$('#quiz').hidden&&game){stopTimer();$('#quiz').hidden=true;$('#games-home').hidden=false;}renderGames();}
   if(curTab==='me')fillForm();
+  setWhere();
 }
 $('#lang-top').addEventListener('change',e=>setLang(e.target.value));
 
@@ -1358,5 +1402,6 @@ applyStatic();
 boot();
 renderInstall();
 const h=(location.hash||'').slice(1),saved=store.get('tf.tab','transits');
-showTab(['chart','transits','learn','me'].includes(h)?h:(saved==='me'?'transits':saved));
+try{history.replaceState({boot:1},'',location.pathname+location.search);}catch(e){}
+curTab=null;showTab(['chart','planets','transits','learn','me'].includes(h)?h:(saved==='me'?'transits':saved));
 })();

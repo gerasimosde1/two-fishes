@@ -56,6 +56,8 @@ Added in one batch; the owner's girlfriend may not want all of them. Each is its
 
 Small delights: a sparkle and tiny vibration on every tap of an explainable item, tour graphics animate in (bars grow, aspect lines draw, petals and radar bloom), the sheet content fades in, and tapping the logo makes the sun wink and shows a joke from `L.ui.logoQuips`. All motion respects `prefers-reduced-motion`.
 
+Finding your way (she got lost easily): the phone's back button/gesture steps back through explanation sheets, the tour, a quiz and tab switches (`navPush`, `popstate` handler, `dismissSheet`, `leaveTour`, `leaveQuiz` in app.js; history states carry `{tab, sheet:depth, tour, quiz}`). Explanations opened from inside the sheet stack (`sheetStack`) with a Back button (ui `back`). Each tab keeps its scroll position, tapping the current tab scrolls to top, and the mobile header shows "Tab · section" (`setWhere`, `#mast-page`). Closing a sheet keeps the page where it was (`keepScroll`). Pull-to-refresh is off (`overscroll-behavior:none` on html), and a sheet can be pulled down from the top of its text to close. On phones, tapping a planet row on the Planets tab opens its reading right there.
+
 Gotcha: `.tl` is an existing timeline class (min-width 640px); do not reuse that name for new styles.
 
 ## App Store launch rules (do all of these before submitting)

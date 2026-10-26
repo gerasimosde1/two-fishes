@@ -56,7 +56,7 @@
   color-scheme:dark}
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:light;overscroll-behavior:none}
 [hidden]{display:none!important}
 img{max-width:100%}
 body{margin:0;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
@@ -199,7 +199,7 @@ nav.tabs button:hover{color:var(--pink)}
 .rcard .rb{padding:0 12px 12px}.rcard[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
 .badge.soon{color:var(--pink);border-color:var(--pink)}.rcard .badge{white-space:nowrap}
 .today-strip h2{margin:0 0 6px}.today-strip .tsl{display:flex;gap:8px;align-items:baseline;margin:4px 0;flex-wrap:wrap}.today-strip{min-width:0}.today-strip .chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:6px 0}.today-strip .chips .chip{margin:0}.today-strip .em{font-size:1.5rem;line-height:1}.today-strip .tadv{font-style:italic;margin:2px 0 8px}.today-strip .tvoid{font-size:.92rem;color:var(--ink-soft);margin:6px 0}
-.seg{overflow-x:auto}.seg button{flex:1 0 auto;padding:9px 12px}.seg.sm button{padding:7px 10px}
+.seg{flex-wrap:wrap}.seg button{flex:1 0 auto;padding:9px 12px}#pseg button{flex:1 1 30%}.seg.sm button{padding:7px 10px}
 .ret-card{border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:2px;margin:0 0 10px;background:var(--paper);padding:10px 12px}.ret-card .rh{font-family:var(--f-display);font-size:1.1rem}.ret-card p{margin:6px 0}.ret-card .rd{font-size:.88rem;color:var(--ink-soft)}
 .practice-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}.practice-bar:empty{display:none}
 .day-note{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:2px}
@@ -475,8 +475,9 @@ button,.chip,.hcell,.aitem,nav.tabs{touch-action:manipulation;-webkit-user-selec
   padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 #sheet.open{transform:none;visibility:visible}
 @media (prefers-reduced-motion:no-preference){#sheet{transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility .28s}}
-.sheet-grab{padding:10px 16px 4px;display:flex;justify-content:center;position:relative;cursor:grab;touch-action:none}
+.sheet-grab{padding:10px 16px 4px;min-height:44px;box-sizing:border-box;display:flex;justify-content:center;position:relative;cursor:grab;touch-action:none}
 .sheet-grab i{width:42px;height:5px;border-radius:3px;background:var(--ink-line);display:block}
+.sheet-back{position:absolute;left:8px;top:2px;border:1px solid var(--ink-line);background:var(--paper);border-radius:999px;padding:3px 12px 3px 9px;font-family:var(--f-display);font-size:.9rem;color:var(--ink);cursor:pointer}
 .sheet-x{position:absolute;right:10px;top:4px;border:0;background:none;font-size:1.6rem;line-height:1;color:var(--ink-soft);padding:4px 10px;cursor:pointer}
 #sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:4px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 body.sheet-open{overflow:hidden}
@@ -493,6 +494,8 @@ body.sheet-open{overflow:hidden}
   .who{margin-left:auto;width:auto}
   #edit-btn{display:none}
   .mast-date{display:block}
+  .mast .mast-page{display:block;font-family:var(--f-italic);font-style:italic;color:var(--pink);font-size:.95rem;line-height:1.15;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mast-t{min-width:0;flex:1}
   nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;margin:0;display:grid;grid-template-columns:repeat(5,1fr);gap:0;
     background:var(--card);border-top:1px solid var(--ink-line);border-bottom:0;
     padding:4px max(6px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px));
@@ -519,7 +522,7 @@ body.sheet-open{overflow:hidden}
   .swipe-hint{display:block}
 }
 @media (min-width:880px){#sheet,#scrim{display:none!important}}
-.mast-date,.swipe-hint{display:none}
+.mast-date,.swipe-hint,.mast-page{display:none}
 .swipe-hint{text-align:center;font-size:.85rem;color:var(--ink-soft);margin:4px 0 0}
 </style>
 </head>
@@ -552,6 +555,7 @@ body.sheet-open{overflow:hidden}
     <div class="mast-t">
       <h1>Two <span>Fishes</span></h1>
       <div class="sub" data-i18n="sub"></div>
+      <div class="mast-page" id="mast-page" aria-live="polite"></div>
     </div>
     <div class="who">
       <select id="lang-top" class="lang-top" data-i18n-aria="language"></select>
@@ -767,7 +771,7 @@ body.sheet-open{overflow:hidden}
 </div>
 <div id="scrim" hidden></div>
 <div id="sheet" role="dialog" aria-modal="true">
-  <div class="sheet-grab" id="sheet-grab"><i></i><button class="sheet-x" type="button" id="sheet-x" data-i18n-aria="close">×</button></div>
+  <div class="sheet-grab" id="sheet-grab"><button class="sheet-back" type="button" id="sheet-back" hidden>‹ <span data-i18n="back"></span></button><i></i><button class="sheet-x" type="button" id="sheet-x" data-i18n-aria="close">×</button></div>
   <div id="sheet-body"></div>
 </div>
 
