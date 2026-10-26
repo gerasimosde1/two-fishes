@@ -756,6 +756,10 @@ const TEN=PLANETS.slice(0,10);
 const signDist=(a,b)=>{const d=Math.abs(Math.floor(a/30)-Math.floor(b/30));return Math.min(d,12-d);};
 const GT=k=>L.games[k]||EN.games[k];
 const Q=new Proxy({},{get:(_,k)=>(L.q[k]||EN.q[k])});
+const CLASSICAL=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn'];
+const trad=z=>SIGNS[z].rulers[SIGNS[z].rulers.length-1];
+const posOf=l=>`${fmtIn(l)} ${sN(Math.floor(l/30))}`;
+const ageNow=()=>{const [y,m,d]=profile.date.split('-').map(Number),t=new Date();return t.getFullYear()-y-(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d)?1:0);};
 const GAMES={
   glyphs:{lvl:'beginner',i:'♓'+VS,gen(){
     if(Math.random()<.5){const p=pick(TEN);return {g:p.g,q:Q.whichPlanet(),ans:pN(p.id),options:opts(pN(p.id),TEN.map(x=>pN(x.id))),why:`${p.g} = ${pN(p.id)}: ${pKey(p.id)}.`};}
@@ -845,9 +849,63 @@ const GAMES={
       return {g,q:Q.readHouseQ(id,hh),ans,options:opts(ans,pool),why:Q.readWhy(id,hl(hh),pihText(id,hh)),long:1};}
     const ans=clue(pinText(id,p.sign),badS),pool=SIGNS.filter(z=>z.i!==p.sign).map(z=>clue(pinText(id,z.i),badS));
     return {g,q:Q.readSignQ(id,p.sign),ans,options:opts(ans,pool),why:Q.readWhy(id,sN(p.sign),pinText(id,p.sign)),long:1};}},
+  sect:{lvl:'hard',i:'☼',gen(){
+    const k=pick(['house','house','benefic','malefic','light',...(profile.unknown?[]:['mine'])]),day=Math.random()<.5,dn=d=>d?Q.optDay():Q.optNight(),both=[Q.optDay(),Q.optNight()];
+    if(k==='house'){const n=rnd(12)+1,d=n>=7;return {g:PDEF.Sun.g,q:Q.sectHouseQ(n),ans:dn(d),options:both,why:Q.sectHouseWhy(n,d)};}
+    if(k==='mine'){const d=isDay(natal);return {g:PDEF.Sun.g,q:Q.sectMineQ(),ans:dn(d),options:both,why:Q.sectMineWhy(natal.byId.Sun.house,d)};}
+    const id={benefic:day?'Jupiter':'Venus',malefic:day?'Mars':'Saturn',light:day?'Sun':'Moon'}[k];
+    return {g:'',q:Q.sectRoleQ(k,day),ans:pN(id),options:opts(pN(id),CLASSICAL.map(pN)),why:Q.sectRoleWhy(k,day,id)};}},
+  moonphase:{lvl:'hard',i:'◐',gen(){
+    const sun=rnd(360)+rnd(60)/60;
+    if(Math.random()<.6){const k=rnd(8),ang=norm(k*45+(Math.random()*24-12));
+      return {g:PDEF.Moon.g,q:Q.phaseQ(posOf(sun),posOf(norm(sun+ang))),ans:L.moonPhases[k],options:opts(L.moonPhases[k],L.moonPhases),why:Q.phaseWhy(Math.round(ang),k)};}
+    // exact quarters only, so the Moon's sign is certain
+    const k=pick([0,2,4,6]),z=Math.floor(sun/30),mz=(z+k*1.5)%12;
+    return {g:PDEF.Moon.g,q:Q.phaseSignQ(L.moonPhases[k],posOf(sun)),ans:sN(mz),options:opts(sN(mz),SIGNS.map(x=>sN(x.i))),why:Q.phaseSignWhy(k,z,mz)};}},
+  transithouse:{lvl:'hard',i:'⌖',gen(){
+    const p=pick(TEN.filter(x=>LONG_IDS.includes(x.id))),l=rnd(360)+rnd(60)/60,z=Math.floor(l/30);
+    if(profile.unknown||Math.random()<.35){const R=rnd(12),n=(z-R+12)%12+1;
+      return {g:p.g,q:Q.wholeHouseQ(p.id,posOf(l),R),ans:hl(n),options:opts(hl(n),L.houses.map((_,i)=>hl(i+1))),why:Q.wholeHouseWhy(R,z,n)};}
+    // the wrong answers are the neighbouring houses, so the cusp degrees matter
+    const n=houseOf(l,natal.cusps);
+    return {g:p.g,q:Q.myHouseQ(p.id,posOf(l)),ans:hl(n),options:shuffle([n,n%12+1,(n+10)%12+1,(n+1)%12+1].map(hl)),why:Q.myHouseWhy(n,posOf(natal.cusps[n-1]),posOf(natal.cusps[n%12]))};}},
+  decans:{lvl:'expert',i:'❖',gen(){
+    let l=rnd(360)+rnd(60)/60,who=null;
+    if(Math.random()<.35){const p=pick(natal.pts.filter(x=>TEN.some(t=>t.id===x.id)));l=p.lon;who=p.id;}
+    const z=Math.floor(l/30),r=FACE[Math.floor(l/10)%7];
+    return {g:SIGNS[z].g,q:Q.decanQ(posOf(l),who),ans:pN(r),options:opts(pN(r),CLASSICAL.map(pN)),why:Q.decanWhy(z,Math.floor(l%30/10),r,FACE[z*3%7])};}},
+  patterns:{lvl:'expert',i:'✶',gen(){
+    const k=pick(['gt','gt','tsq','tsq','gx','yod','yod','kite','rect','stel','none','none']),a=rnd(360),j=m=>(Math.random()*2-1)*m;
+    const SH={gt:[0,120,240],tsq:[0,180,90],gx:[0,90,180,270],yod:[0,150,210],kite:[0,120,240,180],rect:[0,60,180,240]};
+    let ls,base=null;
+    if(k==='stel'){const z=rnd(12);ls=shuffle([2,9,16,23,27]).slice(0,4).map(d=>z*30+d+j(1.5));}
+    // an almost-pattern: the third planet is pushed 12-15° off, so neither of its aspects holds
+    else if(k==='none'){base=pick(['gt','tsq']);ls=SH[base].map(x=>a+x+j(1.5));ls[2]+=(Math.random()<.5?1:-1)*(12+rnd(4));}
+    else ls=SH[k].map(x=>a+x+j(k==='yod'?1.2:k==='kite'||k==='rect'?2:3));
+    ls=ls.map(norm);
+    const pts=shuffle(shuffle(TEN).slice(0,ls.length).map((p,i)=>({p,l:ls[i]}))),names=Q.patNames;
+    const q=`<span class="gl" style="font-size:1.35rem">${pts.map(x=>`${x.p.g} ${fmtIn(x.l)} ${SIGNS[Math.floor(x.l/30)].g}`).join(' &nbsp;·&nbsp; ')}</span><br>${pts.map(x=>`${pN(x.p.id)} ${posOf(x.l)}`).join(', ')}. ${Q.patternQ()}`;
+    return {g:'',q,ans:names[k],options:opts(names[k],Object.values(names),5),why:Q.patternWhy(k,base,Math.round(sep(ls[2],ls[0])),Math.round(sep(ls[2],ls[1])))};}},
+  profections:{lvl:'expert',i:'⟳',gen(){
+    const mine=!profile.unknown&&Math.random()<.4,R=mine?natal.byId.ASC.sign:rnd(12),age=mine?ageNow():rnd(80)+1;
+    const n=age%12+1,z=(R+age%12)%12,lord=trad(z),why=Q.profWhy(R,age,n,z,lord,mine?natal.byId[lord].house:0);
+    if(Math.random()<.5)return {g:'',q:Q.profHouseQ(R,age,mine),ans:hl(n),options:opts(hl(n),L.houses.map((_,i)=>hl(i+1))),why};
+    return {g:SIGNS[R].g,q:Q.profLordQ(R,age,mine),ans:pN(lord),options:opts(pN(lord),CLASSICAL.map(pN)),why};}},
+  mirrors:{lvl:'expert',i:'⇋',gen(){
+    const z=rnd(12),d=rnd(29)+1,c=Math.random()<.4,anti=(17-z)%12,contra=11-z,mz=c?contra:anti,md=30-d,f=(dd,zz)=>`${dd}° ${sN(zz)}`;
+    const ans=f(md,mz);
+    return {g:SIGNS[z].g,q:Q.mirrorQ(f(d,z),c),ans,options:opts(ans,[f(d,mz),f(md,c?anti:contra),f(d,(z+6)%12),f(md,(mz+1)%12),f(md,(mz+11)%12)]),why:Q.mirrorWhy(c,z,mz,d,md)};}},
+  chain:{lvl:'expert',i:'∞',gen(){
+    if(Math.random()<.3){const fin=tourFlow().fin,ans=fin?pN(fin):Q.noFinal();
+      return {g:'',q:Q.finalQ(),ans,options:opts(ans,[...TEN.map(x=>pN(x.id)),Q.noFinal()]),why:Q.finalWhy(fin)};}
+    const p=pick(natal.pts.filter(x=>TEN.some(t=>t.id===x.id))),r1=SIGNS[p.sign].rulers[0],p1=natal.byId[r1],r2=SIGNS[p1.sign].rulers[0];
+    return {g:p.g,q:Q.chainQ(p.id,p.sign),ans:pN(r2),options:opts(pN(r2),TEN.map(x=>pN(x.id))),why:Q.chainWhy(p.id,p.sign,r1,p1.sign,r2)};}},
   mistakes:{lvl:'practice',i:'↺',gen(){return {...game.queue[game.i]};}},
   exam:{lvl:'expert',i:'✦',total:15,timer:20,gen(){
-    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements','domains','natural','whoswhere','dignity']),q=GAMES[k].gen();q.from=GT(k).t;return q;}}
+    const k=pick(['aspects','timing','degrees','aspectpro','rulersmine','combos','mine','rulers','houses','elements','domains','natural','whoswhere','dignity','sect','moonphase','transithouse','decans','profections','mirrors']),q=GAMES[k].gen();q.from=GT(k).t;return q;}},
+  // one wrong answer ends the run; the score is the length of the streak
+  sudden:{lvl:'expert',i:'⚡'+VS,total:50,timer:15,sudden:1,gen(){
+    const k=pick(['degrees','aspectpro','rulersmine','combos','dignity','sect','moonphase','transithouse','decans','patterns','profections','mirrors','chain']),q=GAMES[k].gen();q.from=GT(k).t;return q;}}
 };
 let game=null,qTimer=null;
 const LEVELS=['beginner','intermediate','hard','expert'];
@@ -855,7 +913,7 @@ const total=()=>game.n||GAMES[game.k].total||10;
 function renderGames(){
   const best=store.get('tf.best',{}),missed=store.get('tf.missed',[]).filter(x=>x.lang===LANG).length,pr=store.get('tf.practice',{last:'',streak:0});
   const live=pr.last===new Date().toISOString().slice(0,10)||pr.last===new Date(Date.now()-DAY).toISOString().slice(0,10);
-  $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${GT(k).t}</h3><p>${GT(k).d}</p><span class="best">${best[k]!=null?F.best(best[k],g.total||10):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
+  $('#games').innerHTML=`<div class="practice-bar">${live&&pr.streak?`<span class="badge">🔥 ${F.practiceStreak(pr.streak)}</span>`:''}${missed?`<button type="button" class="btn pri sm" data-game="mistakes">${F.mistakesCta(missed)}</button>`:''}</div>`+LEVELS.map(l=>`<h3 class="lvl">${L.levels[l]}</h3><div class="games">${Object.entries(GAMES).filter(([,g])=>g.lvl===l).map(([k,g])=>`<button type="button" class="gcard" data-game="${k}"><span class="gi">${g.i}</span><h3>${GT(k).t}</h3><p>${GT(k).d}</p><span class="best">${best[k]!=null?(g.sudden?Q.suddenBest(best[k]):F.best(best[k],g.total||10)):u('notPlayed')}</span></button>`).join('')}</div>`).join('');
 }
 function startGame(k){if($('#quiz').hidden)navPush({quiz:1});game={k,i:0,score:0,res:[],streak:0,bestStreak:0};
   if(k==='mistakes'){const m=store.get('tf.missed',[]).filter(x=>x.lang===LANG);game.queue=shuffle(m).slice(0,10).map(x=>x.q);game.n=game.queue.length;
@@ -880,27 +938,27 @@ function answerQ(idx){if(game.picked!=null)return;stopTimer();game.picked=idx;co
 function renderQ(){
   const q=game.q,G=GAMES[game.k],N=total();
   const dots=Array.from({length:N},(_,i)=>`<i class="${game.res[i]===true?'ok':game.res[i]===false?'no':i===game.i?'cur':''}"></i>`).join('');
-  let h=`<div class="qhead"><div><div class="eyebrow">${GT(game.k).t}${q.from?' · '+q.from:''}</div><div class="mono muted" style="font-size:.85rem">${F.qHead(game.i+1,N,game.score,game.streak)}${G.timer&&game.picked==null?` · <b id="q-timer" style="color:var(--pink)">${game.left}s</b>`:''}</div></div><div class="dots">${dots}</div></div>
+  let h=`<div class="qhead"><div><div class="eyebrow">${GT(game.k).t}${q.from?' · '+q.from:''}</div><div class="mono muted" style="font-size:.85rem">${F.qHead(game.i+1,G.sudden?'∞':N,game.score,game.streak)}${G.timer&&game.picked==null?` · <b id="q-timer" style="color:var(--pink)">${game.left}s</b>`:''}</div></div><div class="dots">${G.sudden?'':dots}</div></div>
   <div class="qprompt">${q.g?`<span class="qg">${q.g==='AC'||q.g==='MC'?`<span class="mono" style="font-size:.6em">${q.g}</span>`:q.g}</span>`:''}<div class="qt">${q.q}</div></div>
   <div class="qopts${q.long?' long':''}">${q.options.map((o,i)=>{let c='';if(game.picked!=null){if(o===q.ans)c=' right';else if(i===game.picked)c=' wrong';}
     return `<button type="button" class="qopt${c}" data-opt="${i}"${game.picked!=null?' disabled':''}>${esc(cap(o))}</button>`;}).join('')}</div>`;
   if(game.picked!=null){const ok=game.picked>=0&&q.options[game.picked]===q.ans;
     h+=`<div class="qfb${ok?'':' no'}"><b>${ok?u('correct'):game.picked<0?F.timesUp(esc(q.ans)):F.notQuite(esc(q.ans))}</b> ${q.why}</div>
-    <div class="form-actions"><button class="btn pri" type="button" id="q-next">${game.i>=N-1?u('seeScore'):u('nextQ')}</button><button class="btn" type="button" id="q-quit">${u('backGames')}</button></div>`;}
+    <div class="form-actions"><button class="btn pri" type="button" id="q-next">${game.i>=N-1||(G.sudden&&!ok)?u('seeScore'):u('nextQ')}</button><button class="btn" type="button" id="q-quit">${u('backGames')}</button></div>`;}
   else h+=`<div class="form-actions"><button class="btn" type="button" id="q-quit">${u('backGames')}</button></div>`;
   $('#quiz').innerHTML=h;
 }
 function endGame(){
   stopTimer();const N=total(),best=store.get('tf.best',{}),prev=best[game.k];if(prev==null||game.score>prev){best[game.k]=game.score;store.set('tf.best',best);}
-  const pct=game.score/N,msg=pct>=.9?u('msgHigh'):pct>=.6?u('msgMid'):u('msgLow');
-  $('#quiz').innerHTML=`<div class="score"><div class="eyebrow">${GT(game.k).t}</div><div class="n">${game.score}<span style="font-size:.4em;color:var(--ink-soft)"> / ${N}</span></div><p class="it" style="font-size:1.2rem">${msg}</p>
+  const pct=game.score/N,sd=GAMES[game.k].sudden,msg=sd?Q.suddenMsg(game.score):pct>=.9?u('msgHigh'):pct>=.6?u('msgMid'):u('msgLow');
+  $('#quiz').innerHTML=`<div class="score"><div class="eyebrow">${GT(game.k).t}</div><div class="n">${game.score}${sd?'':`<span style="font-size:.4em;color:var(--ink-soft)"> / ${N}</span>`}</div><p class="it" style="font-size:1.2rem">${msg}</p>
   <p class="mono muted">${F.longestStreak(game.bestStreak,prev!=null&&game.score>prev)}</p>
   <div class="form-actions" style="justify-content:center"><button class="btn pri" type="button" id="q-again">${u('playAgain')}</button><button class="btn" type="button" id="q-quit">${u('backGames')}</button></div></div>`;
 }
 $('#quiz').addEventListener('click',e=>{
   const o=e.target.closest('[data-opt]');
   if(o&&game.picked==null){answerQ(+o.dataset.opt);return;}
-  if(e.target.closest('#q-next')){game.i++;nextQ();}
+  if(e.target.closest('#q-next')){if(GAMES[game.k].sudden&&game.res[game.i]===false)return endGame();game.i++;nextQ();}
   else if(e.target.closest('#q-again'))startGame(game.k);
   else if(e.target.closest('#q-quit')){if(navState().quiz)history.back();else leaveQuiz();}
 });

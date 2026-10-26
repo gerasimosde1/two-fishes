@@ -538,5 +538,61 @@ Object.assign(L.q,{
  readWhy:(id,where,full)=>`That is your ${L.planets[id].n} in ${where}. The whole reading: ${full}`
 });
 L.games.readmine={t:'Read My Chart',d:'Real readings of your own placements, mixed with readings of other signs and houses. Pick the one that is about you.'};
+/* harder games (English only for now) */
+const nth=k=>['first','second','third'][k];
+Object.assign(L.games,{
+ sect:{t:'Day or Night?',d:'Sect: day and night charts, the helper and the troublemaker that swap sides, and which light is in charge.'},
+ moonphase:{t:'Phase Finder',d:'From two degrees, name the Moon’s phase. From a phase, find the Moon’s sign.'},
+ transithouse:{t:'Where Does It Land?',d:'Drop a slow transit into your own houses, or into whole-sign houses. The cusps are the trap.'},
+ decans:{t:'Decan Rulers',d:'The Chaldean faces: which planet rules each ten degrees, your own placements included.'},
+ patterns:{t:'Pattern Hunter',d:'Grand Trines, T-squares, Yods, Kites, and the almost-patterns that never quite close.'},
+ profections:{t:'Lord of the Year',d:'Annual profections: count the houses by age and find who runs the year, yours included.'},
+ mirrors:{t:'Mirror Degrees',d:'Antiscia and contra-antiscia: flip a degree across the solstice or equinox axis.'},
+ chain:{t:'Dispositor Chain',d:'Follow your planets up their chain of rulers, two steps or all the way to the top.'},
+ sudden:{t:'Sudden Death',d:'Hard and expert questions, 15 seconds each. One wrong answer and it’s over. How far can you go?'}
+});
+Object.assign(L.q,{
+ optDay:()=>'Day chart',optNight:()=>'Night chart',
+ sectHouseQ:n=>`The Sun sits in the ${L.hl(n)}. Is this a day chart or a night chart?`,
+ sectHouseWhy:(n,d)=>`Houses 7 to 12 are above the horizon, houses 1 to 6 below it. The Sun in the ${L.hl(n)} is ${d?'above the horizon, so this birth happened in daylight: a day chart':'below the horizon, so this birth happened after sunset or before sunrise: a night chart'}. Sect quietly decides which planets behave themselves.`,
+ sectMineQ:()=>'Is your own chart a day chart or a night chart?',
+ sectMineWhy:(n,d)=>`Your Sun is in the ${L.hl(n)}, ${d?'above the horizon: a day chart. The Sun leads, Jupiter is your kindest helper, and Mars is the one to keep an eye on.':'below the horizon: a night chart. The Moon leads, Venus is your kindest helper, and Saturn is the one that weighs heaviest.'}`,
+ sectRoleQ:(k,d)=>`In a ${d?'day':'night'} chart, which planet is ${{benefic:'the benefic of sect (the strongest helper)',malefic:'the malefic contrary to sect (the hardest-hitting one)',light:'the sect light (the one in charge)'}[k]}?`,
+ sectRoleWhy:(k,d,id)=>`${L.planets[id].n}. By day the team is the Sun, Jupiter and Saturn; by night it is the Moon, Venus and Mars. ${{benefic:`A benefic on the winning team helps most, so by ${d?'day that is Jupiter':'night that is Venus'}.`,malefic:`A malefic on its own team behaves; the one on the other team is the rough one. By ${d?'day Mars runs hot with nothing to cool it':'night Saturn turns cold with nothing to warm it'}.`,light:`The sect light is simply the light of the hour: ${d?'the Sun by day':'the Moon by night'}.`}[k]}`,
+ phaseQ:(s,m)=>`The Sun is at ${s} and the Moon at ${m}. Which phase is the Moon in?`,
+ phaseWhy:(a,k)=>`Count forwards from the Sun to the Moon: about ${a}°. Each phase sits around a 45° mark: 0° New, 45° Waxing Crescent, 90° First Quarter, 135° Waxing Gibbous, 180° Full, then 225°, 270° and 315° on the way back down. So this is the ${L.moonPhases[k]}.`,
+ phaseSignQ:(ph,s)=>`It is the ${ph} and the Sun is at ${s}. Which sign is the Moon in?`,
+ phaseSignWhy:(k,z,m)=>{const S=L.signs[z].n,M=L.signs[m].n;return {0:`At a New Moon the Moon sits right on top of the Sun, so it is in ${S} too.`,2:`At the First Quarter the Moon is 90° ahead of the Sun: three signs on from ${S}, so ${M}.`,4:`At a Full Moon the Moon is opposite the Sun: six signs on from ${S}, so ${M}.`,6:`At the Last Quarter the Moon is 90° behind the Sun: three signs back from ${S}, so ${M}.`}[k];},
+ wholeHouseQ:(id,pos,R)=>`Someone has ${L.signs[R].n} Rising and uses whole-sign houses. Transiting ${L.planets[id].n} is at ${pos}. Which of their houses is that?`,
+ wholeHouseWhy:(R,z,n)=>`In whole-sign houses the Rising sign is the whole 1st house, and each sign after it is the next house. ${L.signs[z].n} is ${n===1?'the Rising sign itself':`${n-1} sign${n>2?'s':''} after ${L.signs[R].n}`}, so it is the ${L.hl(n)}. Degrees don’t matter here, which is half the charm.`,
+ myHouseQ:(id,pos)=>`Transiting ${L.planets[id].n} reaches ${pos}. Which of your houses is it in?`,
+ myHouseWhy:(n,a,b)=>`Your ${L.hl(n)} starts at ${a} and runs until the next cusp at ${b}, so the transit lands there. Near a cusp, check the exact degree: one degree can move a whole year of Saturn into the next room.`,
+ decanQ:(pos,who)=>who?`Your ${L.planets[who].n} is at ${pos}. Which planet rules its decan (Chaldean face)?`:`Which planet rules the decan (Chaldean face) at ${pos}?`,
+ decanWhy:(z,dk,r,first)=>`${L.signs[z].n} opens with a ${L.planets[first].n} decan, and the faces then follow the Chaldean order Mars → Sun → Venus → Mercury → Moon → Saturn → Jupiter, ten degrees each. This is the ${nth(dk)} decan: ${L.planets[r].n}. Shortcut: the first decans walk through the week. Aries starts on Mars (Tuesday), Taurus on Mercury (Wednesday), Gemini on Jupiter (Thursday), Cancer on Venus (Friday), and so on.`,
+ patternQ:()=>'Which pattern do these planets make? Pick the fullest shape.',
+ patNames:{gt:'Grand Trine',tsq:'T-square',gx:'Grand Cross',yod:'Yod (Finger of God)',kite:'Kite',rect:'Mystic Rectangle',stel:'Stellium',none:'No pattern: the shape doesn’t close'},
+ patternWhy:(k,base,d1,d2)=>({gt:'Three planets about 120° apart, each trine the other two: a closed loop of ease. Gifted, and sometimes too comfortable to bother.',
+  tsq:'Two planets in opposition, with a third square to both. The planet at the tip takes the pressure and becomes the engine of the chart.',
+  gx:'Four planets in two oppositions, all square to each other. There are four T-squares inside it, but the full cross wins. Tension in every direction, and remarkable stamina.',
+  yod:'Two planets sextile each other, both quincunx (150°) a third. The planet at the tip is the "finger": always being asked to adjust. Yods need tight orbs, so check the degrees.',
+  kite:'A Grand Trine with a fourth planet opposite one corner and sextile the other two. The opposition gives the easy trine somewhere to fly.',
+  rect:'Two oppositions joined by sextiles and trines into a rectangle. Tension with its own built-in ways to calm down.',
+  stel:'Four planets packed into one sign. That sign and its house get a crowd, and the rest of the chart tends to orbit around it.',
+  none:`It looks like a ${base==='gt'?'Grand Trine':'T-square'}, but one planet is off: it sits ${d1}° and ${d2}° from the others, too far for either aspect to hold. Almost-patterns are the classic trap, so always check the orbs.`}[k]),
+ profHouseQ:(R,age,mine)=>mine?`You are ${age} this year. Counting annual profections from your ${L.signs[R].n} Rising, which house is your year?`:`Someone with ${L.signs[R].n} Rising turns ${age}. Using annual profections, which house is their year?`,
+ profLordQ:(R,age,mine)=>mine?`You are ${age} this year. With ${L.signs[R].n} Rising, who is your Lord of the Year (annual profections, traditional rulers)?`:`Someone with ${L.signs[R].n} Rising turns ${age}. Who is their Lord of the Year (annual profections, traditional rulers)?`,
+ profWhy:(R,age,n,z,lord,h)=>`Each birthday moves the year one house on: age 0 is the 1st house, 1 the 2nd, and every 12 years you are back in the 1st. ${age%12===0?`${age} is a multiple of 12`:age>12?`${age} is ${age-age%12} + ${age%12}`:`${age} is ${age} step${age===1?'':'s'} on`}, so it is the ${L.hl(n)}, which in a ${L.signs[R].n}-Rising chart is ${L.signs[z].n}. Its traditional ruler, ${L.planets[lord].n}, is the Lord of the Year${h?`. Yours sits in your ${L.hl(h)}, so that part of life gets a lot of airtime this year`:''}. Watch its transits closely all year.`,
+ mirrorQ:(pos,c)=>c?`What is the contra-antiscion of ${pos}?`:`What is the antiscion (mirror degree) of ${pos}?`,
+ mirrorWhy:(c,z,mz,d,md)=>`${c?'Contra-antiscia mirror the zodiac across the Aries–Libra axis, the equinoxes.':'Antiscia mirror the zodiac across the Cancer–Capricorn axis, the solstices: two points the same distance from a solstice get the same length of daylight.'} ${L.signs[z].n} pairs with ${L.signs[mz].n}, and the degree flips: ${d}° becomes 30 − ${d} = ${md}°. Two planets on each other’s mirror degree act a bit like a secret conjunction.`,
+ chainQ:(id,s)=>`Your ${L.planets[id].n} is in ${L.signs[s].n}. Go two steps up the chain: the ruler of ${L.signs[s].n}, then the ruler of the sign that planet sits in. Where do you land?`,
+ chainWhy:(id,s,r1,s1,r2)=>{const P=x=>(['Sun','Moon'].includes(x)?'the ':'')+L.planets[x].n,Y=`your ${L.planets[id].n}`;
+  if(r1===id)return `${cap(Y)} is at home in ${L.signs[s].n}, so the chain stops right there: it answers to no one but itself.`;
+  return `${cap(Y)} in ${L.signs[s].n} answers to ${P(r1)}. Your ${L.planets[r1].n} is in ${L.signs[s1].n}, which answers to ${P(r2)}. `+(r2===id?`So the chain loops straight back to ${Y}: the two sit in each other’s signs (a mutual reception) and run things as a pair.`:`So ${P(r2)} is ${Y}’s boss’s boss: whatever happens to it ripples down the chain.`);},
+ finalQ:()=>'Follow every planet in your chart up its chain of rulers. Do they all end at one final dispositor? Which?',
+ noFinal:()=>'No single final dispositor',
+ finalWhy:id=>id?`Every chain in your chart ends at ${L.planets[id].n}, the one planet sitting in its own sign. A final dispositor is the chart’s quiet manager: in the end, everything reports to it.`:`The chains in your chart don’t all end at one planet: they loop between planets, or split between more than one planet at home. No single boss, so the power is shared. Plenty of fine charts work this way.`,
+ suddenMsg:n=>n>=15?`${n} in a row. That is astrologer-with-a-waiting-list territory.`:n>=8?`${n} in a row. Properly impressive.`:n>=3?`${n} in a row. A good warm-up; the stars are patient.`:`${n} in a row. Everyone falls at the first fence sometimes. Again?`,
+ suddenBest:n=>`Best run: ${n}`
+});
 (window.TF_LANGS=window.TF_LANGS||{}).en=L;
 })();
